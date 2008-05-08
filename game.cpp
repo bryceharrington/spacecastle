@@ -47,8 +47,8 @@ void Game::reset() {
     canon->is_hit = FALSE;
     canon->is_alive = TRUE;
 
-    player->p.x = WIDTH / 3 * FIXED_POINT_SCALE_FACTOR;
-    player->p.y = (HEIGHT - 150) * FIXED_POINT_SCALE_FACTOR;
+    player->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
+    player->p.y = 150 * FIXED_POINT_SCALE_FACTOR;
     player->p.vx = 0;
     player->p.vy = 0;
     player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
