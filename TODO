@@ -1,0 +1,84 @@
+Development principles:
+=======================
+   * Strive to always keep the game(s) playable without regression
+   * Make as much of the engine configurable/overrideable as possible
+   * Prefer existing libs over homegrown stuff
+   * Copy from other sources in preference to re-invention
+   * When inventing, do the least possible to get it working
+   * When re-inventing, create something an order of magnitude better
+
+Space Castle (Inspired by Star Castle / Yars Revenge)
+============
+* (DONE) Make both ctrl keys and space bar fire
+* Move constants to variables
+* Enable collisions with each ring
+* Shields
+  - (DONE) Revert shields from gradients to wedges
+  - Each wedge requires 2 hits to be destroyed
+  - If the outer ring is destroyed, the next one will expand out to take 
+    the place of the outer one
+  - Once the shields are breached, the canon can fire
+* Add scoring system
+* AI for cannon
+  - Slowly track the player's ship at all times
+* AI for homing mines
+* Homing mines
+  - There are 3 of them
+  - Ship is damaged by contact with a mine
+  - The mines can be shot and destroyed, but this is hard
+  - Mines will continue circulating until destroyed
+  - When a ring is regenerated, the mines are revived
+* Once the cannon is destroyed, go to the next level
+  - Player gets an extra ship
+  - In each level, things move faster
+
+Space Castle Development Objectives
+===================================
+1.  Produce a functional, distributable game that uses cairo
+2.  Abstract a GameObject class, with reusable structure around it
+3.  Abstract a Game class I can reuse
+
+Keep it simple, keep the goals modest, don't try to solve the world,
+just try to get the game completed and make the code in a way I *may* be
+able to reuse it later.
+
+Todo
+====
+* Create top level game application object
+  - Move #defines into a game application object
+  - Move all the static globals into this object
+* Change all x/y math to use the Point class (which is roughly similar
+  to 2geom, to make transitioning easier)
+* Put into bzr
+* Move all cairo_ calls in inkdrop.cpp to separate file(s)
+  - Decide how to handle color stops and fills
+    + Review how Inkscape handles color
+  - (DONE) Add path-parser.cpp, etc. to makefile and get it all to
+    compile
+  - Refactor inkdrop.cpp drawing code to use SVG path strings
+    instead of direct cairo calls
+  - Add Path objects into game object classes
+  - Figure out how to handle patterns
+  - Generalize the cairo text screen writing a bit more
+* Give a simple AI for the enemy ship
+  - Make it rotate to track the main player
+  - Make it shoot randomly
+* Add high score system
+  - Adapt from gnome-games ?
+  - Score is simply the time required to destroy the opponent
+  - Save to ~/.config/games/$game/scores.txt
+* Design a goal-based condition system
+  - Checks for different winning criteria
+  - Checks for criteria that puts game into the next 'mode' or 'phase'
+  - Goals can be listed as lua statements, e.g.:
+     if player1.AchievesGoal and player2.AchievesGoal then player1.Win
+     and player2.Win
+* Simplify the header includes
+
+Later
+=====
+* Integrate ODE (www.ode.org)
+* Integrate Lua
+* Integrate SVG+JS DOM library 
+* Integrate 2geom
+* http://www.openclipart.org/cgi-bin/navigate/signs_and_symbols/map_symbols?page=8
