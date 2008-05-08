@@ -40,7 +40,7 @@ static long get_time_millis (void);
 static void init_trigonometric_tables (void);
 static void on_collision (GameObject *player, GameObject *missile);
 static int ring_segment_hit (GameObject *ring, GameObject *missile);
-static void on_ring_segment_collision (GameObject * ring, GameObject * m);
+static void on_ring_segment_collision (GameObject * ring, GameObject * m, int segment);
 gint on_expose_event (GtkWidget *, GdkEventExpose *);
 gint on_key_event (GtkWidget *, GdkEventKey *, gboolean);
 gint on_timeout (gpointer);
@@ -596,14 +596,8 @@ on_timeout (gpointer data)
 
   if (check_for_collision (&(game->canon->p), &(game->player->p)))
     {
-      int p1vx;
-      int p1vy;
-      int p2vx;
-      int p2vy;
-
-      int dvx;
-      int dvy;
-      int dv2;
+      int p1vx, p1vy, p2vx, p2vy;
+      int dvx, dvy, dv2;
       int damage;
 
       enforce_minimum_distance (&(game->canon->p), &(game->player->p));
@@ -647,11 +641,17 @@ on_timeout (gpointer data)
                   if (!game->rings[j].is_alive)
                       continue;
 
-                  if (check_for_ring_segment_collision (&(game->missiles[i].p), &(game->rings[j].p)))
+                  if (check_for_ring_segment_collision (&(game->rings[j].p), &(game->missiles[i].p)))
                   {
-                      printf("Collision of missile %d with ring %d\n", i, j);
+                      int segment = ring_segment_hit(&(game->rings[j]),
+                                                     &(game->missiles[i]));
 
-                      on_ring_segment_collision (&(game->rings[j]), &(game->missiles[i]));
+                      printf("Collision of missile %d with ring %d segment %d\n",
+                             i, j, segment);
+
+                      on_ring_segment_collision (&(game->rings[j]),
+                                                 &(game->missiles[i]),
+                                                 segment);
                   }
               }
 	    }
@@ -667,9 +667,9 @@ on_timeout (gpointer data)
   int rot = 1;
   for (i = 0; i < MAX_NUMBER_OF_RINGS; i++)
   {
-      //      rot *= -1;
-      //      game->rings[i].p.rotation = (rot + game->rings[i].p.rotation)
-      //          % NUMBER_OF_ROTATION_ANGLES;
+      rot *= -1;
+      game->rings[i].p.rotation = (rot + game->rings[i].p.rotation)
+          % NUMBER_OF_ROTATION_ANGLES;
   }
 
   if (game->canon->energy <= 0)
@@ -708,6 +708,7 @@ operate_canon (GameObject * canon, GameObject * player)
 
     if (! player->is_alive) {
         /* TODO:  Reset */
+        canon->is_firing = FALSE;
         return;
     }
 
@@ -873,7 +874,7 @@ check_for_collision (physics_t * p1, physics_t * p2)
 
 
 static gboolean
-check_for_ring_segment_collision (physics_t * p1, physics_t * ring)
+check_for_ring_segment_collision (physics_t * ring, physics_t * p1)
 {
   int dx = (p1->x - ring->x) / FIXED_POINT_HALF_SCALE_FACTOR;
   int dy = (p1->y - ring->y) / FIXED_POINT_HALF_SCALE_FACTOR;
@@ -896,8 +897,8 @@ ring_segment_hit (GameObject *ring, GameObject *m)
     /* TODO: Calculate angle of m relative to ring */
     int dx = (m->p.x - ring->p.x);
     int dy = (m->p.y - ring->p.y);
-    //int rot = arctan(dy, dx) + ring->p.rotation;
-    int rot = ring->p.rotation;
+    int rot = ring->p.rotation - arctan(dy, dx);
+    //int rot = ring->p.rotation;
 
     /* TODO: Consider the current rotation of the ring */
     return abs(SEGMENTS_PER_RING * rot / NUMBER_OF_ROTATION_ANGLES);
@@ -943,22 +944,27 @@ on_collision (GameObject * p, GameObject * m)
 }
 
 static void
-on_ring_segment_collision (GameObject * ring, GameObject * m)
+on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
 {
-    int segment = ring_segment_hit(ring, m);
-
     if (ring->energy & (1<<(2*segment))) {
+        /*
         printf("Ring segment %d energy: 0x%.8o modified by 0x%.8o\n",
                segment, ring->energy, (1<<(2*segment)));
+        */
         ring->energy &= ~(1<<(2*segment));
     } else if (ring->energy & (1<<(2*segment+1))) {
+        /*
         printf("Secondary ring segment %d energy: 0x%.8o modified by 0x%.8o\n",
                segment, ring->energy, (1<<(2*segment+1)));
+        */
         ring->energy &= ~(1<<(2*segment+1));
     } else {
         return;
     }
+    /*
     printf("Ring energy: 0x%.8o\n", ring->energy);
+    */
+    printf("Ring segment %d hit\n", segment);
     ring->is_hit = TRUE;
     m->has_exploded = TRUE;
     m->energy = MISSILE_EXPLOSION_TICKS_TO_LIVE;
