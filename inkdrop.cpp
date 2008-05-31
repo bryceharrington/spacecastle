@@ -594,16 +594,16 @@ on_timeout (gpointer data)
   apply_physics_to_player (game->canon);
   apply_physics_to_player (game->player);
 
-  if (check_for_collision (&(game->canon->p), &(game->player->p)))
+  if (check_for_collision (&(game->rings[0].p), &(game->player->p)))
     {
       int p1vx, p1vy, p2vx, p2vy;
       int dvx, dvy, dv2;
       int damage;
 
-      enforce_minimum_distance (&(game->canon->p), &(game->player->p));
+      enforce_minimum_distance (&(game->rings[0].p), &(game->player->p));
 
-      p1vx = game->canon->p.vx;
-      p1vy = game->canon->p.vy;
+      p1vx = game->rings[0].p.vx;
+      p1vy = game->rings[0].p.vy;
       p2vx = game->player->p.vx;
       p2vy = game->player->p.vy;
 
@@ -907,14 +907,13 @@ ring_segment_hit (GameObject *ring, GameObject *m)
 //------------------------------------------------------------------------------
 
 static void
-enforce_minimum_distance (physics_t * p1, physics_t * p2)
+enforce_minimum_distance (physics_t * ring, physics_t * p)
 {
-  int dx = p1->x - p2->x;
-  int dy = p1->y - p2->y;
+  int dx = ring->x - p->x;
+  int dy = ring->y - p->y;
   double d2 = (((double) dx) * dx) + (((double) dy) * dy);
   int d = (int) sqrt (d2);
-
-  int r = p1->radius + p2->radius;
+  int r = ring->radius + p->radius;
 
   // normalize dx and dy to length = ((r - d) / 2) + fudge_factor
   int desired_vector_length = ((r - d) * 5) / 8.0;
@@ -924,10 +923,8 @@ enforce_minimum_distance (physics_t * p1, physics_t * p2)
   dx /= d;
   dy /= d;
 
-  //  p1->x += dx;
-  //  p1->y += dy;
-  p2->x -= 2*dx;
-  p2->y -= 2*dy;
+  p->x -= 2*dx;
+  p->y -= 2*dy;
 }
 
 //------------------------------------------------------------------------------
