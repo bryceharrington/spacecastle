@@ -143,6 +143,10 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
     case GDK_KP_Up:
         player->is_thrusting = key_is_on;
         break;
+    case GDK_Down:
+    case GDK_KP_Down:
+        player->is_reversing = key_is_on;
+        break;
     case GDK_space:
     case GDK_Control_R:
     case GDK_Control_L:

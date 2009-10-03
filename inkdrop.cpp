@@ -778,6 +778,13 @@ apply_physics_to_player (GameObject * player)
 	  p->vy += SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
 	}
 
+	// check if reversing
+      if (player->is_reversing)
+	{
+	  p->vx -= SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
+	  p->vy -= SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
+	}
+
       // apply velocity upper bound
       v2 = ((p->vx) * (p->vx)) + ((p->vy) * (p->vy));
       m2 = SHIP_MAX_VELOCITY * SHIP_MAX_VELOCITY;
