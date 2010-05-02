@@ -1,3 +1,7 @@
+2009-10-03  Ruben Verweij  <ruben@js4.nl>
+
+	Add support for accelerating in reverse.
+
 2007-01-12  Behdad Esfahbod  <behdad@behdad.org>
 
 	From Nigel Tao <nigel.tao@myrealbox.com>:

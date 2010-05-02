@@ -27,6 +27,7 @@ class GameObject : public CanvasItem {
     gboolean is_turning_left;
     gboolean is_turning_right;
     gboolean is_firing;
+    gboolean is_reversing;
 
     int ticks_until_can_fire;  // only for spaceships
     int energy;                // for missiles and spaceships
