@@ -43,6 +43,14 @@ class GameObject : public CanvasItem {
 };
 
 inline void GameObject::init() {
+    is_thrusting = FALSE;
+    is_reversing = FALSE;
+    is_turning_left = FALSE;
+    is_turning_right = FALSE;
+    is_firing = FALSE;
+
+    p.vx = 0;
+    p.vy = 0;
 }
 
 #endif

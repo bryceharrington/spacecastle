@@ -21,3 +21,9 @@ CanvasItem::draw (cairo_t * cr)
 }
 
 
+void
+CanvasItem::set_theme(RGB_t primary, RGB_t secondary)
+{
+    primary_color = primary;
+    secondary_color = secondary;
+}

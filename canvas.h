@@ -25,8 +25,8 @@ class CanvasItem {
 
     void draw(cairo_t * cr);
     CanvasItem(canvas_item_draw f=NULL);
+    void set_theme(RGB_t primary, RGB_t secondary);
 };
-
 
 #endif 
 

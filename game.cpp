@@ -35,73 +35,48 @@ void Game::reset() {
         objects[i]->init();
     }
 
+    RGB_t color_red = {0.9, 0.2, 0.3};
+    RGB_t color_darkred = {0.5, 0.2, 0.3};
+    RGB_t color_blue = {0.3, 0.5, 0.9};
+    RGB_t color_darkblue = {0.1, 0.3, 0.3};
+
+    cannon->init();
+    cannon->set_theme(color_blue, color_darkblue);
     cannon->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     cannon->p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
-    cannon->p.vx = 0;
-    cannon->p.vy = 0;
     cannon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
     cannon->p.radius = CANNON_RADIUS;
-    cannon->is_thrusting = FALSE;
-    cannon->is_reversing = FALSE;
-    cannon->is_turning_left = FALSE;
-    cannon->is_turning_right = FALSE;
-    cannon->is_firing = FALSE;
-    cannon->primary_color.r = 0.3;
-    cannon->primary_color.g = 0.5;
-    cannon->primary_color.b = 0.9;
-    cannon->secondary_color.r = 0.1;
-    cannon->secondary_color.g = 0.3;
-    cannon->secondary_color.b = 0.3;
     cannon->ticks_until_can_fire = 0;
     cannon->energy = SHIP_MAX_ENERGY;
     cannon->is_hit = FALSE;
     cannon->is_alive = TRUE;
     cannon->draw_func = NULL;
 
+    cannon_status->init();
+    cannon_status->set_theme(color_blue, color_darkblue);
     cannon_status->x = 30;
     cannon_status->y = 30;
     cannon_status->rotation = 0;
-    cannon_status->primary_color.r = 0.3;
-    cannon_status->primary_color.g = 0.5;
-    cannon_status->primary_color.b = 0.9;
-    cannon_status->secondary_color.r = 0.1;
-    cannon_status->secondary_color.g = 0.3;
-    cannon_status->secondary_color.b = 0.3;
     cannon_status->energy = SHIP_MAX_ENERGY;
     cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
+    player->init();
+    player->set_theme(color_red, color_darkred);
     player->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     player->p.y = 150 * FIXED_POINT_SCALE_FACTOR;
-    player->p.vx = 0;
-    player->p.vy = 0;
     player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
     player->p.radius = SHIP_RADIUS;
-    player->is_thrusting = FALSE;
-    player->is_reversing = FALSE;
-    player->is_turning_left = FALSE;
-    player->is_turning_right = FALSE;
-    player->is_firing = FALSE;
-    player->primary_color.r = 0.9;
-    player->primary_color.g = 0.2;
-    player->primary_color.b = 0.3;
-    player->secondary_color.r = 0.5;
-    player->secondary_color.g = 0.2;
-    player->secondary_color.b = 0.3;
     player->ticks_until_can_fire = 0;
     player->energy = SHIP_MAX_ENERGY;
     player->is_hit = FALSE;
     player->is_alive = TRUE;
     player->draw_func = NULL;
 
+    player_status->init();
+    player_status->set_theme(color_red, color_darkred);
     player_status->x = WIDTH - 30;
     player_status->y = 30;
     player_status->rotation = PI;
-    player_status->primary_color.r = 0.9;
-    player_status->primary_color.g = 0.2;
-    player_status->primary_color.b = 0.3;
-    player_status->secondary_color.r = 0.5;
-    player_status->secondary_color.g = 0.2;
-    player_status->secondary_color.b = 0.3;
     player_status->energy = SHIP_MAX_ENERGY;
     player_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
