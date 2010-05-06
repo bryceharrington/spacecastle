@@ -23,7 +23,7 @@ static void apply_physics (physics_t *);
 static void apply_physics_to_player (GameObject *player);
 static gboolean check_for_collision (physics_t *, physics_t *);
 static gboolean check_for_ring_segment_collision (physics_t *, physics_t *);
-static void draw_energy_bar (cairo_t *, GameObject *player);
+void draw_energy_bar (cairo_t *, GameObject *player);
 static void draw_flare (cairo_t *, RGB_t);
 static void draw_ring (cairo_t *, GameObject *ring);
 static void draw_missile (cairo_t *, GameObject *missile);
@@ -126,13 +126,13 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   cairo_save (cr);
   cairo_translate (cr, 30, 30);
   cairo_rotate (cr, 0);
-  draw_energy_bar (cr, game->cannon);
+  game->cannon->draw(cr);
   cairo_restore (cr);
 
   cairo_save (cr);
   cairo_translate (cr, WIDTH - 30, 30);
   cairo_rotate (cr, PI);
-  draw_energy_bar (cr, game->player);
+  game->player->draw(cr);
   cairo_restore (cr);
 
   // ... the two ships...
@@ -262,13 +262,11 @@ scale_for_aspect_ratio (cairo_t * cr, int widget_width, int widget_height)
 
 //------------------------------------------------------------------------------
 
-static void
+void
 draw_energy_bar (cairo_t * cr, GameObject * p)
 {
   cairo_pattern_t *pat;
   double alpha = 0.6;
-
-  cairo_save (cr);
 
   cairo_rectangle (cr, 0, -5, p->energy / 5, 10);
 
@@ -287,7 +285,6 @@ draw_energy_bar (cairo_t * cr, GameObject * p)
 
   cairo_set_source_rgb (cr, 0, 0, 0);
   cairo_stroke (cr);
-  cairo_restore (cr);
 }
 
 //------------------------------------------------------------------------------

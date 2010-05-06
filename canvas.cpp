@@ -9,6 +9,9 @@ CanvasItem::CanvasItem (canvas_item_draw f)
 void
 CanvasItem::draw (cairo_t * cr)
 {
+    if (!draw_func)
+        return;
+
     cairo_save (cr);
     cairo_translate (cr, this->x, this->y);
     cairo_rotate (cr, this->rotation);

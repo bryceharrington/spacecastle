@@ -40,7 +40,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - Simplify the header includes
   - #ifdef debugging messages
   - Stock files:  AUTHORS, COPYING, MAINTAINERS, NEWS, ChangeLog
-  - Add a new minimal main.cpp like gnometris
+  - (DONE) Add a new minimal main.cpp like gnometris
   - Remove stuff from ../inkdrop directory
   - Create some simple code to load config variables into an STL map
     + Google for configuration file loading code
@@ -76,7 +76,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - Figure out how to handle patterns
   - Generalize the cairo text screen writing a bit more
 * CanvasItem refactoring
-  - Make energy bars be drawn via CanvasItem::draw()
+  - (DONE) Make energy bars be drawn via CanvasItem::draw()
   - Make ships be drawn via CanvasItem::draw()
   - Make missiles be drawn via CanvasItem::draw()
   - Make rings be drawn via CanvasItem::draw()

@@ -6,6 +6,7 @@
 
 // TODO:  Need to find best place for these...
 void draw_star (cairo_t * cr, CanvasItem * item);
+void draw_energy_bar (cairo_t * cr, GameObject * item);
 void init_trigonometric_tables (void);
 
 Game::Game(gint argc, gchar ** argv)
@@ -52,6 +53,7 @@ void Game::reset() {
     cannon->energy = SHIP_MAX_ENERGY;
     cannon->is_hit = FALSE;
     cannon->is_alive = TRUE;
+    cannon->draw_func = (canvas_item_draw) draw_energy_bar;
 
     player->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     player->p.y = 150 * FIXED_POINT_SCALE_FACTOR;
@@ -74,6 +76,7 @@ void Game::reset() {
     player->energy = SHIP_MAX_ENERGY;
     player->is_hit = FALSE;
     player->is_alive = TRUE;
+    player->draw_func = (canvas_item_draw) draw_energy_bar;
 
     init_rings_array ();
     init_stars_array ();
