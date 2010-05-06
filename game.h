@@ -23,14 +23,6 @@
 
 #define NUMBER_OF_STARS 30
 
-// trig computations (and x, y, velocity, etc). are made in fixed point arithmetic
-#define FIXED_POINT_SCALE_FACTOR 1024
-#define FIXED_POINT_HALF_SCALE_FACTOR 32
-
-// discretization of 360 degrees
-#define NUMBER_OF_ROTATION_ANGLES 180
-#define RADIANS_PER_ROTATION_ANGLE (TWO_PI / NUMBER_OF_ROTATION_ANGLES)
-
 // a shot every 9/25 seconds = 8 ticks between shots
 #define TICKS_BETWEEN_FIRE 8
 

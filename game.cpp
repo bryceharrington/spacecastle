@@ -9,6 +9,11 @@ void draw_star (cairo_t * cr, CanvasItem * item);
 void draw_energy_bar (cairo_t * cr, GameObject * item);
 void init_trigonometric_tables (void);
 
+static RGB_t color_red      = {0.9, 0.2, 0.3};
+static RGB_t color_darkred  = {0.5, 0.2, 0.3};
+static RGB_t color_blue     = {0.3, 0.5, 0.9};
+static RGB_t color_darkblue = {0.1, 0.3, 0.3};
+
 Game::Game(gint argc, gchar ** argv)
     : num_objects(0), debug_scale_factor(1.0), next_missile_index(0)
 {
@@ -17,10 +22,16 @@ Game::Game(gint argc, gchar ** argv)
     init_trigonometric_tables ();
 
     cannon = new GameObject;
-    player = new GameObject;
+    cannon->set_theme(color_blue, color_darkblue);
 
     cannon_status = new GameObject;
+    cannon_status->set_theme(color_blue, color_darkblue);
+
+    player = new GameObject;
+    player->set_theme(color_red, color_darkred);
+
     player_status = new GameObject;
+    player_status->set_theme(color_red, color_darkred);
 }
 
 Game::~Game()
@@ -35,13 +46,7 @@ void Game::reset() {
         objects[i]->init();
     }
 
-    RGB_t color_red = {0.9, 0.2, 0.3};
-    RGB_t color_darkred = {0.5, 0.2, 0.3};
-    RGB_t color_blue = {0.3, 0.5, 0.9};
-    RGB_t color_darkblue = {0.1, 0.3, 0.3};
-
     cannon->init();
-    cannon->set_theme(color_blue, color_darkblue);
     cannon->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     cannon->p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
     cannon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
@@ -53,7 +58,6 @@ void Game::reset() {
     cannon->draw_func = NULL;
 
     cannon_status->init();
-    cannon_status->set_theme(color_blue, color_darkblue);
     cannon_status->x = 30;
     cannon_status->y = 30;
     cannon_status->rotation = 0;
@@ -61,7 +65,6 @@ void Game::reset() {
     cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
     player->init();
-    player->set_theme(color_red, color_darkred);
     player->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     player->p.y = 150 * FIXED_POINT_SCALE_FACTOR;
     player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
@@ -73,7 +76,6 @@ void Game::reset() {
     player->draw_func = NULL;
 
     player_status->init();
-    player_status->set_theme(color_red, color_darkred);
     player_status->x = WIDTH - 30;
     player_status->y = 30;
     player_status->rotation = PI;

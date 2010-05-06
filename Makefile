@@ -1,7 +1,9 @@
 APP = spacecastle
 
-OBJECTS = main.o game.o canvas.o path.o path-parser.o spacecastle.o
-HEADERS = canvas.h 
+OBJECTS = main.o game.o spacecastle.o game-math.o \
+	canvas.o path.o path-parser.o 
+HEADERS = game-math.h game-object.h game.h \
+	canvas.h path.h point.h
 
 CXXFLAGS  = -g -Wall
 
