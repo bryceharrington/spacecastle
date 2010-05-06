@@ -1,6 +1,6 @@
 APP = spacecastle
 
-OBJECTS = game.o canvas.o inkdrop.o
+OBJECTS = game.o canvas.o inkdrop.o path.o path-parser.o
 HEADERS = canvas.h 
 
 CXXFLAGS  = -g -Wall
