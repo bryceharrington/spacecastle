@@ -123,17 +123,8 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
     }
 
   // ... the energy bars...
-  cairo_save (cr);
-  cairo_translate (cr, 30, 30);
-  cairo_rotate (cr, 0);
-  game->cannon->draw(cr);
-  cairo_restore (cr);
-
-  cairo_save (cr);
-  cairo_translate (cr, WIDTH - 30, 30);
-  cairo_rotate (cr, PI);
-  game->player->draw(cr);
-  cairo_restore (cr);
+  game->cannon_status->draw(cr);
+  game->player_status->draw(cr);
 
   // ... the two ships...
   cairo_save (cr);
@@ -589,6 +580,7 @@ on_timeout (gpointer data)
       damage = ((int)(sqrt (dv2))) / DAMAGE_PER_SHIP_BOUNCE_DIVISOR;
 
       game->player->energy -= damage;
+      game->player_status->energy = game->player->energy;
       game->player->is_hit = TRUE;
       game->player->p.vx = (p1vx * +5 / 8) + (p2vx * -2 / 8);
       game->player->p.vy = (p1vy * +5 / 8) + (p2vy * -2 / 8);
@@ -651,21 +643,25 @@ on_timeout (gpointer data)
   if (game->cannon->energy <= 0)
     {
       game->cannon->energy = 0;
+      game->cannon_status->energy = 0;
       game->cannon->is_alive = FALSE;
     }
   else
     {
       game->cannon->energy = MIN (SHIP_MAX_ENERGY, game->cannon->energy + 3);
+      game->cannon_status->energy = MIN (SHIP_MAX_ENERGY, game->cannon->energy + 3);
     }
 
   if (game->player->energy <= 0)
     {
       game->player->energy = 0;
+      game->player_status->energy = 0;
       game->player->is_alive = FALSE;
     }
   else
     {
       game->player->energy = MIN (SHIP_MAX_ENERGY, game->player->energy + 1);
+      game->player_status->energy = MIN (SHIP_MAX_ENERGY, game->player->energy + 1);
     }
 
   gtk_widget_queue_draw ((GtkWidget *) data);

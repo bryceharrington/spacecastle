@@ -85,7 +85,10 @@ class Game {
 
     // TODO:  Move these into objects[]
     GameObject  *cannon;
+    GameObject  *cannon_status;
+
     GameObject  *player;
+    GameObject  *player_status;
     GameObject   missiles[MAX_NUMBER_OF_MISSILES];
     int          next_missile_index;
     GameObject   rings[MAX_NUMBER_OF_RINGS];

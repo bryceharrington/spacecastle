@@ -18,6 +18,9 @@ Game::Game(gint argc, gchar ** argv)
 
     cannon = new GameObject;
     player = new GameObject;
+
+    cannon_status = new GameObject;
+    player_status = new GameObject;
 }
 
 Game::~Game()
@@ -53,7 +56,19 @@ void Game::reset() {
     cannon->energy = SHIP_MAX_ENERGY;
     cannon->is_hit = FALSE;
     cannon->is_alive = TRUE;
-    cannon->draw_func = (canvas_item_draw) draw_energy_bar;
+    cannon->draw_func = NULL;
+
+    cannon_status->x = 30;
+    cannon_status->y = 30;
+    cannon_status->rotation = 0;
+    cannon_status->primary_color.r = 0.3;
+    cannon_status->primary_color.g = 0.5;
+    cannon_status->primary_color.b = 0.9;
+    cannon_status->secondary_color.r = 0.1;
+    cannon_status->secondary_color.g = 0.3;
+    cannon_status->secondary_color.b = 0.3;
+    cannon_status->energy = SHIP_MAX_ENERGY;
+    cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
     player->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     player->p.y = 150 * FIXED_POINT_SCALE_FACTOR;
@@ -76,7 +91,19 @@ void Game::reset() {
     player->energy = SHIP_MAX_ENERGY;
     player->is_hit = FALSE;
     player->is_alive = TRUE;
-    player->draw_func = (canvas_item_draw) draw_energy_bar;
+    player->draw_func = NULL;
+
+    player_status->x = WIDTH - 30;
+    player_status->y = 30;
+    player_status->rotation = PI;
+    player_status->primary_color.r = 0.9;
+    player_status->primary_color.g = 0.2;
+    player_status->primary_color.b = 0.3;
+    player_status->secondary_color.r = 0.5;
+    player_status->secondary_color.g = 0.2;
+    player_status->secondary_color.b = 0.3;
+    player_status->energy = SHIP_MAX_ENERGY;
+    player_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
     init_rings_array ();
     init_stars_array ();
