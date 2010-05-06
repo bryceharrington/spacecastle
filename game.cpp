@@ -33,6 +33,7 @@ void Game::reset() {
     canon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
     canon->p.radius = CANON_RADIUS;
     canon->is_thrusting = FALSE;
+    canon->is_reversing = FALSE;
     canon->is_turning_left = FALSE;
     canon->is_turning_right = FALSE;
     canon->is_firing = FALSE;
@@ -54,6 +55,7 @@ void Game::reset() {
     player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
     player->p.radius = SHIP_RADIUS;
     player->is_thrusting = FALSE;
+    player->is_reversing = FALSE;
     player->is_turning_left = FALSE;
     player->is_turning_right = FALSE;
     player->is_firing = FALSE;
