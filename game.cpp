@@ -4,14 +4,19 @@
 #include "game.h"
 #include "game-object.h"
 
-// TODO:  Need to find best place for this...
+// TODO:  Need to find best place for these...
 void draw_star (cairo_t * cr, CanvasItem * item);
+void init_trigonometric_tables (void);
 
 Game::Game(gint argc, gchar ** argv)
     : num_objects(0), debug_scale_factor(1.0), next_missile_index(0)
 {
     gtk_init (&argc, &argv);
 
+    init_trigonometric_tables ();
+
+    cannon = new GameObject;
+    player = new GameObject;
 }
 
 Game::~Game()
@@ -26,27 +31,27 @@ void Game::reset() {
         objects[i]->init();
     }
 
-    canon->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
-    canon->p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
-    canon->p.vx = 0;
-    canon->p.vy = 0;
-    canon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
-    canon->p.radius = CANON_RADIUS;
-    canon->is_thrusting = FALSE;
-    canon->is_reversing = FALSE;
-    canon->is_turning_left = FALSE;
-    canon->is_turning_right = FALSE;
-    canon->is_firing = FALSE;
-    canon->primary_color.r = 0.3;
-    canon->primary_color.g = 0.5;
-    canon->primary_color.b = 0.9;
-    canon->secondary_color.r = 0.1;
-    canon->secondary_color.g = 0.3;
-    canon->secondary_color.b = 0.3;
-    canon->ticks_until_can_fire = 0;
-    canon->energy = SHIP_MAX_ENERGY;
-    canon->is_hit = FALSE;
-    canon->is_alive = TRUE;
+    cannon->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
+    cannon->p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
+    cannon->p.vx = 0;
+    cannon->p.vy = 0;
+    cannon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
+    cannon->p.radius = CANNON_RADIUS;
+    cannon->is_thrusting = FALSE;
+    cannon->is_reversing = FALSE;
+    cannon->is_turning_left = FALSE;
+    cannon->is_turning_right = FALSE;
+    cannon->is_firing = FALSE;
+    cannon->primary_color.r = 0.3;
+    cannon->primary_color.g = 0.5;
+    cannon->primary_color.b = 0.9;
+    cannon->secondary_color.r = 0.1;
+    cannon->secondary_color.g = 0.3;
+    cannon->secondary_color.b = 0.3;
+    cannon->ticks_until_can_fire = 0;
+    cannon->energy = SHIP_MAX_ENERGY;
+    cannon->is_hit = FALSE;
+    cannon->is_alive = TRUE;
 
     player->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     player->p.y = 150 * FIXED_POINT_SCALE_FACTOR;

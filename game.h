@@ -41,7 +41,7 @@
 #define SHIP_MAX_VELOCITY (10 * FIXED_POINT_SCALE_FACTOR)
 #define SHIP_RADIUS ((int) (38 * FIXED_POINT_SCALE_FACTOR * GLOBAL_SHIP_SCALE_FACTOR))
 
-#define CANON_RADIUS ((int) (40 * FIXED_POINT_SCALE_FACTOR * GLOBAL_SHIP_SCALE_FACTOR))
+#define CANNON_RADIUS ((int) (40 * FIXED_POINT_SCALE_FACTOR * GLOBAL_SHIP_SCALE_FACTOR))
 #define SHIELD_OUTER_RADIUS ((int) (60 * FIXED_POINT_SCALE_FACTOR))
 #define SHIELD_MIDDLE_RADIUS ((int) (80 * FIXED_POINT_SCALE_FACTOR))
 #define SHIELD_INNER_RADIUS ((int) (100 * FIXED_POINT_SCALE_FACTOR))
@@ -84,7 +84,7 @@ class Game {
     double       debug_scale_factor;
 
     // TODO:  Move these into objects[]
-    GameObject  *canon;
+    GameObject  *cannon;
     GameObject  *player;
     GameObject   missiles[MAX_NUMBER_OF_MISSILES];
     int          next_missile_index;
@@ -119,6 +119,7 @@ class Game {
     gint handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on);
 };
 
+extern Game* game;
 
 inline void Game::init() {
     srand ((unsigned int) time (NULL));

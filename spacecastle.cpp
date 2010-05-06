@@ -15,14 +15,10 @@
 #include "game-math.h"
 #include "game.h"
 
-// The main game application object
-static Game* game;
-
-
 //------------------------------------------------------------------------------
 // Forward definitions of functions
 
-static void operate_canon (GameObject *canon, GameObject *player);
+static void operate_cannon (GameObject *cannon, GameObject *player);
 static void apply_physics (physics_t *);
 static void apply_physics_to_player (GameObject *player);
 static gboolean check_for_collision (physics_t *, physics_t *);
@@ -37,7 +33,7 @@ void draw_star (cairo_t * cr, CanvasItem * item);
 static void draw_turning_flare (cairo_t *, RGB_t, int);
 static void enforce_minimum_distance (physics_t *, physics_t *);
 static long get_time_millis (void);
-static void init_trigonometric_tables (void);
+void init_trigonometric_tables (void);
 static void on_collision (GameObject *player, GameObject *missile);
 static int ring_segment_hit (GameObject *ring, GameObject *missile);
 static void on_ring_segment_collision (GameObject * ring, GameObject * m, int segment);
@@ -58,7 +54,7 @@ static long millis_taken_for_frames = 0;
 static int cos_table[NUMBER_OF_ROTATION_ANGLES];
 static int sin_table[NUMBER_OF_ROTATION_ANGLES];
 
-static void
+void
 init_trigonometric_tables ()
 {
   int i;
@@ -84,23 +80,6 @@ arctan (double y, double x)
 {
     int rot = (atan2(y, x) + PI) * NUMBER_OF_ROTATION_ANGLES / TWO_PI;
     return ( rot + (3 * NUMBER_OF_ROTATION_ANGLES / 4) ) % NUMBER_OF_ROTATION_ANGLES;
-}
-
-//------------------------------------------------------------------------------
-
-gint
-main (gint argc, gchar ** argv)
-{
-  game = new Game(argc, argv);
-
-  game->canon = new GameObject;
-  game->player = new GameObject;
-
-  init_trigonometric_tables ();
-
-  game->init();
-
-  return game->run();
 }
 
 //------------------------------------------------------------------------------
@@ -147,7 +126,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   cairo_save (cr);
   cairo_translate (cr, 30, 30);
   cairo_rotate (cr, 0);
-  draw_energy_bar (cr, game->canon);
+  draw_energy_bar (cr, game->cannon);
   cairo_restore (cr);
 
   cairo_save (cr);
@@ -158,10 +137,10 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 
   // ... the two ships...
   cairo_save (cr);
-  cairo_translate (cr, game->canon->p.x / FIXED_POINT_SCALE_FACTOR,
-		   game->canon->p.y / FIXED_POINT_SCALE_FACTOR);
-  cairo_rotate (cr, game->canon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
-  draw_ship_body (cr, game->canon);
+  cairo_translate (cr, game->cannon->p.x / FIXED_POINT_SCALE_FACTOR,
+		   game->cannon->p.y / FIXED_POINT_SCALE_FACTOR);
+  cairo_rotate (cr, game->cannon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
+  draw_ship_body (cr, game->cannon);
   cairo_restore (cr);
 
   cairo_save (cr);
@@ -208,7 +187,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 
   if (game->game_over_message == NULL)
     {
-      if (!game->canon->is_alive)
+      if (!game->cannon->is_alive)
 	{
 	  game->game_over_message = (!game->player->is_alive) ? "DRAW" : "RED wins";
 	}
@@ -584,14 +563,14 @@ on_timeout (gpointer data)
 {
   int i, j;
 
-  game->canon->is_hit = FALSE;
+  game->cannon->is_hit = FALSE;
   game->player->is_hit = FALSE;
   for (j=0; j< MAX_NUMBER_OF_RINGS; j++) {
       game->rings[j].is_hit = FALSE;
   }
 
-  operate_canon (game->canon, game->player);
-  apply_physics_to_player (game->canon);
+  operate_cannon (game->cannon, game->player);
+  apply_physics_to_player (game->cannon);
   apply_physics_to_player (game->player);
 
   if (check_for_collision (&(game->rings[0].p), &(game->player->p)))
@@ -626,9 +605,9 @@ on_timeout (gpointer data)
 
 	  if (!game->missiles[i].has_exploded)
 	    {
-	      if (check_for_collision (&(game->missiles[i].p), &(game->canon->p)))
+	      if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
 		{
-		  on_collision (game->canon, &(game->missiles[i]));
+		  on_collision (game->cannon, &(game->missiles[i]));
 		}
 
 	      if (check_for_collision (&(game->missiles[i].p), &(game->player->p)))
@@ -672,14 +651,14 @@ on_timeout (gpointer data)
           % NUMBER_OF_ROTATION_ANGLES;
   }
 
-  if (game->canon->energy <= 0)
+  if (game->cannon->energy <= 0)
     {
-      game->canon->energy = 0;
-      game->canon->is_alive = FALSE;
+      game->cannon->energy = 0;
+      game->cannon->is_alive = FALSE;
     }
   else
     {
-      game->canon->energy = MIN (SHIP_MAX_ENERGY, game->canon->energy + 3);
+      game->cannon->energy = MIN (SHIP_MAX_ENERGY, game->cannon->energy + 3);
     }
 
   if (game->player->energy <= 0)
@@ -699,44 +678,44 @@ on_timeout (gpointer data)
 //------------------------------------------------------------------------------
 
 static void
-operate_canon (GameObject * canon, GameObject * player)
+operate_cannon (GameObject * cannon, GameObject * player)
 {
     int direction;
 
-    physics_t *c = &(canon->p);
+    physics_t *c = &(cannon->p);
     physics_t *p = &(player->p);
 
     if (! player->is_alive) {
         /* TODO:  Reset */
-        canon->is_firing = FALSE;
+        cannon->is_firing = FALSE;
         return;
     }
 
     direction = arctan ( (p->y - c->y), (p->x - c->x) );
 
     if (direction == c->rotation) {
-        canon->is_firing = TRUE;
-        canon->is_turning_left = FALSE;
-        canon->is_turning_right = FALSE;
+        cannon->is_firing = TRUE;
+        cannon->is_turning_left = FALSE;
+        cannon->is_turning_right = FALSE;
     } else if (c->rotation - direction == NUMBER_OF_ROTATION_ANGLES/2) {
-        canon->is_firing = FALSE;
+        cannon->is_firing = FALSE;
         // Stay going in same direction
     } else if (c->rotation - direction < NUMBER_OF_ROTATION_ANGLES/2
                && c->rotation - direction > 0) {
-        canon->is_firing = FALSE;
-        canon->is_turning_right = FALSE;
-        canon->is_turning_left = TRUE;
+        cannon->is_firing = FALSE;
+        cannon->is_turning_right = FALSE;
+        cannon->is_turning_left = TRUE;
 
     } else if (direction - c->rotation > NUMBER_OF_ROTATION_ANGLES/2
                && c->rotation - direction < 0) {
-        canon->is_firing = FALSE;
-        canon->is_turning_right = FALSE;
-        canon->is_turning_left = TRUE;
+        cannon->is_firing = FALSE;
+        cannon->is_turning_right = FALSE;
+        cannon->is_turning_left = TRUE;
 
     } else {
-        canon->is_firing = FALSE;
-        canon->is_turning_right = TRUE;
-        canon->is_turning_left = FALSE;
+        cannon->is_firing = FALSE;
+        cannon->is_turning_right = TRUE;
+        cannon->is_turning_left = FALSE;
     }
 
     // TODO:  On advanced levels, take into account the speed the player

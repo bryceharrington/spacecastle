@@ -14,9 +14,6 @@ Space Castle Development Objectives
 2.  Abstract a GameObject class, with reusable structure around it
 3.  Abstract a Game class to use for future games
 
-Keep it simple, keep the goals modest, don't try to solve the world,
-just try to get the game completed and make the code in a way I *may* be
-able to reuse it later.
 
 Space Castle (Inspired by Star Castle / Yars Revenge)
 ============
@@ -26,10 +23,10 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
 * (DONE) Put into bzr
 
 * Janitorial work
-  - canon -> cannon
-  - inkdrop.cpp -> spacecastle.cpp
+  - (DONE) canon -> cannon
+  - (DONE) inkdrop.cpp -> spacecastle.cpp
   - Rewrite README
-  - Move unrelated bits from TODO to inkdrop's TODO
+  - Move unrelated bits from TODO to elsewhere
   - Change is_turning_[left|right] to a turning_speed parameter
   - Make initial player position randomized
   - Move sin/cos code into game-math.*
@@ -50,6 +47,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
     + Look in worldforge code
     + Look if I did this in any other of my game code already
     + Use plain KEY = VALUE maps for now
+  - Change from cairo to cairomm
 
 * Create top level game application object
   - (DONE) Move #defines into a game application object
@@ -70,7 +68,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - Derive from rsvg_cairo_render_path()
   - Decide how to handle color stops and fills
     + Review how Inkscape handles color
-  - Add path-parser.cpp, etc. to makefile and get it all to
+  - (DONE) Add path-parser.cpp, etc. to makefile and get it all to
     compile
   - Refactor inkdrop.cpp drawing code to use SVG path strings
     instead of direct cairo calls
@@ -116,7 +114,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
 * Create a World class
   - Move stars into this
 * Abstract drawing library
-  - Decide about linking to librsvg vs. copying in rsvg-path.c, etc.
+  - (DONE) Decide about linking to librsvg vs. copying in rsvg-path.c, etc.
   - Examine if some code could benefit from 2geom calls
   - Study rsvg_cairo_render_path for possible reuse
 * Levels
