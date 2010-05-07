@@ -14,6 +14,7 @@ Space Castle Development Objectives
 2.  Abstract a GameObject class, with reusable structure around it
 3.  Abstract a Game class to use for future games
 
+// 2010-05-06: 286 lines
 
 Space Castle (Inspired by Star Castle / Yars Revenge)
 ============
@@ -29,11 +30,11 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - Move unrelated bits from TODO to elsewhere
   - Change is_turning_[left|right] to a turning_speed parameter
   - Make initial player position randomized
-  - Move sin/cos code into game-math.*
+  - (DONE) Move sin/cos code into game-math.*
   - Move background and stars drawing into a draw_world() routine
   - Change game_over_message to "You Win" or "Space Castle Wins"
   - Refactor draw_flare() and draw_turning_flare() into one function
-  - Copy in path.*, point.h
+  - (DONE) Copy in path.*, point.h
   - Make sure all files have appropriate attribution
   - Change all x/y math to use the Point class (which is roughly similar
     to 2geom, to make transitioning easier)
@@ -41,7 +42,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - #ifdef debugging messages
   - Stock files:  AUTHORS, COPYING, MAINTAINERS, NEWS, ChangeLog
   - (DONE) Add a new minimal main.cpp like gnometris
-  - Remove stuff from ../inkdrop directory
+  - (DONE) Remove stuff from ../inkdrop directory
   - Create some simple code to load config variables into an STL map
     + Google for configuration file loading code
     + Look in worldforge code
@@ -57,7 +58,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
     + Adapt from gnome-games ?  See gnometris/scoreframe.*
     + Score is simply the time required to destroy the opponent
     + Save to ~/.config/games/$game/scores.txt
-  - Move scale_for_aspect_ratio() here (?)
+  - Move scale_for_aspect_ratio()
 
 * Create routine draw_path()
   - Review libgames-support/games-preimage.c, gnotravex/gnotravex.c,
@@ -70,7 +71,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
     + Review how Inkscape handles color
   - (DONE) Add path-parser.cpp, etc. to makefile and get it all to
     compile
-  - Refactor inkdrop.cpp drawing code to use SVG path strings
+  - Refactor spacecastle.cpp drawing code to use SVG path strings
     instead of direct cairo calls
   - Add Path objects into game object classes
   - Figure out how to handle patterns
@@ -131,7 +132,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
 * Conceptualize sound system and plan adding sound engine
 
 
-Inkdrop - Cairo-based 2D Game Engine
+Cairo-based 2D Game Engine
 =======
 * Overview/principles
   - Open Source
@@ -140,12 +141,7 @@ Inkdrop - Cairo-based 2D Game Engine
   - C++/Gtk
   - Purpose is for games, but could also feed back into inkscape?
 * Decide license:  LGPL or GPL
-* Decide if it will be only a graphics engine, or also provide the full
-  deal (sound, networking, AI, collision, physics, etc.)
-  - Maybe inkdrop could be the core graphics engine, and establish other
-    libs for other things
-  - Stock game entity library could be its own thing...
-* Consider alternate names
+* Consider alternate names to inkdrop
 * Build System
   - Look up how to do default autoconf stuff from scratch
   - Decide autoconf vs cmake
@@ -153,7 +149,7 @@ Inkdrop - Cairo-based 2D Game Engine
   - Add icons
 * Scene Graph
   - Read http://en.wikipedia.org/wiki/Scene_graph
-* Create inkdrop super-project in launchpad
+* (DONE) Create super-project in launchpad - terranova
   - Mark spacecastle as part of this project
   - Establish a mailing list
   - Decide how to merge/split the code
@@ -239,7 +235,7 @@ Inkdrop - Cairo-based 2D Game Engine
 
 Game Component Library
 ======================
-  - Separate from inkdrop
+  - Separate
   - Provides reusable "chunks" of game code, resources and logic
   - Stock game elements to reuse for quick game creation
     + Spaceship
