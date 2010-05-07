@@ -5,6 +5,10 @@ class CanvasItem;
 
 typedef void   (* canvas_item_draw) (cairo_t * cr, CanvasItem * item);
 
+// TODO: Merge this into this class
+extern void scale_for_aspect_ratio (cairo_t * cr, int widget_width, int widget_height);
+
+
 typedef struct
 {
     gdouble r, g, b;
@@ -32,6 +36,20 @@ class CanvasItem {
     void draw(cairo_t * cr);
     CanvasItem(canvas_item_draw f=NULL);
     void set_theme(RGB_t primary, RGB_t secondary);
+};
+
+class Canvas {
+ private:
+    int      width;
+    int      height;
+
+ public:
+    double   debug_scale_factor;
+
+    Canvas(int w, int h);
+    ~Canvas() { }
+    
+    void   scale_for_aspect_ratio(cairo_t *cr, int window_width, int window_height);
 };
 
 #endif 

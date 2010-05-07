@@ -26,6 +26,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
 * Janitorial work
   - (DONE) canon -> cannon
   - (DONE) inkdrop.cpp -> spacecastle.cpp
+  - Move on_expose_event() to Game, and simplify
   - Rewrite README
   - Move unrelated bits from TODO to elsewhere
   - Change is_turning_[left|right] to a turning_speed parameter
@@ -58,7 +59,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
     + Adapt from gnome-games ?  See gnometris/scoreframe.*
     + Score is simply the time required to destroy the opponent
     + Save to ~/.config/games/$game/scores.txt
-  - Move scale_for_aspect_ratio()
+  - (DONE) Move scale_for_aspect_ratio()
 
 * Create routine draw_path()
   - Review libgames-support/games-preimage.c, gnotravex/gnotravex.c,

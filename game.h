@@ -78,7 +78,6 @@ class Game {
     // TODO:  Move these into objects[]
     GameObject  *cannon;
     GameObject  *cannon_status;
-
     GameObject  *player;
     GameObject  *player_status;
     GameObject   missiles[MAX_NUMBER_OF_MISSILES];
@@ -87,6 +86,7 @@ class Game {
     int          next_ring_index;
 
     // TODO:  Move these into a background object structure
+    Canvas      *canvas;
     CanvasItem   stars[NUMBER_OF_STARS];
 
     double dparam(GQuark name) const;

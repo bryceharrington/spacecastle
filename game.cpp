@@ -15,11 +15,13 @@ static RGB_t color_blue     = {0.3, 0.5, 0.9};
 static RGB_t color_darkblue = {0.1, 0.3, 0.3};
 
 Game::Game(gint argc, gchar ** argv)
-    : num_objects(0), debug_scale_factor(1.0), next_missile_index(0)
+    : num_objects(0), next_missile_index(0)
 {
     gtk_init (&argc, &argv);
 
     init_trigonometric_tables ();
+
+    canvas = new Canvas(WIDTH, HEIGHT);
 
     cannon = new GameObject;
     cannon->set_theme(color_blue, color_darkblue);
@@ -133,15 +135,15 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
     case GDK_bracketleft:
         if (key_is_on)
         {
-            debug_scale_factor /= 1.25f;
-            printf ("Scale: %f\n", debug_scale_factor);
+            canvas->debug_scale_factor /= 1.25f;
+            printf ("Scale: %f\n", canvas->debug_scale_factor);
         }
         break;
     case GDK_bracketright:
         if (key_is_on)
         {
-            debug_scale_factor *= 1.25f;
-            printf ("Scale: %f\n", debug_scale_factor);
+            canvas->debug_scale_factor *= 1.25f;
+            printf ("Scale: %f\n", canvas->debug_scale_factor);
         }
         break;
 

@@ -5,7 +5,7 @@
 // 2005-03-31: Version 0.1.
 
 // 2010-05-05: 1000 lines
-// 2010-05-06:  957
+// 2010-05-06:  939
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +41,6 @@ static void on_ring_segment_collision (GameObject * ring, GameObject * m, int se
 gint on_expose_event (GtkWidget *, GdkEventExpose *);
 gint on_key_event (GtkWidget *, GdkEventKey *, gboolean);
 gint on_timeout (gpointer);
-static void scale_for_aspect_ratio (cairo_t *, int, int);
 static void show_text_message (cairo_t *, int, int, const char *);
 
 //------------------------------------------------------------------------------
@@ -66,6 +65,8 @@ gint
 on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 {
   cairo_t *cr = gdk_cairo_create (widget->window);
+  int width = widget->allocation.width;
+  int height = widget->allocation.height;
   int i;
   long start_time = 0;
   if (show_fps)
@@ -73,12 +74,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
       start_time = get_time_millis ();
     }
 
-  cairo_save (cr);
-
-  scale_for_aspect_ratio (cr, widget->allocation.width,
-			  widget->allocation.height);
-
-  cairo_scale (cr, game->debug_scale_factor, game->debug_scale_factor);
+  game->canvas->scale_for_aspect_ratio(cr, width, height);
 
   /* draw background space color */
   cairo_set_source_rgb (cr, 0.1, 0.0, 0.1);
@@ -181,42 +177,6 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 
   cairo_destroy (cr);
   return TRUE;
-}
-
-//------------------------------------------------------------------------------
-
-static void
-scale_for_aspect_ratio (cairo_t * cr, int widget_width, int widget_height)
-{
-  double scale;
-  int playfield_width, playfield_height;
-  int tx, ty;
-  gboolean is_widget_wider;
-
-  is_widget_wider = (widget_width * HEIGHT) > (WIDTH * widget_height);
-
-  if (is_widget_wider)
-    {
-      scale = ((double) widget_height) / HEIGHT;
-      playfield_width = (WIDTH * widget_height) / HEIGHT;
-      playfield_height = widget_height;
-      tx = (widget_width - playfield_width) / 2;
-      ty = 0;
-    }
-  else
-    {
-      scale = ((double) widget_width) / WIDTH;
-      playfield_width = widget_width;
-      playfield_height = (HEIGHT * widget_width) / WIDTH;
-      tx = 0;
-      ty = (widget_height - playfield_height) / 2;
-    }
-
-  cairo_translate (cr, tx, ty);
-  cairo_rectangle (cr, 0, 0, playfield_width, playfield_height);
-  cairo_clip (cr);
-
-  cairo_scale (cr, scale, scale);
 }
 
 //------------------------------------------------------------------------------
