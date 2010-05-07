@@ -4,18 +4,18 @@
 //
 // 2005-03-31: Version 0.1.
 
-// 2010-05-06: 990 lines
+// 2010-05-05: 1000 lines
+// 2010-05-06:  957
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <gtk/gtk.h>
 #include <sys/timeb.h>
 
+#include "game.h"
 #include "canvas.h"
 #include "game-object.h"
 #include "game-math.h"
-#include "game.h"
 
 //------------------------------------------------------------------------------
 // Forward definitions of functions
@@ -35,7 +35,6 @@ void draw_star (cairo_t * cr, CanvasItem * item);
 static void draw_turning_flare (cairo_t *, RGB_t, int);
 static void enforce_minimum_distance (physics_t *, physics_t *);
 static long get_time_millis (void);
-void init_trigonometric_tables (void);
 static void on_collision (GameObject *player, GameObject *missile);
 static int ring_segment_hit (GameObject *ring, GameObject *missile);
 static void on_ring_segment_collision (GameObject * ring, GameObject * m, int segment);
@@ -231,13 +230,8 @@ draw_energy_bar (cairo_t * cr, GameObject * p)
   cairo_rectangle (cr, 0, -5, p->energy / 5, 10);
 
   pat = cairo_pattern_create_linear (0, 0, SHIP_MAX_ENERGY / 5, 0);
-  cairo_pattern_add_color_stop_rgba (pat, 0,
-				     p->secondary_color.r,
-				     p->secondary_color.g,
-				     p->secondary_color.b, alpha);
-  cairo_pattern_add_color_stop_rgba (pat, 1, p->primary_color.r,
-				     p->primary_color.g, p->primary_color.b,
-				     alpha);
+  add_color_stop (pat, 0, p->secondary_color, alpha);
+  add_color_stop (pat, 1, p->primary_color, alpha);
 
   cairo_set_source (cr, pat);
   cairo_fill_preserve (cr);
@@ -300,12 +294,8 @@ draw_ship_body (cairo_t * cr, GameObject * p)
   cairo_curve_to (cr, -3, -34, -2, -33, 0, -33);
 
   pat = cairo_pattern_create_linear (-30.0, -30.0, 30.0, 30.0);
-  cairo_pattern_add_color_stop_rgba (pat, 0,
-				     p->primary_color.r, p->primary_color.g,
-				     p->primary_color.b, 1);
-  cairo_pattern_add_color_stop_rgba (pat, 1, p->secondary_color.r,
-				     p->secondary_color.g,
-				     p->secondary_color.b, 1);
+  add_color_stop (pat, 0, p->primary_color, 1);
+  add_color_stop (pat, 1, p->secondary_color, 1);
 
   cairo_set_source (cr, pat);
   cairo_fill_preserve (cr);
@@ -323,13 +313,15 @@ draw_flare (cairo_t * cr, RGB_t color)
 {
   cairo_pattern_t *pat;
 
+  RGB_t color_white = {1,1,1};
+
   cairo_save (cr);
   cairo_translate (cr, 0, 22);
   pat = cairo_pattern_create_radial (0, 0, 2, 0, 5, 12);
 
-  cairo_pattern_add_color_stop_rgba (pat, 0.0, color.r, color.g, color.b, 1);
-  cairo_pattern_add_color_stop_rgba (pat, 0.3, 1, 1, 1, 1);
-  cairo_pattern_add_color_stop_rgba (pat, 1.0, color.r, color.g, color.b, 0);
+  add_color_stop (pat, 0.0, color, 1);
+  add_color_stop (pat, 0.3, color_white, 1);
+  add_color_stop (pat, 1.0, color, 0);
   cairo_set_source (cr, pat);
   cairo_arc (cr, 0, 0, 20, 0, TWO_PI);
   cairo_fill (cr);
@@ -345,10 +337,12 @@ draw_turning_flare (cairo_t * cr, RGB_t color, int right_hand_side)
   cairo_pattern_t *pat;
   cairo_save (cr);
 
+  RGB_t color_white = {1,1,1};
+
   cairo_translate (cr, -23 * right_hand_side, 28);
   pat = cairo_pattern_create_radial (0, 0, 1, 0, 0, 7);
-  cairo_pattern_add_color_stop_rgba (pat, 0.0, 1, 1, 1, 1);
-  cairo_pattern_add_color_stop_rgba (pat, 1.0, color.r, color.g, color.b, 0);
+  add_color_stop (pat, 0.0, color_white, 1);
+  add_color_stop (pat, 1.0, color, 0);
   cairo_set_source (cr, pat);
   cairo_arc (cr, 0, 0, 7, 0, TWO_PI);
   cairo_fill (cr);
@@ -356,8 +350,8 @@ draw_turning_flare (cairo_t * cr, RGB_t color, int right_hand_side)
 
   cairo_translate (cr, 42 * right_hand_side, -22);
   pat = cairo_pattern_create_radial (0, 0, 1, 0, 0, 7);
-  cairo_pattern_add_color_stop_rgba (pat, 0.0, 1, 1, 1, 1);
-  cairo_pattern_add_color_stop_rgba (pat, 1.0, color.r, color.g, color.b, 0);
+  add_color_stop (pat, 0.0, color_white, 1);
+  add_color_stop (pat, 1.0, color, 0);
   cairo_set_source (cr, pat);
   cairo_arc (cr, 0, 0, 5, 0, TWO_PI);
   cairo_fill (cr);
@@ -417,13 +411,8 @@ draw_missile (cairo_t * cr, GameObject * m)
       cairo_curve_to (cr, -4, -2, -3, -4, 0, -4);
 
       pat = cairo_pattern_create_linear (0.0, -5.0, 0.0, 5.0);
-      cairo_pattern_add_color_stop_rgba (pat, 0,
-					 m->primary_color.r,
-					 m->primary_color.g,
-					 m->primary_color.b, alpha);
-      cairo_pattern_add_color_stop_rgba (pat, 1, m->secondary_color.r,
-					 m->secondary_color.g,
-					 m->secondary_color.b, alpha);
+      add_color_stop (pat, 0, m->primary_color, alpha);
+      add_color_stop (pat, 1, m->secondary_color, alpha);
 
       cairo_set_source (cr, pat);
       cairo_fill (cr);
@@ -434,13 +423,8 @@ draw_missile (cairo_t * cr, GameObject * m)
       cairo_arc (cr, 0, 0, 3, 0, TWO_PI);
 
       pat = cairo_pattern_create_linear (0, 3, 0, -3);
-      cairo_pattern_add_color_stop_rgba (pat, 0,
-					 m->primary_color.r,
-					 m->primary_color.g,
-					 m->primary_color.b, alpha);
-      cairo_pattern_add_color_stop_rgba (pat, 1, m->secondary_color.r,
-					 m->secondary_color.g,
-					 m->secondary_color.b, alpha);
+      add_color_stop (pat, 0, m->primary_color, alpha);
+      add_color_stop (pat, 1, m->secondary_color, alpha);
 
       cairo_set_source (cr, pat);
       cairo_fill (cr);
@@ -459,6 +443,8 @@ draw_exploded_missile (cairo_t * cr, GameObject * m)
   double alpha;
   cairo_pattern_t *pat;
 
+  RGB_t color_black = {0,0,0};
+
   cairo_save (cr);
   cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
@@ -468,13 +454,9 @@ draw_exploded_missile (cairo_t * cr, GameObject * m)
   cairo_arc (cr, 0, 0, 30, 0, TWO_PI);
 
   pat = cairo_pattern_create_radial (0, 0, 0, 0, 0, 30);
-  cairo_pattern_add_color_stop_rgba (pat, 0,
-				     m->primary_color.r, m->primary_color.g,
-				     m->primary_color.b, alpha);
-  cairo_pattern_add_color_stop_rgba (pat, 0.5, m->secondary_color.r,
-				     m->secondary_color.g,
-				     m->secondary_color.b, alpha * 0.75);
-  cairo_pattern_add_color_stop_rgba (pat, 1, 0, 0, 0, 0);
+  add_color_stop (pat, 0,   m->primary_color, alpha);
+  add_color_stop (pat, 0.5, m->secondary_color, alpha * 0.75);
+  add_color_stop (pat, 1,   color_black, 0);
 
   cairo_set_source (cr, pat);
   cairo_fill (cr);

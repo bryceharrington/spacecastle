@@ -11,6 +11,12 @@ typedef struct
 }
 RGB_t;
 
+inline void
+add_color_stop (cairo_pattern_t* pat, double offset, RGB_t color, double alpha)
+{
+    cairo_pattern_add_color_stop_rgba (pat, offset, color.r, color.g, color.b, alpha);
+}
+
 class CanvasItem {
  private:
 
