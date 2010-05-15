@@ -15,7 +15,7 @@ static RGB_t color_blue     = {0.3, 0.5, 0.9};
 static RGB_t color_darkblue = {0.1, 0.3, 0.3};
 
 Game::Game(gint argc, gchar ** argv)
-    : num_objects(0), next_missile_index(0)
+    : num_objects(0), next_missile_index(0), num_player_lives(3)
 {
     gtk_init (&argc, &argv);
 

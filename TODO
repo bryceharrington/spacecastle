@@ -49,7 +49,6 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
     + Look in worldforge code
     + Look if I did this in any other of my game code already
     + Use plain KEY = VALUE maps for now
-  - Change from cairo to cairomm
 
 * Create top level game application object
   - (DONE) Move #defines into a game application object
@@ -79,7 +78,8 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - Generalize the cairo text screen writing a bit more
 * CanvasItem refactoring
   - (DONE) Make energy bars be drawn via CanvasItem::draw()
-  - Make ships be drawn via CanvasItem::draw()
+  - Make ship be drawn via CanvasItem::draw()
+  - Make cannon be drawn via CanvasItem::draw()
   - Make missiles be drawn via CanvasItem::draw()
   - Make rings be drawn via CanvasItem::draw()
 * Move constants to variables

@@ -142,21 +142,28 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   // TODO:  Finally, the space mines
 
   if (game->game_over_message == NULL)
-    {
-      if (!game->cannon->is_alive)
-	{
-	  game->game_over_message = (!game->player->is_alive) ? "DRAW" : "RED wins";
-	}
-      else
-	{
-	  game->game_over_message = (!game->player->is_alive) ? "BLUE wins" : NULL;
-	}
-    }
+  {
+      if (!game->cannon->is_alive) {
+          /* Bonus life */
+          game->num_player_lives++;
+          game->game_over_message = "Victory!!!";
+      }
+      if (!game->player->is_alive)
+      {
+          game->num_player_lives--;
+          game->game_over_message = "Try again!!!";
+      }
+
+      if (game->num_player_lives <= 0)
+      {
+          game->game_over_message = "Game Over";
+      }
+  }
   if (game->game_over_message != NULL)
-    {
+  {
       show_text_message (cr, 80, -30, game->game_over_message);
       show_text_message (cr, 30, +40, "Press [ENTER] to restart");
-    }
+  }
 
   cairo_restore (cr);
 
