@@ -31,6 +31,7 @@ static void draw_ring (cairo_t *, GameObject *ring);
 static void draw_missile (cairo_t *, GameObject *missile);
 static void draw_exploded_missile (cairo_t *, GameObject *missile);
 static void draw_ship_body (cairo_t *, GameObject *player);
+static void draw_cannon (cairo_t *, GameObject *player);
 void draw_star (cairo_t * cr, CanvasItem * item);
 static void draw_turning_flare (cairo_t *, RGB_t, int);
 static void enforce_minimum_distance (physics_t *, physics_t *);
@@ -95,7 +96,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   cairo_translate (cr, game->cannon->p.x / FIXED_POINT_SCALE_FACTOR,
 		   game->cannon->p.y / FIXED_POINT_SCALE_FACTOR);
   cairo_rotate (cr, game->cannon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
-  draw_ship_body (cr, game->cannon);
+  draw_cannon (cr, game->cannon);
   cairo_restore (cr);
 
   cairo_save (cr);
@@ -263,6 +264,63 @@ draw_ship_body (cairo_t * cr, GameObject * p)
 
   cairo_set_source_rgb (cr, 0, 0, 0);
   cairo_stroke (cr);
+  cairo_restore (cr);
+}
+
+static void
+draw_cannon (cairo_t * cr, GameObject * p)
+{
+  cairo_pattern_t *pat;
+
+  if (p->is_hit)
+    {
+      cairo_set_source_rgba (cr, p->primary_color.r, p->primary_color.g,
+			     p->primary_color.b, 0.5);
+      cairo_arc (cr, 0, 0, SHIP_RADIUS / FIXED_POINT_SCALE_FACTOR, 0, TWO_PI);
+      cairo_stroke (cr);
+    }
+
+  cairo_save (cr);
+  cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
+
+  if (p->is_alive)
+    {
+
+      if (p->is_thrusting)
+	{
+	  draw_flare (cr, p->primary_color);
+	}
+
+      if (p->is_turning_left && !p->is_turning_right)
+	{
+	  draw_turning_flare (cr, p->primary_color, -1);
+	}
+
+      if (!p->is_turning_left && p->is_turning_right)
+	{
+	  draw_turning_flare (cr, p->primary_color, 1);
+	}
+    }
+
+  cairo_set_line_width (cr, 2.0);
+  cairo_arc (cr, 0, 0, p->p.radius/FIXED_POINT_SCALE_FACTOR, 5.0/180.0, TWO_PI);
+
+  cairo_move_to (cr, 6, -28);
+  cairo_line_to (cr, 6, -45);
+  cairo_line_to (cr, -6, -45);
+  cairo_line_to (cr, -6, -28);
+
+  pat = cairo_pattern_create_linear (-30.0, -30.0, 30.0, 30.0);
+  add_color_stop (pat, 0, p->primary_color, 1);
+  add_color_stop (pat, 1, p->secondary_color, 1);
+
+  cairo_set_source (cr, pat);
+  cairo_fill_preserve (cr);
+  cairo_pattern_destroy (pat);
+
+  cairo_set_source_rgb (cr, 0, 0, 0);
+  cairo_stroke (cr);
+
   cairo_restore (cr);
 }
 
@@ -505,22 +563,13 @@ on_timeout (gpointer data)
 
 	  if (!game->missiles[i].has_exploded)
 	    {
-	      if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
-		{
-		  on_collision (game->cannon, &(game->missiles[i]));
-		}
-
-	      if (check_for_collision (&(game->missiles[i].p), &(game->player->p)))
-		{
-		  on_collision (game->player, &(game->missiles[i]));
-		}
-
-              /* TODO: Foreach ring segment, check collision */
-              for (j = 0; j < MAX_NUMBER_OF_RINGS; j++) {
+              /* Foreach ring segment, check collision */
+              for (j = MAX_NUMBER_OF_RINGS; j >= 0; j--) {
                   if (!game->rings[j].is_alive)
                       continue;
 
-                  if (check_for_ring_segment_collision (&(game->rings[j].p), &(game->missiles[i].p)))
+                  if (check_for_ring_segment_collision (&(game->rings[j].p),
+                                                        &(game->missiles[i].p)))
                   {
                       int segment = ring_segment_hit(&(game->rings[j]),
                                                      &(game->missiles[i]));
@@ -531,8 +580,19 @@ on_timeout (gpointer data)
                       on_ring_segment_collision (&(game->rings[j]),
                                                  &(game->missiles[i]),
                                                  segment);
+
+
                   }
               }
+	      if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
+		{
+		  on_collision (game->cannon, &(game->missiles[i]));
+		}
+
+	      if (check_for_collision (&(game->missiles[i].p), &(game->player->p)))
+		{
+		  on_collision (game->player, &(game->missiles[i]));
+		}
 	    }
 
 	  game->missiles[i].energy--;
@@ -776,8 +836,9 @@ check_for_ring_segment_collision (physics_t * ring, physics_t * p1)
   printf ("((%d - %d)^2 + (%d - %d)^2 = %d) < ((%d + %d)^2 = %d): %s\n",
           p1->x, ring->x, p1->y, ring->y, d2, p1->radius, ring->radius, r*r, (d2 < (r * r)) ? "TRUE" : "FALSE");
   printf ("%d: %d > %d: %s\n",
-          rr, d2, rr*rr, (d2 > (rr * rr)) ? "TRUE" : "FALSE");
+          rr, d2, rr*rr, (d2 < (r*r) && (d2 > (rr * rr))) ? "TRUE" : "FALSE");
   */
+
   return (d2 < (r * r) && (d2 > (rr * rr)))? TRUE : FALSE;
 }
 
@@ -850,8 +911,9 @@ on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
     }
     /*
     printf("Ring energy: 0x%.8o\n", ring->energy);
-    */
+
     printf("Ring segment %d hit\n", segment);
+    */
     ring->is_hit = TRUE;
     m->has_exploded = TRUE;
     m->energy = MISSILE_EXPLOSION_TICKS_TO_LIVE;
