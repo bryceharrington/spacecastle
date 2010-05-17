@@ -111,7 +111,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - AI for homing mines
     + Look for player and apply small vector to adjust towards current location
 * Once the cannon is destroyed, go to the next level
-  - Player gets an extra ship
+  - (DONE) Player gets an extra ship
   - In each level, things move faster
 * Create a World class
   - Move stars into this
@@ -121,7 +121,7 @@ Space Castle (Inspired by Star Castle / Yars Revenge)
   - Study rsvg_cairo_render_path for possible reuse
 * Levels
   - Keep track of level number
-  - On death of cannon, go to next level
+  - (DONE) On death of cannon, go to next level
   - Restore energy to max
   - Adapt game parameters to vary by level
     + Shield rotational speed
