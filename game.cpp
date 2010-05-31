@@ -195,7 +195,10 @@ Game::init_rings_array ()
         rings[i].p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
         rings[i].is_alive = TRUE;
         rings[i].scale = i;
-        rings[i].energy = (1 << 2*SEGMENTS_PER_RING) - 1;
+        rings[i].energy = SEGMENTS_PER_RING;
+        for (int j=0; j<SEGMENTS_PER_RING; j++) {
+            rings[i].component_energy[j] = 3;
+        }
 
         rings[i].primary_color.r = 0.3;
         rings[i].primary_color.g = 1.0;

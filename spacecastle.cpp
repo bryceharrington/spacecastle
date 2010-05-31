@@ -24,7 +24,7 @@ static void operate_cannon (GameObject *cannon, GameObject *player);
 static void apply_physics (physics_t *);
 static void apply_physics_to_player (GameObject *player);
 static gboolean check_for_collision (physics_t *, physics_t *);
-static gboolean check_for_ring_segment_collision (physics_t *, physics_t *);
+static gboolean check_for_ring_collision (physics_t *, physics_t *);
 void draw_energy_bar (cairo_t *, GameObject *player);
 static void draw_flare (cairo_t *, RGB_t);
 static void draw_ring (cairo_t *, GameObject *ring);
@@ -127,10 +127,12 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
       if (game->rings[i].is_alive)
 	{
 	  cairo_save (cr);
-	  cairo_translate (cr, game->rings[i].p.x / FIXED_POINT_SCALE_FACTOR,
+	  cairo_translate (cr,
+                           game->rings[i].p.x / FIXED_POINT_SCALE_FACTOR,
 			   game->rings[i].p.y / FIXED_POINT_SCALE_FACTOR);
 	  cairo_rotate (cr,
-			game->rings[i].p.rotation * RADIANS_PER_ROTATION_ANGLE);
+                        -1 * game->rings[i].p.rotation * RADIANS_PER_ROTATION_ANGLE
+                        - PI/2.0);
 
           cairo_set_source_rgba (cr, 2-i, i? 1.0/i : 0, 0, 0.6);
 
@@ -390,17 +392,16 @@ draw_turning_flare (cairo_t * cr, RGB_t color, int right_hand_side)
 static void
 draw_ring (cairo_t * cr, GameObject * r) {
   for (int i=0; i<SEGMENTS_PER_RING; i++) {
-      cairo_rotate (cr, TWO_PI * i/SEGMENTS_PER_RING);
-      if (!(r->energy & (1 << (2*i)))
-          && !(r->energy & (1 << (2*i+1))))
+      if (r->component_energy[i] <= 0)
           continue;
 
       cairo_save (cr);
-      cairo_rotate (cr, -5.0/8.0*PI);
       cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
-      cairo_set_line_width (cr, 5.0);
-      cairo_arc (cr, 0, 0, r->p.radius/FIXED_POINT_SCALE_FACTOR, 5.0/180.0, TWO_PI/SEGMENTS_PER_RING);
+      cairo_set_line_width (cr, 2 * r->component_energy[i]);
+      cairo_arc (cr, 0, 0, r->p.radius/FIXED_POINT_SCALE_FACTOR,
+                 i * TWO_PI/SEGMENTS_PER_RING,
+                 (i+1) * TWO_PI/SEGMENTS_PER_RING - TWO_PI/180.0);
       cairo_stroke (cr);
 
       cairo_restore (cr);
@@ -533,7 +534,7 @@ on_timeout (gpointer data)
       game->rings[j].is_hit = FALSE;
   }
 
-  operate_cannon (game->cannon, game->player);
+  //operate_cannon (game->cannon, game->player);
   apply_physics_to_player (game->cannon);
   apply_physics_to_player (game->player);
 
@@ -575,20 +576,15 @@ on_timeout (gpointer data)
                   if (!game->rings[j].is_alive)
                       continue;
 
-                  if (check_for_ring_segment_collision (&(game->rings[j].p),
-                                                        &(game->missiles[i].p)))
+                  if (check_for_ring_collision (&(game->rings[j].p),
+                                                &(game->missiles[i].p)))
                   {
                       int segment = ring_segment_hit(&(game->rings[j]),
                                                      &(game->missiles[i]));
 
-                      printf("Collision of missile %d with ring %d segment %d\n",
-                             i, j, segment);
-
                       on_ring_segment_collision (&(game->rings[j]),
                                                  &(game->missiles[i]),
                                                  segment);
-
-
                   }
               }
 	      if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
@@ -613,9 +609,12 @@ on_timeout (gpointer data)
   int rot = 1;
   for (i = 0; i < MAX_NUMBER_OF_RINGS; i++)
   {
-      rot *= -1;
+      rot *= -1; /* TODO: Add ring rotation speed parameter */
       game->rings[i].p.rotation = (rot + game->rings[i].p.rotation)
           % NUMBER_OF_ROTATION_ANGLES;
+
+      if (game->rings[i].p.rotation < 0)
+          game->rings[i].p.rotation += NUMBER_OF_ROTATION_ANGLES;
   }
 
   if (game->cannon->energy <= 0)
@@ -831,20 +830,13 @@ check_for_collision (physics_t * p1, physics_t * p2)
 
 
 static gboolean
-check_for_ring_segment_collision (physics_t * ring, physics_t * p1)
+check_for_ring_collision (physics_t * ring, physics_t * p1)
 {
   int dx = (p1->x - ring->x) / FIXED_POINT_HALF_SCALE_FACTOR;
   int dy = (p1->y - ring->y) / FIXED_POINT_HALF_SCALE_FACTOR;
   int r  = (ring->radius - 2*p1->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int rr = (ring->radius * 0.75) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int rr = (ring->radius * 0.6) / FIXED_POINT_HALF_SCALE_FACTOR;
   int d2 = (dx * dx) + (dy * dy);
-
-  /*
-  printf ("((%d - %d)^2 + (%d - %d)^2 = %d) < ((%d + %d)^2 = %d): %s\n",
-          p1->x, ring->x, p1->y, ring->y, d2, p1->radius, ring->radius, r*r, (d2 < (r * r)) ? "TRUE" : "FALSE");
-  printf ("%d: %d > %d: %s\n",
-          rr, d2, rr*rr, (d2 < (r*r) && (d2 > (rr * rr))) ? "TRUE" : "FALSE");
-  */
 
   return (d2 < (r * r) && (d2 > (rr * rr)))? TRUE : FALSE;
 }
@@ -852,14 +844,16 @@ check_for_ring_segment_collision (physics_t * ring, physics_t * p1)
 static int
 ring_segment_hit (GameObject *ring, GameObject *m)
 {
-    /* TODO: Calculate angle of m relative to ring */
+    /* Calculate angle of missile compared with ring center */
     int dx = (m->p.x - ring->p.x);
     int dy = (m->p.y - ring->p.y);
-    int rot = ring->p.rotation - arctan(dy, dx);
-    //int rot = ring->p.rotation;
 
-    /* TODO: Consider the current rotation of the ring */
-    return abs(SEGMENTS_PER_RING * rot / NUMBER_OF_ROTATION_ANGLES);
+    /* Account for the current rotation of the ring */
+    int angle_ring_hit = (arctan(dy, dx) + ring->p.rotation)
+        % NUMBER_OF_ROTATION_ANGLES;
+
+    /* Divide angle by arc length of a segment */
+    return angle_ring_hit / (NUMBER_OF_ROTATION_ANGLES / SEGMENTS_PER_RING);
 }
 
 //------------------------------------------------------------------------------
@@ -901,31 +895,19 @@ on_collision (GameObject * p, GameObject * m)
 static void
 on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
 {
-    if (ring->energy & (1<<(2*segment))) {
-        /*
-        printf("Ring segment %d energy: 0x%.8o modified by 0x%.8o\n",
-               segment, ring->energy, (1<<(2*segment)));
-        */
-        ring->energy &= ~(1<<(2*segment));
-    } else if (ring->energy & (1<<(2*segment+1))) {
-        /*
-        printf("Secondary ring segment %d energy: 0x%.8o modified by 0x%.8o\n",
-               segment, ring->energy, (1<<(2*segment+1)));
-        */
-        ring->energy &= ~(1<<(2*segment+1));
-    } else {
+    if (ring->component_energy[segment] <= 0)
         return;
-    }
-    /*
-    printf("Ring energy: 0x%.8o\n", ring->energy);
 
-    printf("Ring segment %d hit\n", segment);
-    */
+    ring->component_energy[segment]--;
+
     ring->is_hit = TRUE;
     m->has_exploded = TRUE;
     m->energy = MISSILE_EXPLOSION_TICKS_TO_LIVE;
     m->p.vx = 0;
     m->p.vy = 0;
+
+    if (ring->component_energy[segment] <= 0)
+        ring->energy--;
 
     if (ring->energy <= 0) {
         ring->is_alive = FALSE;

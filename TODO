@@ -8,6 +8,9 @@ Development principles:
    * When re-inventing, create something an order of magnitude better
    * Strive to abstract code into reusable libraries where sensible
 
+Figure out if I can easily convert this over to Python and make use of
+my CairoCanvas work.
+
 Space Castle Development Objectives
 ===================================
 1.  Produce a functional, distributable game that uses cairo

@@ -11,7 +11,7 @@
 #define FIXED_POINT_HALF_SCALE_FACTOR 32
 
 // discretization of 360 degrees
-#define NUMBER_OF_ROTATION_ANGLES 180
+#define NUMBER_OF_ROTATION_ANGLES 360
 #define RADIANS_PER_ROTATION_ANGLE (TWO_PI / NUMBER_OF_ROTATION_ANGLES)
 
 extern int cos_table[];
