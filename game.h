@@ -86,6 +86,7 @@ class Game {
     int          next_missile_index;
     GameObject   rings[MAX_NUMBER_OF_RINGS];
     int          next_ring_index;
+    int          level;
 
     // TODO:  Move these into a background object structure
     Canvas      *canvas;
@@ -109,6 +110,7 @@ class Game {
     void init_rings_array ();
 
     void reset();
+    void advance_level();
     int run();
 
     int addObject(GameObject* o);

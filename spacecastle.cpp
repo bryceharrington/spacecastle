@@ -140,7 +140,8 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
       if (!game->cannon->is_alive) {
           /* Bonus life */
           game->num_player_lives++;
-          game->game_over_message = "Victory!!!";
+          game->game_over_message = "Next Level!";
+          game->advance_level();
       }
       if (!game->player->is_alive)
       {
@@ -266,10 +267,8 @@ on_timeout (gpointer data)
 	}
     }
 
-  int rot = 1;
   for (i = 0; i < MAX_NUMBER_OF_RINGS; i++)
   {
-      rot = 
       game->rings[i].p.rotation = 
           (game->rings[i].p.rotation + game->rings[i].rotation_speed)
           % NUMBER_OF_ROTATION_ANGLES;
@@ -325,7 +324,11 @@ operate_cannon (GameObject * cannon, GameObject * player)
     direction = arctan ( (p->y - c->y), (p->x - c->x) );
 
     if (direction == c->rotation) {
+        // What segment would we hit if we fired?
+        // What energy level is the segment?
+        // If no segments destroyed yet, shoot one if level > 1
         cannon->is_firing = TRUE;
+
         cannon->is_turning_left = FALSE;
         cannon->is_turning_right = FALSE;
     } else if (c->rotation - direction == NUMBER_OF_ROTATION_ANGLES/2) {
@@ -348,9 +351,6 @@ operate_cannon (GameObject * cannon, GameObject * player)
         cannon->is_turning_right = TRUE;
         cannon->is_turning_left = FALSE;
     }
-
-    // TODO:  On advanced levels, take into account the speed the player
-    // is going, and try to lead him a bit.
 }
 
 static void
@@ -503,18 +503,25 @@ check_for_ring_collision (physics_t * ring, physics_t * p1)
 }
 
 static int
+ring_segment_by_rotation (GameObject *ring, int rot)
+{
+    /* Account for the current rotation of the ring */
+    int angle_ring_hit = (rot + ring->p.rotation)
+        % NUMBER_OF_ROTATION_ANGLES;
+
+    /* Divide angle by arc length of a segment */
+    return angle_ring_hit / (NUMBER_OF_ROTATION_ANGLES / SEGMENTS_PER_RING);
+}
+
+static int
 ring_segment_hit (GameObject *ring, GameObject *m)
 {
     /* Calculate angle of missile compared with ring center */
     int dx = (m->p.x - ring->p.x);
     int dy = (m->p.y - ring->p.y);
+    int rot = arctan(dy, dx);
 
-    /* Account for the current rotation of the ring */
-    int angle_ring_hit = (arctan(dy, dx) + ring->p.rotation)
-        % NUMBER_OF_ROTATION_ANGLES;
-
-    /* Divide angle by arc length of a segment */
-    return angle_ring_hit / (NUMBER_OF_ROTATION_ANGLES / SEGMENTS_PER_RING);
+    return ring_segment_by_rotation(ring, rot);
 }
 
 //------------------------------------------------------------------------------
@@ -573,6 +580,11 @@ on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
     if (ring->energy <= 0) {
         ring->is_alive = FALSE;
         // TODO:  If ring dead, create new one and regenerate mines
+
+        // Mark rings are in transition
+        // Each tick, increase radius by 1
+        // until it equals the next higher level
+        // Then move ring[N] to ring[N-1]
     }
 }
 
