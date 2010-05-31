@@ -64,7 +64,7 @@ void Game::reset() {
     cannon_status->x = 30;
     cannon_status->y = 30;
     cannon_status->rotation = 0;
-    cannon_status->energy = SHIP_MAX_ENERGY;
+    cannon_status->energy = CANNON_MAX_ENERGY;
     cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
     player->init();
@@ -212,9 +212,9 @@ Game::init_rings_array ()
         rings[i].secondary_color.g = 1.0;
         rings[i].secondary_color.b = 0.3;
     }
-    rings[0].p.radius = SHIELD_INNER_RADIUS;
+    rings[0].p.radius = SHIELD_OUTER_RADIUS;
     rings[1].p.radius = SHIELD_MIDDLE_RADIUS;
-    rings[2].p.radius = SHIELD_OUTER_RADIUS;
+    rings[2].p.radius = SHIELD_INNER_RADIUS;
 }
 
 void

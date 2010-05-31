@@ -396,8 +396,6 @@ draw_ring (cairo_t * cr, GameObject * r) {
           continue;
 
       cairo_save (cr);
-      cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
-
       cairo_set_line_width (cr, r->component_energy[i]);
       cairo_arc (cr, 0, 0, r->p.radius/FIXED_POINT_SCALE_FACTOR,
                  i * TWO_PI/SEGMENTS_PER_RING,
@@ -835,8 +833,8 @@ check_for_ring_collision (physics_t * ring, physics_t * p1)
 {
   int dx = (p1->x - ring->x) / FIXED_POINT_HALF_SCALE_FACTOR;
   int dy = (p1->y - ring->y) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int r  = (ring->radius - 2*p1->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int rr = (ring->radius * 0.6) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int r  = (ring->radius + p1->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int rr = (ring->radius * 0.8) / FIXED_POINT_HALF_SCALE_FACTOR;
   int d2 = (dx * dx) + (dy * dy);
 
   return (d2 < (r * r) && (d2 > (rr * rr)))? TRUE : FALSE;
