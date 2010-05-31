@@ -66,11 +66,6 @@ class Game {
     GameObject* objects[MAX_OBJECTS];
     int         num_objects;
 
-    // TODO:  Could this all be done with a single data structure?
-    std::map<GQuark, int>     iparams;
-    std::map<GQuark, double>  dparams;
-    std::map<GQuark, char*>   param_desc;
-
  public:
     GtkWidget   *window;
     const char  *game_over_message;
@@ -92,17 +87,8 @@ class Game {
     Canvas      *canvas;
     CanvasItem   stars[NUMBER_OF_STARS];
 
-    double dparam(GQuark name) const;
-    double dparam(const char* name) const;
-    int  iparam(GQuark name) const;
-    int  iparam(const char* name) const;
-    void define(const char* name, int value, const char* desc = NULL);
-    void define(const char* name, double value, const char* desc = NULL);
-
     Game(gint argc, gchar ** argv);
     ~Game();
-
-    void setup_parameters();
 
     void init();
     void init_missiles_array ();
@@ -145,66 +131,6 @@ inline int Game::run() {
     gtk_main ();
 
     return 0;
-}
-
-inline double Game::dparam(GQuark name) const {
-    return 0.0;
-}
-
-inline double Game::dparam(const char* name) const {
-    return dparam(g_quark_from_string(name));
-}
-
-inline int  Game::iparam(GQuark name) const {
-    return 0;
-}
-
-inline int  Game::iparam(const char* name) const {
-    return iparam(g_quark_from_string(name));
-}
-
-inline void Game::define(const char* name, int value, const char* desc) {
-}
-
-inline void Game::define(const char* name, double value, const char* desc) {
-}
-
-// Set up the global parameters
-inline void Game::setup_parameters() {
-    define("FIXED_POINT_SCALE_FACTOR", 1024,
-           "trig computations (and x, y, velocity, etc). are made in fixed point arithmetic");
-    define("FIXED_POINT_HALF_SCALE_FACTOR", 32,
-           "trig computations (and x, y, velocity, etc). are made in fixed point arithmetic");
-
-    define("NUMBER_OF_ROTATION_ANGLES", 60,
-           "discretization of 360 degrees");
-    define("RADIANS_PER_ROTATION_ANGLE", (TWO_PI / NUMBER_OF_ROTATION_ANGLES),
-           "discretization of 360 degrees");
-
-    define("TICKS_BETWEEN_FIRE", 8,
-           "a shot every 9/25 seconds = 8 ticks between shots");
-
-    define("GLOBAL_SHIP_SCALE_FACTOR", 0.8,
-           "fudge this for bigger or smaller ships");
-
-    define("SHIP_ACCELERATION_FACTOR", 1);
-    define("SHIP_MAX_VELOCITY", (10 * FIXED_POINT_SCALE_FACTOR));
-    define("SHIP_RADIUS", ((int) (38 * FIXED_POINT_SCALE_FACTOR * GLOBAL_SHIP_SCALE_FACTOR)));
-
-    define("SHIP_MAX_ENERGY", 1000);
-    define("DAMAGE_PER_MISSILE", 200);
-    define("ENERGY_PER_MISSILE", 10);
-
-    define("DAMAGE_PER_SHIP_BOUNCE_DIVISOR", 3,
-           "bounce damage depends on how fast you're going");
-
-    define("NUMBER_OF_STARS", 20);
-
-    define("MAX_NUMBER_OF_MISSILES", 60);
-    define("MISSILE_RADIUS", (4 * FIXED_POINT_SCALE_FACTOR));
-    define("MISSILE_SPEED", 8);
-    define("MISSILE_TICKS_TO_LIVE", 60);
-    define("MISSILE_EXPLOSION_TICKS_TO_LIVE", 6);
 }
 
 
