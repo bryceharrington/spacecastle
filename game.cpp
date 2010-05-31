@@ -58,6 +58,7 @@ void Game::reset() {
     cannon->is_hit = FALSE;
     cannon->is_alive = TRUE;
     cannon->draw_func = NULL;
+    cannon->rotation_speed = 1;
 
     cannon_status->init();
     cannon_status->x = 30;
@@ -76,6 +77,7 @@ void Game::reset() {
     player->is_hit = FALSE;
     player->is_alive = TRUE;
     player->draw_func = NULL;
+    player->rotation_speed = 3;
 
     player_status->init();
     player_status->x = WIDTH - 30;
@@ -187,6 +189,7 @@ Game::init_missiles_array ()
 void
 Game::init_rings_array ()
 {
+    int rot = 1;
     for (int i=0; i < MAX_NUMBER_OF_RINGS; i++)
     {
         rings[i].x = WIDTH / 2;
@@ -196,8 +199,10 @@ Game::init_rings_array ()
         rings[i].is_alive = TRUE;
         rings[i].scale = i;
         rings[i].energy = SEGMENTS_PER_RING;
+        rings[i].rotation_speed = rot;
+        rot *= -1;
         for (int j=0; j<SEGMENTS_PER_RING; j++) {
-            rings[i].component_energy[j] = 3;
+            rings[i].component_energy[j] = 6;
         }
 
         rings[i].primary_color.r = 0.3;

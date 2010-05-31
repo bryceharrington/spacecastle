@@ -33,6 +33,7 @@ class GameObject : public CanvasItem {
     int ticks_until_can_fire;  // only for spaceships
     int energy;                // for missiles and spaceships
     int component_energy[SEGMENTS_PER_RING]; // for rings
+    int rotation_speed;
 
     gboolean is_hit;           // only for spaceships
     gboolean is_alive;

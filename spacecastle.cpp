@@ -398,7 +398,7 @@ draw_ring (cairo_t * cr, GameObject * r) {
       cairo_save (cr);
       cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
-      cairo_set_line_width (cr, 2 * r->component_energy[i]);
+      cairo_set_line_width (cr, r->component_energy[i]);
       cairo_arc (cr, 0, 0, r->p.radius/FIXED_POINT_SCALE_FACTOR,
                  i * TWO_PI/SEGMENTS_PER_RING,
                  (i+1) * TWO_PI/SEGMENTS_PER_RING - TWO_PI/180.0);
@@ -534,7 +534,7 @@ on_timeout (gpointer data)
       game->rings[j].is_hit = FALSE;
   }
 
-  //operate_cannon (game->cannon, game->player);
+  operate_cannon (game->cannon, game->player);
   apply_physics_to_player (game->cannon);
   apply_physics_to_player (game->player);
 
@@ -609,8 +609,9 @@ on_timeout (gpointer data)
   int rot = 1;
   for (i = 0; i < MAX_NUMBER_OF_RINGS; i++)
   {
-      rot *= -1; /* TODO: Add ring rotation speed parameter */
-      game->rings[i].p.rotation = (rot + game->rings[i].p.rotation)
+      rot = 
+      game->rings[i].p.rotation = 
+          (game->rings[i].p.rotation + game->rings[i].rotation_speed)
           % NUMBER_OF_ROTATION_ANGLES;
 
       if (game->rings[i].p.rotation < 0)
@@ -703,20 +704,20 @@ apply_physics_to_player (GameObject * player)
       // check if player is turning left, ...
       if (player->is_turning_left)
 	{
-	  p->rotation--;
+	  p->rotation -= player->rotation_speed;
 	  while (p->rotation < 0)
 	    {
-	      p->rotation += NUMBER_OF_ROTATION_ANGLES;
+                p->rotation += NUMBER_OF_ROTATION_ANGLES;
 	    }
 	}
 
       // ... or right.
       if (player->is_turning_right)
 	{
-	  p->rotation++;
+	  p->rotation += player->rotation_speed;
 	  while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
 	    {
-	      p->rotation -= NUMBER_OF_ROTATION_ANGLES;
+                p->rotation -= NUMBER_OF_ROTATION_ANGLES;
 	    }
 	}
 
