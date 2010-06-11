@@ -2,7 +2,6 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "game.h"
-#include "game-object.h"
 
 // TODO:  Need to find best place for these...
 void draw_star (cairo_t * cr, CanvasItem * item);
@@ -202,7 +201,7 @@ Game::init_rings_array ()
         rings[i].rotation_speed = rot;
         rot *= -1;
         for (int j=0; j<SEGMENTS_PER_RING; j++) {
-            rings[i].component_energy[j] = 6;
+            rings[i].component_energy[j] = 1 + level;
         }
 
         rings[i].primary_color.r = 0.3;
@@ -230,6 +229,34 @@ Game::init_stars_array ()
         stars[i].scale = 0.5 + (drand48 ());
         stars[i].draw_func = draw_star;
     }
+}
+
+//------------------------------------------------------------------------------
+
+void
+Game::advance_level()
+{
+    level++;
+
+    // TODO:  On advanced levels, take into account the speed the player
+    // is going, and try to lead him a bit.
+
+    // Increase thickness of rings
+
+    // Add another ring
+
+    // Increase rotation speed of rings
+
+    // Give cannon better or additional weaponry
+
+    // Add gravitational attraction
+    // Add forcefield repulsion
+
+    // Make cannon smarter
+    // + Selectively shoot out one inner ring segment
+    // + If only 2 segments left in outer layer, shoot them
+    // + Lead the player's ship when firing
+
 }
 
 //------------------------------------------------------------------------------

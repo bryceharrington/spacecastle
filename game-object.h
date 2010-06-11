@@ -17,8 +17,6 @@ typedef struct
 }
 physics_t;
 
-#define SEGMENTS_PER_RING 8
-
 class GameObject : public CanvasItem {
  public:
     physics_t p;
@@ -32,8 +30,9 @@ class GameObject : public CanvasItem {
 
     int ticks_until_can_fire;  // only for spaceships
     int energy;                // for missiles and spaceships
-    int component_energy[SEGMENTS_PER_RING]; // for rings
+    int component_energy[MAX_COMPONENTS]; // for rings
     int rotation_speed;
+    int animation_tick;
 
     gboolean is_hit;           // only for spaceships
     gboolean is_alive;
@@ -54,6 +53,8 @@ inline void GameObject::init() {
 
     p.vx = 0;
     p.vy = 0;
+
+    animation_tick = 0;
 }
 
 #endif
