@@ -18,6 +18,13 @@ Space Castle Development Objectives
 3.  Abstract a Game class to use for future games
 
 // 2010-05-06: 286 lines
+* High scores
+* Level effect on shield thickness
+* Make cannon not fire if it'd hit the shield
+* Make heavier use of component_energy
+* Maybe do random code cleaup / refactoring
+  since it's hard to focus right now
+* Animated state transformation
 
 Space Castle (Inspired by Star Castle / Yars Revenge)
 ============
