@@ -6,10 +6,10 @@
 
 #include <gtk/gtk.h>
 
+#include "game-config.h"
 #include "game-math.h"
 #include "game-object.h"
 #include "drawing.h"
-#include "game.h"
 
 //------------------------------------------------------------------------------
 

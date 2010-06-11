@@ -2,7 +2,6 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "game.h"
-#include "game-object.h"
 
 // TODO:  Need to find best place for these...
 void draw_star (cairo_t * cr, CanvasItem * item);

@@ -13,11 +13,12 @@
 #include <time.h>
 #include <sys/timeb.h>
 
-#include "game.h"
 #include "canvas.h"
+#include "game-config.h"
 #include "game-object.h"
 #include "game-math.h"
 #include "drawing.h"
+#include "game.h"
 
 //------------------------------------------------------------------------------
 // Forward definitions of functions

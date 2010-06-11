@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <gtk/gtk.h>
-#include <map>
 
 #include "game-config.h"
 #include "game-object.h"  // TODO:  Remove this

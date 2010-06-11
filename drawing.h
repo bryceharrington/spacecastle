@@ -1,7 +1,6 @@
 #ifndef __DRAWING_H__
 #define __DRAWING_H__
 
-
 void draw_energy_bar (cairo_t *, GameObject *player);
 void draw_flare (cairo_t *, RGB_t);
 void draw_ring (cairo_t *, GameObject *ring);

@@ -1,5 +1,5 @@
-#ifndef __CONSTANTS_H__
-#define __CONSTANTS_H__
+#ifndef __GAME_CONFIG_H__
+#define __GAME_CONFIG_H__
 
 #define WIDTH  800
 #define HEIGHT 600
@@ -9,6 +9,8 @@
 
 // maximum number of game objects allowed
 #define MAX_OBJECTS (1024)
+
+#define MAX_COMPONENTS (8)
 
 #define MAX_NUMBER_OF_MISSILES 60
 
@@ -42,7 +44,7 @@
 #define MISSILE_TICKS_TO_LIVE 60
 #define MISSILE_EXPLOSION_TICKS_TO_LIVE 6
 
-#define SEGMENTS_PER_RING 8
+#define SEGMENTS_PER_RING (8)
 #define MAX_NUMBER_OF_RINGS 3
 
 #endif
