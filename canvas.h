@@ -1,6 +1,9 @@
 #ifndef __CANVAS_H__
 #define __CANVAS_H__
 
+#include <cairo.h>
+#include <glib.h>
+
 class CanvasItem;
 
 typedef void   (* canvas_item_draw) (cairo_t * cr, CanvasItem * item);
