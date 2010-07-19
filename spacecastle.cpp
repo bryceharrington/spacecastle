@@ -23,11 +23,12 @@
 //------------------------------------------------------------------------------
 // Forward definitions of functions
 
-static void operate_cannon (GameObject *cannon, GameObject *player);
+static void operate_cannon (GameObject *cannon, GameObject *player, GameObject *ring);
 static void apply_physics (physics_t *);
 static void apply_physics_to_player (GameObject *player);
 static gboolean check_for_collision (physics_t *, physics_t *);
 static gboolean check_for_ring_collision (physics_t *, physics_t *);
+static int ring_segment_by_rotation (GameObject *ring, int rot);
 static void enforce_minimum_distance (physics_t *, physics_t *);
 static long get_time_millis (void);
 static void on_collision (GameObject *player, GameObject *missile);
@@ -196,7 +197,7 @@ on_timeout (gpointer data)
       game->rings[j].is_hit = FALSE;
   }
 
-  operate_cannon (game->cannon, game->player);
+  operate_cannon (game->cannon, game->player, &(game->rings[MAX_NUMBER_OF_RINGS-1]));
   apply_physics_to_player (game->cannon);
   apply_physics_to_player (game->player);
 
@@ -309,7 +310,7 @@ on_timeout (gpointer data)
 //------------------------------------------------------------------------------
 
 static void
-operate_cannon (GameObject * cannon, GameObject * player)
+operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
 {
     int direction;
 
@@ -326,12 +327,33 @@ operate_cannon (GameObject * cannon, GameObject * player)
 
     if (direction == c->rotation) {
         // What segment would we hit if we fired?
-        // What energy level is the segment?
-        // If no segments destroyed yet, shoot one if level > 1
-        cannon->is_firing = TRUE;
+        int seg_no = ring_segment_by_rotation(ring, c->rotation);
+        printf("I would hit segment %d\n", seg_no);
 
-        cannon->is_turning_left = FALSE;
-        cannon->is_turning_right = FALSE;
+        // TODO: If rotation angle is such that our missile
+        //   would likely hit a ring segment, don't shoot.
+
+        // Don't shoot if it'd just hurt our ring shield
+        if (ring->component_energy[seg_no] > 0) {
+            gboolean ring_is_undamaged = true;
+            for (int seg=0; seg<SEGMENTS_PER_RING; seg++) {
+                if (ring->component_energy[seg] <= 0) {
+                    ring_is_undamaged = false;
+                }
+            }
+
+            // However, if no segments destroyed yet, shoot one if level > 1
+            if (ring_is_undamaged) {
+                cannon->is_firing = TRUE;
+                cannon->is_turning_left = FALSE;
+                cannon->is_turning_right = FALSE;
+            }
+
+        } else {
+            cannon->is_firing = TRUE;
+            cannon->is_turning_left = FALSE;
+            cannon->is_turning_right = FALSE;
+        }
     } else if (c->rotation - direction == NUMBER_OF_ROTATION_ANGLES/2) {
         cannon->is_firing = FALSE;
         // Stay going in same direction
