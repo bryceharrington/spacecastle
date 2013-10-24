@@ -14,7 +14,7 @@ all: $(APP)
 
 $(OBJECTS): $(HEADERS)
 $(APP): $(OBJECTS)
-	$(CXX) $(LDFLAGS) -o $@ $^
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:
 	$(RM) *.o $(APPS)
