@@ -64,6 +64,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   int height = widget->allocation.height;
   int i;
   long start_time = 0;
+
   if (show_fps)
     {
       start_time = get_time_millis ();
@@ -76,8 +77,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   cairo_paint (cr);
 
   // draw any stars...
-  for (i = 0; i < NUMBER_OF_STARS; i++)
-    {
+  for (i = 0; i < NUMBER_OF_STARS; i++) {
       game->stars[i].draw(cr);
     }
 
@@ -85,7 +85,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   game->cannon_status->draw(cr);
   game->player_status->draw(cr);
 
-  // ... the two ships...
+  // ... ships...
   cairo_save (cr);
   cairo_translate (cr, game->cannon->p.x / FIXED_POINT_SCALE_FACTOR,
 		   game->cannon->p.y / FIXED_POINT_SCALE_FACTOR);
