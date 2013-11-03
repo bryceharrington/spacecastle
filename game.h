@@ -5,10 +5,11 @@
 #include <time.h>
 #include <gtk/gtk.h>
 
+#include "game-debug.h"
 #include "game-config.h"
 #include "game-object.h"  // TODO:  Remove this
 #include "game-math.h"
-
+#
 // Forward definitions of handler functions
 gint on_expose_event (GtkWidget *, GdkEventExpose *);
 gint on_key_event (GtkWidget *, GdkEventKey *, gboolean);
