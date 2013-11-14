@@ -1,13 +1,11 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
-#ifdef DEBUG
 
-#ifdef dbg
-# define dbg(msg) printf(msg);
-
-#else // DEBUG
-# define dbg(msg)
-#endif
-
+#ifndef DEBUG
+#define DEBUG (1)
 #endif // DEBUG
+
+# define dbg(fmt, ...) \
+  do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+
 #endif // __DEBUG_H__

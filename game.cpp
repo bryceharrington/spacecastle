@@ -137,14 +137,14 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
         if (key_is_on)
         {
             canvas->debug_scale_factor /= 1.25f;
-            printf ("Scale: %f\n", canvas->debug_scale_factor);
+            dbg ("Scale: %f\n", canvas->debug_scale_factor);
         }
         break;
     case GDK_bracketright:
         if (key_is_on)
         {
             canvas->debug_scale_factor *= 1.25f;
-            printf ("Scale: %f\n", canvas->debug_scale_factor);
+            dbg ("Scale: %f\n", canvas->debug_scale_factor);
         }
         break;
 

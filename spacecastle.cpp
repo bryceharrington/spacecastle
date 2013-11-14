@@ -173,7 +173,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 	  double fps =
 	    1000.0 * ((double) number_of_frames) /
 	    ((double) millis_taken_for_frames);
-	  printf ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
+	  dbg ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
 		  millis_taken_for_frames, fps);
 	  number_of_frames = 0;
 	  millis_taken_for_frames = 0L;
@@ -328,7 +328,7 @@ operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
     if (direction == c->rotation) {
         // What segment would we hit if we fired?
         int seg_no = ring_segment_by_rotation(ring, c->rotation);
-        printf("I would hit segment %d\n", seg_no);
+        dbg("I would hit segment %d\n", seg_no);
 
         // TODO: If rotation angle is such that our missile
         //   would likely hit a ring segment, don't shoot.
