@@ -10,6 +10,9 @@ CXXFLAGS  = -g -Wall
 CXXFLAGS += `pkg-config gtk+-2.0 --cflags`
 LDFLAGS  += `pkg-config gtk+-2.0 --libs`
 
+CXXFLAGS += `pkg-config popt --cflags`
+LDFLAGS  += `pkg-config popt --libs`
+
 all: $(APP)
 
 $(OBJECTS): $(HEADERS)

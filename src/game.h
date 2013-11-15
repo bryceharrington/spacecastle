@@ -56,7 +56,7 @@ class Game {
     int run();
 
     int addObject(GameObject* o);
-
+    void process_options(int argc, gchar ** argv);
     gint handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on);
 };
 

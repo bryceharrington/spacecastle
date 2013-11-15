@@ -1,3 +1,6 @@
+#include <popt.h>
+#include <err.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -17,6 +20,7 @@ Game::Game(gint argc, gchar ** argv)
     : num_objects(0), num_player_lives(3), next_missile_index(0)
 {
     gtk_init (&argc, &argv);
+    process_options(argc, argv);
 
     init_trigonometric_tables ();
 
@@ -40,6 +44,37 @@ Game::~Game()
     GameObject *o;
     for (; (o = objects[--num_objects]); )
         delete o;
+}
+
+void Game::process_options(int argc, gchar ** argv) {
+  int rc;
+  poptContext pc;
+  struct poptOption po[] = {
+    /* TODO: Add game options here */
+    POPT_AUTOHELP
+    {NULL}
+  };
+
+  pc = poptGetContext(NULL, argc, (const char **)argv, po, 0);
+  poptSetOtherOptionHelp(pc, "[ARG...]");
+  poptReadDefaultConfig(pc, 0);
+
+  while ((rc = poptGetNextOpt(pc)) >= 0);
+  if (rc != -1) {
+    // handle error
+    switch(rc) {
+    case POPT_ERROR_NOARG:
+      errx(1, "Argument missing for an option\n");
+    case POPT_ERROR_BADOPT:
+      errx(1, "Unknown option or argument\n");
+    case POPT_ERROR_BADNUMBER:
+    case POPT_ERROR_OVERFLOW:
+      errx(1, "Option could not be converted to number\n");
+    default:
+      errx(1, "Unknown error in option processing\n");
+    }
+  }
+  //const char **remainder = poptGetArgs(pc);
 }
 
 void Game::reset() {
