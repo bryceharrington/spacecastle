@@ -1,45 +1,18 @@
+			      Space Castle
+			      ------------
+
+This game is modeled after the old arcade and Atari space shooter games,
+where you must blast through the enemy fortifications.
+
+
+
 Prerequisites
 =============
-You need gtk+ >= 2.7.0 installed to run this game.
+You need gtk+ >= 2.7.0 and cairo >= 1.2.0 installed to run this game.
 
 
-About InkDrop
-=============
-InkDrop is a technology development effort organized around production
-of a simple game.  The principle goals are, in order of importance:
-
-   * To serve as a proof of concept vehicle for new technologies for
-     Inkscape, including:
-     - Integration of Cairo, 2geom, and gtkmm
-     - Some kind of object/canvas layer atop cairo
-
-   * To create a simple but addictive game, to enhance the enjoyment of
-     Open Source Desktops
-
-   * Create a framework that facilitates creation of additional
-     Cairo-based games, by generalizing game code into reusable
-     components, and by making use of as much existing 3rd-party code as
-     feasible.
-
-   * Lay the groundwork for building a new Inkscape/Cairo/Gnome game
-     development community, that can reverse the notion that Linux is a
-     games-poor platform.
-
-Game Design
-===========
-  * User Interface
-  * Menuing System
-  * Online Instructions and Help System
-
-  * Game Configuration System
-
-  * Data Engine (graphics, level, misc. data)
-  * Bidirectional Event Handler
-  * Dynamics System (collisions and general physics)
-  * Logic Engine (heart of the game)
-
-  * Graphics Engine
-  * Sound Engine
-  * Music System
-
-  * Hardware Abstraction Layers
+Contributing
+============
+Please create a github branch and make a merge proposal for any changes
+you think I should include.  It may take a while for me to get around to
+merging it so please be patient!
