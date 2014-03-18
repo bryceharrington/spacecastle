@@ -264,7 +264,6 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
   cairo_t *cr = gdk_cairo_create (widget->window);
   int width = widget->allocation.width;
   int height = widget->allocation.height;
-  int i;
   long start_time = 0;
 
   if (game->show_fps)

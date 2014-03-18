@@ -102,21 +102,17 @@ on_timeout (gpointer data)
                   }
               }
 	      if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
-		{
 		  on_collision (game->cannon, &(game->missiles[i]));
-		}
+
 
 	      if (check_for_collision (&(game->missiles[i].p), &(game->player->p)))
-		{
 		  on_collision (game->player, &(game->missiles[i]));
-		}
+
 	    }
 
 	  game->missiles[i].energy--;
 	  if (game->missiles[i].energy <= 0)
-	    {
 	      game->missiles[i].is_alive = FALSE;
-	    }
 	}
     }
 
@@ -240,9 +236,7 @@ apply_physics_to_player (GameObject * player)
 	{
 	  p->rotation -= player->rotation_speed;
 	  while (p->rotation < 0)
-	    {
                 p->rotation += NUMBER_OF_ROTATION_ANGLES;
-	    }
 	}
 
       // ... or right.
@@ -250,9 +244,7 @@ apply_physics_to_player (GameObject * player)
 	{
 	  p->rotation += player->rotation_speed;
 	  while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
-	    {
                 p->rotation -= NUMBER_OF_ROTATION_ANGLES;
-	    }
 	}
 
       // check if accelerating
@@ -291,9 +283,7 @@ apply_physics_to_player (GameObject * player)
 	      player->energy -= ENERGY_PER_MISSILE;
 
 	      if (game->next_missile_index == MAX_NUMBER_OF_MISSILES)
-		{
 		  game->next_missile_index = 0;
-		}
 
 	      m->p.x =
 		p->x +
@@ -332,23 +322,16 @@ apply_physics (physics_t * p)
 {
   p->x += p->vx;
   while (p->x > (WIDTH * FIXED_POINT_SCALE_FACTOR))
-    {
       p->x -= (WIDTH * FIXED_POINT_SCALE_FACTOR);
-    }
   while (p->x < 0)
-    {
       p->x += (WIDTH * FIXED_POINT_SCALE_FACTOR);
-    }
 
   p->y += p->vy;
   while (p->y > (HEIGHT * FIXED_POINT_SCALE_FACTOR))
-    {
       p->y -= (HEIGHT * FIXED_POINT_SCALE_FACTOR);
-    }
   while (p->y < 0)
-    {
       p->y += (HEIGHT * FIXED_POINT_SCALE_FACTOR);
-    }
+
 }
 
 //------------------------------------------------------------------------------
