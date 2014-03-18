@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <sys/timeb.h>
 
 #include "canvas.h"
 #include "game-config.h"
@@ -30,159 +29,11 @@ static gboolean check_for_collision (physics_t *, physics_t *);
 static gboolean check_for_ring_collision (physics_t *, physics_t *);
 static int ring_segment_by_rotation (GameObject *ring, int rot);
 static void enforce_minimum_distance (physics_t *, physics_t *);
-static long get_time_millis (void);
 static void on_collision (GameObject *player, GameObject *missile);
 static int ring_segment_hit (GameObject *ring, GameObject *missile);
 static void on_ring_segment_collision (GameObject * ring, GameObject * m, int segment);
-gint on_expose_event (GtkWidget *, GdkEventExpose *);
 gint on_key_event (GtkWidget *, GdkEventKey *, gboolean);
 gint on_timeout (gpointer);
-
-//------------------------------------------------------------------------------
-
-static gboolean show_fps = TRUE;
-static int number_of_frames = 0;
-static long millis_taken_for_frames = 0;
-
-//------------------------------------------------------------------------------
-
-static long
-get_time_millis (void)
-{
-  struct timeb tp;
-  ftime (&tp);
-  return (long) ((tp.time * 1000) + tp.millitm);
-}
-
-//------------------------------------------------------------------------------
-
-gint
-on_expose_event (GtkWidget * widget, GdkEventExpose * event)
-{
-  cairo_t *cr = gdk_cairo_create (widget->window);
-  int width = widget->allocation.width;
-  int height = widget->allocation.height;
-  int i;
-  long start_time = 0;
-
-  if (show_fps)
-    {
-      start_time = get_time_millis ();
-    }
-
-  game->canvas->scale_for_aspect_ratio(cr, width, height);
-
-  /* draw background space color */
-  cairo_set_source_rgb (cr, 0.1, 0.0, 0.1);
-  cairo_paint (cr);
-
-  // draw any stars...
-  for (i = 0; i < NUMBER_OF_STARS; i++) {
-      game->stars[i].draw(cr);
-    }
-
-  // ... the energy bars...
-  game->cannon_status->draw(cr);
-  game->player_status->draw(cr);
-
-  // ... ships...
-  cairo_save (cr);
-  cairo_translate (cr, game->cannon->p.x / FIXED_POINT_SCALE_FACTOR,
-		   game->cannon->p.y / FIXED_POINT_SCALE_FACTOR);
-  cairo_rotate (cr, game->cannon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
-  draw_cannon (cr, game->cannon);
-  cairo_restore (cr);
-
-  cairo_save (cr);
-  cairo_translate (cr, game->player->p.x / FIXED_POINT_SCALE_FACTOR,
-		   game->player->p.y / FIXED_POINT_SCALE_FACTOR);
-  cairo_rotate (cr, game->player->p.rotation * RADIANS_PER_ROTATION_ANGLE);
-  draw_ship_body (cr, game->player);
-  cairo_restore (cr);
-
-  // ... and any missiles.
-  for (i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
-    {
-      if (game->missiles[i].is_alive)
-	{
-	  cairo_save (cr);
-	  cairo_translate (cr, game->missiles[i].p.x / FIXED_POINT_SCALE_FACTOR,
-			   game->missiles[i].p.y / FIXED_POINT_SCALE_FACTOR);
-	  cairo_rotate (cr,
-			game->missiles[i].p.rotation * RADIANS_PER_ROTATION_ANGLE);
-	  draw_missile (cr, &(game->missiles[i]));
-	  cairo_restore (cr);
-	}
-    }
-
-  // and now the rings too
-  for (i = 0; i <MAX_NUMBER_OF_RINGS; i++)
-    {
-      if (game->rings[i].is_alive)
-	{
-	  cairo_save (cr);
-	  cairo_translate (cr,
-                           game->rings[i].p.x / FIXED_POINT_SCALE_FACTOR,
-			   game->rings[i].p.y / FIXED_POINT_SCALE_FACTOR);
-	  cairo_rotate (cr,
-                        -1 * game->rings[i].p.rotation * RADIANS_PER_ROTATION_ANGLE
-                        - PI/2.0);
-
-          cairo_set_source_rgba (cr, 2-i, i? 1.0/i : 0, 0, 0.6);
-
-	  draw_ring (cr, &(game->rings[i]));
-	  cairo_restore (cr);
-	}
-    }
-
-  // TODO:  Finally, the space mines
-
-  if (game->game_over_message == NULL)
-  {
-      if (!game->cannon->is_alive) {
-          /* Bonus life */
-          game->num_player_lives++;
-          game->game_over_message = "Next Level!";
-          game->advance_level();
-      }
-      if (!game->player->is_alive)
-      {
-          game->num_player_lives--;
-          game->game_over_message = "Try again!!!";
-      }
-
-      if (game->num_player_lives <= 0)
-      {
-          game->game_over_message = "Game Over";
-      }
-  }
-  if (game->game_over_message != NULL)
-  {
-      show_text_message (cr, 80, -30, game->game_over_message);
-      show_text_message (cr, 30, +40, "Press [ENTER] to restart");
-  }
-
-  cairo_restore (cr);
-
-  if (show_fps)
-    {
-      number_of_frames++;
-      millis_taken_for_frames += get_time_millis () - start_time;
-      if (number_of_frames >= 100)
-	{
-	  double fps =
-	    1000.0 * ((double) number_of_frames) /
-	    ((double) millis_taken_for_frames);
-	  dbg ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
-		  millis_taken_for_frames, fps);
-	  number_of_frames = 0;
-	  millis_taken_for_frames = 0L;
-	}
-    }
-
-  cairo_destroy (cr);
-  return TRUE;
-}
 
 //------------------------------------------------------------------------------
 

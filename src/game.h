@@ -38,6 +38,7 @@ class Game {
     GameObject   rings[MAX_NUMBER_OF_RINGS];
     int          next_ring_index;
     int          level;
+    gboolean     show_fps;
 
     // TODO:  Move these into a background object structure
     Canvas      *canvas;
@@ -50,6 +51,16 @@ class Game {
     void init_missiles_array ();
     void init_stars_array ();
     void init_rings_array ();
+
+    int addObject();
+    void drawBackground(cairo_t *cr);
+    void drawUI(cairo_t *cr);
+    void drawTextMessage(cairo_t *cr, int x, int y, const char*msg);
+    void drawShip(cairo_t *cr);
+    void drawCannon(cairo_t *, GameObject *player);
+    void drawMissiles(cairo_t *cr);
+    void drawRings(cairo_t *cr);
+    void drawMines(cairo_t *cr);
 
     void reset();
     void advance_level();

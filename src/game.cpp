@@ -1,10 +1,12 @@
 #include <popt.h>
 #include <err.h>
+#include <sys/timeb.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
 #include "game.h"
+#include "drawing.h"
 
 // TODO:  Need to find best place for these...
 void draw_star (cairo_t * cr, CanvasItem * item);
@@ -43,7 +45,13 @@ Game::~Game()
 {
     GameObject *o;
     for (; (o = objects[--num_objects]); )
-        delete o;
+	delete o;
+    delete cannon;
+    delete cannon_status;
+    delete player;
+    delete player_status;
+
+    delete canvas;
 }
 
 void Game::process_options(int argc, gchar ** argv) {
@@ -79,7 +87,7 @@ void Game::process_options(int argc, gchar ** argv) {
 
 void Game::reset() {
     for (int i=0; i<num_objects; i++) {
-        objects[i]->init();
+	objects[i]->init();
     }
 
     cannon->init();
@@ -129,22 +137,179 @@ void Game::reset() {
 
 int Game::addObject(GameObject* o) {
     if (num_objects >= MAX_OBJECTS)
-        return 1;
+	return 1;
 
     objects[num_objects++] = o;
     return 0;
 }
 
+void Game::drawBackground(cairo_t *cr) {
+  /* draw background space color */
+  cairo_set_source_rgb (cr, 0.1, 0.0, 0.1);
+  cairo_paint (cr);
+
+  // draw any stars...
+  for (int i = 0; i < NUMBER_OF_STARS; i++) {
+    game->stars[i].draw(cr);
+  }
+}
+
+void Game::drawUI(cairo_t *cr) {
+  // ... the energy bars...
+  cannon_status->draw(cr);
+  player_status->draw(cr);
+
+  if (game_over_message == NULL)
+    {
+      if (!cannon->is_alive) {
+	/* Bonus life */
+	num_player_lives++;
+	game_over_message = "Next Level!";
+	advance_level();
+      }
+      if (!player->is_alive)
+	{
+	  num_player_lives--;
+	  game_over_message = "Try again!!!";
+	}
+
+      if (num_player_lives <= 0)
+	{
+	  game_over_message = "Game Over";
+	}
+    }
+  if (game_over_message != NULL)
+    {
+      show_text_message (cr, 80, -30, game_over_message);
+      show_text_message (cr, 30, +40, "Press [ENTER] to restart");
+    }
+
+}
+
+void Game::drawShip(cairo_t *cr) {
+  cairo_save (cr);
+  cairo_translate (cr, cannon->p.x / FIXED_POINT_SCALE_FACTOR,
+		   cannon->p.y / FIXED_POINT_SCALE_FACTOR);
+  cairo_rotate (cr, cannon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
+  this->drawCannon (cr, cannon);
+  cairo_restore (cr);
+
+  cairo_save (cr);
+  cairo_translate (cr, player->p.x / FIXED_POINT_SCALE_FACTOR,
+		   player->p.y / FIXED_POINT_SCALE_FACTOR);
+  cairo_rotate (cr, player->p.rotation * RADIANS_PER_ROTATION_ANGLE);
+  draw_ship_body (cr, player);
+  cairo_restore (cr);
+}
+
+void Game::drawCannon(cairo_t *cr, GameObject *player) {
+  draw_cannon (cr, player);
+}
+
+void Game::drawRings(cairo_t *cr) {
+  for (int i = 0; i <MAX_NUMBER_OF_RINGS; i++) {
+    if (rings[i].is_alive)
+      {
+	cairo_save (cr);
+	cairo_translate (cr,
+			 rings[i].p.x / FIXED_POINT_SCALE_FACTOR,
+			 rings[i].p.y / FIXED_POINT_SCALE_FACTOR);
+	cairo_rotate (cr,
+		      -1 * rings[i].p.rotation * RADIANS_PER_ROTATION_ANGLE
+		      - PI/2.0);
+
+	cairo_set_source_rgba (cr, 2-i, i? 1.0/i : 0, 0, 0.6);
+
+	draw_ring (cr, &(rings[i]));
+	cairo_restore (cr);
+      }
+  }
+}
+
+void Game::drawMissiles(cairo_t *cr) {
+  for (int i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
+    {
+      if (missiles[i].is_alive)
+	{
+	  cairo_save (cr);
+	  cairo_translate (cr, missiles[i].p.x / FIXED_POINT_SCALE_FACTOR,
+			   missiles[i].p.y / FIXED_POINT_SCALE_FACTOR);
+	  cairo_rotate (cr,
+			missiles[i].p.rotation * RADIANS_PER_ROTATION_ANGLE);
+	  draw_missile (cr, &(missiles[i]));
+	  cairo_restore (cr);
+	}
+    }
+}
+
+void Game::drawMines(cairo_t *cr) {
+  // TODO
+}
 
 //------------------------------------------------------------------------------
+static int number_of_frames = 0;
+static long millis_taken_for_frames = 0;
+
+static long
+get_time_millis (void)
+{
+  struct timeb tp;
+  ftime (&tp);
+  return (long) ((tp.time * 1000) + tp.millitm);
+}
+
+gint
+on_expose_event (GtkWidget * widget, GdkEventExpose * event)
+{
+  cairo_t *cr = gdk_cairo_create (widget->window);
+  int width = widget->allocation.width;
+  int height = widget->allocation.height;
+  int i;
+  long start_time = 0;
+
+  if (game->show_fps)
+    start_time = get_time_millis ();
+
+  game->canvas->scale_for_aspect_ratio(cr, width, height);
+
+  game->drawBackground(cr);
+
+  // Draw game elements
+  game->drawShip(cr);
+  game->drawMissiles(cr);
+  game->drawRings(cr);
+  game->drawMines(cr);
+
+  game->drawUI(cr);
+
+  cairo_restore (cr);
+
+  if (game->show_fps)
+    {
+      number_of_frames++;
+      millis_taken_for_frames += get_time_millis () - start_time;
+      if (number_of_frames >= 100)
+	{
+	  double fps =
+	    1000.0 * ((double) number_of_frames) /
+	    ((double) millis_taken_for_frames);
+	  dbg ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
+	       millis_taken_for_frames, fps);
+	  number_of_frames = 0;
+	  millis_taken_for_frames = 0L;
+	}
+    }
+
+  cairo_destroy (cr);
+
+  return TRUE;
+}
 
 gint
 on_key_press (GtkWidget * widget, GdkEventKey * event)
 {
     return on_key_event (widget, event, TRUE);
 }
-
-//------------------------------------------------------------------------------
 
 gint
 on_key_release (GtkWidget * widget, GdkEventKey * event)
@@ -158,53 +323,53 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
     switch (event->keyval)
     {
     case GDK_Escape:
-        gtk_main_quit ();
-        break;
+	gtk_main_quit ();
+	break;
 
     case GDK_Return:
-        if (game_over_message != NULL)
-        {
-            reset();
-        }
-        break;
+	if (game_over_message != NULL)
+	{
+	    reset();
+	}
+	break;
 
     case GDK_bracketleft:
-        if (key_is_on)
-        {
-            canvas->debug_scale_factor /= 1.25f;
-            dbg ("Scale: %f\n", canvas->debug_scale_factor);
-        }
-        break;
+	if (key_is_on)
+	{
+	    canvas->debug_scale_factor /= 1.25f;
+	    dbg ("Scale: %f\n", canvas->debug_scale_factor);
+	}
+	break;
     case GDK_bracketright:
-        if (key_is_on)
-        {
-            canvas->debug_scale_factor *= 1.25f;
-            dbg ("Scale: %f\n", canvas->debug_scale_factor);
-        }
-        break;
+	if (key_is_on)
+	{
+	    canvas->debug_scale_factor *= 1.25f;
+	    dbg ("Scale: %f\n", canvas->debug_scale_factor);
+	}
+	break;
 
     case GDK_Left:
     case GDK_KP_Left:
-        player->is_turning_left = key_is_on;
-        break;
+	player->is_turning_left = key_is_on;
+	break;
     case GDK_Right:
     case GDK_KP_Right:
-        player->is_turning_right = key_is_on;
-        break;
+	player->is_turning_right = key_is_on;
+	break;
     case GDK_Up:
     case GDK_KP_Up:
-        player->is_thrusting = key_is_on;
-        break;
+	player->is_thrusting = key_is_on;
+	break;
     case GDK_Down:
     case GDK_KP_Down:
-        player->is_reversing = key_is_on;
-        break;
+	player->is_reversing = key_is_on;
+	break;
     case GDK_space:
     case GDK_Control_R:
     case GDK_Control_L:
     case GDK_KP_Insert:
-        player->is_firing = key_is_on;
-        break;
+	player->is_firing = key_is_on;
+	break;
     }
     return TRUE;
 }
@@ -215,8 +380,8 @@ Game::init_missiles_array ()
 {
     for (int i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
     {
-        missiles[i].p.radius = MISSILE_RADIUS;
-        missiles[i].is_alive = FALSE;
+	missiles[i].p.radius = MISSILE_RADIUS;
+	missiles[i].is_alive = FALSE;
     }
 }
 
@@ -226,25 +391,25 @@ Game::init_rings_array ()
     int rot = 1;
     for (int i=0; i < MAX_NUMBER_OF_RINGS; i++)
     {
-        rings[i].x = WIDTH / 2;
-        rings[i].y = HEIGHT / 2;
-        rings[i].p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
-        rings[i].p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
-        rings[i].is_alive = TRUE;
-        rings[i].scale = i;
-        rings[i].energy = SEGMENTS_PER_RING;
-        rings[i].rotation_speed = rot;
-        rot *= -1;
-        for (int j=0; j<SEGMENTS_PER_RING; j++) {
-            rings[i].component_energy[j] = 1 + level;
-        }
+	rings[i].x = WIDTH / 2;
+	rings[i].y = HEIGHT / 2;
+	rings[i].p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
+	rings[i].p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
+	rings[i].is_alive = TRUE;
+	rings[i].scale = i;
+	rings[i].energy = SEGMENTS_PER_RING;
+	rings[i].rotation_speed = rot;
+	rot *= -1;
+	for (int j=0; j<SEGMENTS_PER_RING; j++) {
+	    rings[i].component_energy[j] = 1 + level;
+	}
 
-        rings[i].primary_color.r = 0.3;
-        rings[i].primary_color.g = 1.0;
-        rings[i].primary_color.b = 0.9;
-        rings[i].secondary_color.r = 0.1;
-        rings[i].secondary_color.g = 1.0;
-        rings[i].secondary_color.b = 0.3;
+	rings[i].primary_color.r = 0.3;
+	rings[i].primary_color.g = 1.0;
+	rings[i].primary_color.b = 0.9;
+	rings[i].secondary_color.r = 0.1;
+	rings[i].secondary_color.g = 1.0;
+	rings[i].secondary_color.b = 0.3;
     }
     rings[0].p.radius = SHIELD_OUTER_RADIUS;
     rings[1].p.radius = SHIELD_MIDDLE_RADIUS;
@@ -258,11 +423,11 @@ Game::init_stars_array ()
 
     for (i = 0; i < NUMBER_OF_STARS; i++)
     {
-        stars[i].x = random () % WIDTH;
-        stars[i].y = random () % HEIGHT;
-        stars[i].rotation = drand48 () * TWO_PI;
-        stars[i].scale = 0.5 + (drand48 ());
-        stars[i].draw_func = draw_star;
+	stars[i].x = random () % WIDTH;
+	stars[i].y = random () % HEIGHT;
+	stars[i].rotation = drand48 () * TWO_PI;
+	stars[i].scale = 0.5 + (drand48 ());
+	stars[i].draw_func = draw_star;
     }
 }
 
