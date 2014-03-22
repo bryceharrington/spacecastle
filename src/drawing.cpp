@@ -165,14 +165,15 @@ draw_flare (cairo_t * cr, RGB_t color)
   RGB_t color_white = {1,1,1};
 
   cairo_save (cr);
+
   cairo_translate (cr, 0, 22);
   pat = cairo_pattern_create_radial (0, 0, 2, 0, 5, 12);
-
   add_color_stop (pat, 0.0, color, 1);
   add_color_stop (pat, 0.3, color_white, 1);
   add_color_stop (pat, 1.0, color, 0);
   cairo_set_source (cr, pat);
   cairo_arc (cr, 0, 0, 20, 0, TWO_PI);
+
   cairo_fill (cr);
   cairo_pattern_destroy (pat);
   cairo_restore (cr);
@@ -184,9 +185,10 @@ void
 draw_turning_flare (cairo_t * cr, RGB_t color, int right_hand_side)
 {
   cairo_pattern_t *pat;
-  cairo_save (cr);
 
   RGB_t color_white = {1,1,1};
+
+  cairo_save (cr);
 
   cairo_translate (cr, -23 * right_hand_side, 28);
   pat = cairo_pattern_create_radial (0, 0, 1, 0, 0, 7);
@@ -203,9 +205,9 @@ draw_turning_flare (cairo_t * cr, RGB_t color, int right_hand_side)
   add_color_stop (pat, 1.0, color, 0);
   cairo_set_source (cr, pat);
   cairo_arc (cr, 0, 0, 5, 0, TWO_PI);
+
   cairo_fill (cr);
   cairo_pattern_destroy (pat);
-
   cairo_restore (cr);
 }
 
