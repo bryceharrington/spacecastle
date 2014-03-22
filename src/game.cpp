@@ -143,7 +143,7 @@ int Game::addObject(GameObject* o) {
     return 0;
 }
 
-void Game::drawBackground(cairo_t *cr) {
+void Game::drawWorld(cairo_t *cr) {
   /* draw background space color */
   cairo_set_source_rgb (cr, 0.1, 0.0, 0.1);
   cairo_paint (cr);
@@ -271,14 +271,13 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 
   game->canvas->scale_for_aspect_ratio(cr, width, height);
 
-  game->drawBackground(cr);
+  game->drawWorld(cr);
 
   // Draw game elements
   game->drawShip(cr);
   game->drawMissiles(cr);
   game->drawRings(cr);
   game->drawMines(cr);
-
   game->drawUI(cr);
 
   cairo_restore (cr);
