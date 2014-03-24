@@ -3,16 +3,25 @@ Development principles:
    * Strive to always keep the game(s) playable without regression
    * Make as much of the engine configurable/overrideable as possible
    * Prefer existing libs over homegrown stuff
-   * Copy from other sources in preference to re-invention
-   * When inventing, do the least possible to get it working
-   * When re-inventing, create something an order of magnitude better
 
-Space Castle Development Objectives
-===================================
-1.  Produce a functional, distributable game that uses cairo
-2.  Abstract a GameObject class, with reusable structure around it
-3.  Abstract a Game class to use for future games
-4.  Establish some basic but reusable wall/sphere collision logic
-5.  Make it well tested and include performance testing
-6.  Morph it into another game later
+
+TODO
+====
+* Unit tests for the generic core objects
+* Scale the board down by 2
+* Scoring system
+* Score board
+* High score tracking
+* Performance testing output
+* Basic wall/sphere collision logic
+* Add space mines
+* Modify visual display of game elements based on how damaged they are
+* Add levels
+  - Increase speed of turret
+  - Add mines
+  - Solid walls
+  - Cannon uses predictive logic when firing
+  - Turret regenerates faster
+  - Shields regenerate
+  - 
 
