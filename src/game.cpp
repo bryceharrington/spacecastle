@@ -73,6 +73,33 @@ Game::~Game()
     delete canvas;
 }
 
+void Game::init() {
+  srand ((unsigned int) time (NULL));
+
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  g_signal_connect (G_OBJECT (window), "delete-event",
+		    G_CALLBACK (gtk_main_quit), NULL);
+
+  gtk_window_set_default_size (GTK_WINDOW (window), WIDTH, HEIGHT);
+
+  g_signal_connect (G_OBJECT (window), "expose_event",
+		    G_CALLBACK (on_expose_event), NULL);
+  g_signal_connect (G_OBJECT (window), "key_press_event",
+		    G_CALLBACK (on_key_press), NULL);
+  g_signal_connect (G_OBJECT (window), "key_release_event",
+		    G_CALLBACK (on_key_release), NULL);
+  g_timeout_add (MILLIS_PER_FRAME, (GSourceFunc) on_timeout, window);
+
+  reset();
+}
+
+int Game::run() {
+  gtk_widget_show_all (window);
+  gtk_main ();
+
+  return 0;
+}
+
 void Game::process_options(int argc, gchar ** argv) {
   int rc;
   poptContext pc;
