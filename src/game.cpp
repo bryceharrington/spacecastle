@@ -19,12 +19,14 @@
 
 #include <popt.h>
 #include <err.h>
+#include <stdlib.h>
 #include <sys/timeb.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
 #include "game.h"
+#include "game-config.h"
 #include "drawing.h"
 
 // TODO:  Need to find best place for these...

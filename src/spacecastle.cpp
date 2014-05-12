@@ -23,13 +23,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <math.h>  // For sqrt()
+#include <gtk/gtk.h>
 
-#include "canvas.h"
 #include "game-config.h"
 #include "game-object.h"
-#include "game-math.h"
-#include "drawing.h"
 #include "game.h"
 
 //------------------------------------------------------------------------------

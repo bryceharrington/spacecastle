@@ -19,10 +19,7 @@
 #ifndef __CANVAS_H__
 #define __CANVAS_H__
 
-#include <cairo.h>
-#include <glib.h>
-
-class CanvasItem;
+#include "forward.h"
 
 typedef void   (* canvas_item_draw) (cairo_t * cr, CanvasItem * item);
 
@@ -30,17 +27,13 @@ typedef void   (* canvas_item_draw) (cairo_t * cr, CanvasItem * item);
 extern void scale_for_aspect_ratio (cairo_t * cr, int widget_width, int widget_height);
 
 
-typedef struct
+struct _RGB
 {
-    gdouble r, g, b;
-}
-RGB_t;
+  double r, g, b;
+};
+typedef struct _RGB RGB_t;
 
-inline void
-add_color_stop (cairo_pattern_t* pat, double offset, RGB_t color, double alpha)
-{
-    cairo_pattern_add_color_stop_rgba (pat, offset, color.r, color.g, color.b, alpha);
-}
+void add_color_stop (cairo_pattern_t* pat, double offset, RGB_t color, double alpha);
 
 class CanvasItem {
  private:
@@ -55,7 +48,8 @@ class CanvasItem {
     RGB_t secondary_color;
 
     void draw(cairo_t * cr);
-    CanvasItem(canvas_item_draw f=NULL);
+    CanvasItem() { CanvasItem(NULL); }
+    CanvasItem(canvas_item_draw f);
     void set_theme(RGB_t primary, RGB_t secondary);
 };
 
@@ -69,9 +63,9 @@ class Canvas {
 
     Canvas(int w, int h);
     ~Canvas() { }
-    
+
     void   scale_for_aspect_ratio(cairo_t *cr, int window_width, int window_height);
 };
 
-#endif 
+#endif
 

@@ -19,15 +19,13 @@
 #ifndef __GAME_H__
 #define __GAME_H__
 
-#include <stdlib.h>
-#include <time.h>
-#include <gtk/gtk.h>
+#include <glib.h>
 
+#include "forward.h"
 #include "game-debug.h"
 #include "game-config.h"
-#include "game-object.h"  // TODO:  Remove this
-#include "game-math.h"
-#
+#include "game-object.h"
+
 // Forward definitions of handler functions
 gint on_expose_event (GtkWidget *, GdkEventExpose *);
 gint on_key_event (GtkWidget *, GdkEventKey *, gboolean);

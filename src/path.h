@@ -19,7 +19,7 @@
 #ifndef PATH_H
 #define PATH_H
 
-#include <gtk/gtk.h>
+#include "forward.h"
 #include "point.h"
 
 typedef enum {
@@ -34,7 +34,7 @@ typedef enum {
 class PathSegment {
  public:
     Pathcode      code;    /// Type of path segment
-    
+
     Point         c1;      /// Control point for curves
     Point         c2;      /// Control point for curves
     Point         pt;      /// Next point
@@ -44,8 +44,8 @@ class PathSegment {
     PathSegment(Pathcode c,
                 Coord x1, Coord y1,
                 Coord x2, Coord y2,
-                Coord x3, Coord y3) 
-        : c1(x1, y1), c2(x2, y2), pt(x3, y3) 
+                Coord x3, Coord y3)
+        : c1(x1, y1), c2(x2, y2), pt(x3, y3)
         {}
 
     PathSegment(Pathcode c, Coord x, Coord y)

@@ -17,6 +17,8 @@
  * along with Spacecastle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <math.h>
+
 #include "game-math.h"
 
 int cos_table[NUMBER_OF_ROTATION_ANGLES];

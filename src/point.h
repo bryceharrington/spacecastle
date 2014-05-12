@@ -55,7 +55,7 @@ class Point {
 
     inline Coord &operator[](unsigned i) {
         return _pt[i];
-    }    
+    }
 
  private:
     Coord _pt[2];

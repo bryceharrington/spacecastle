@@ -16,8 +16,17 @@
  * along with Spacecastle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtk/gtk.h>
+#include <cairo.h>
+#include <glib.h>
+
 #include "canvas.h"
+
+void
+add_color_stop (cairo_pattern_t* pat, double offset, RGB_t color, double alpha)
+{
+  cairo_pattern_add_color_stop_rgba (pat, offset, color.r, color.g, color.b, alpha);
+}
+
 
 CanvasItem::CanvasItem (canvas_item_draw f)
     : x(0), y(0), rotation(0.0), scale(1.0), draw_func(f)

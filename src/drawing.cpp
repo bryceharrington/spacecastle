@@ -23,7 +23,7 @@
 //
 // 2005-03-31: Version 0.1.
 
-#include <gtk/gtk.h>
+#include <cairo.h>
 
 #include "game-config.h"
 #include "game-math.h"

@@ -16,7 +16,6 @@
  * along with Spacecastle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtk/gtk.h>
 #include "game.h"
 
 Game *game;

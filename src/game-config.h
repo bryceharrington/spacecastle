@@ -20,6 +20,8 @@
 #ifndef __GAME_CONFIG_H__
 #define __GAME_CONFIG_H__
 
+#include "game-math.h"
+
 #define WIDTH  800
 #define HEIGHT 600
 
