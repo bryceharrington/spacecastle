@@ -91,11 +91,11 @@ on_timeout (gpointer data)
   for (i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
     {
       if (game->missiles[i].is_alive)
-	{
-	  apply_physics (&(game->missiles[i].p));
+    {
+      apply_physics (&(game->missiles[i].p));
 
-	  if (!game->missiles[i].has_exploded)
-	    {
+      if (!game->missiles[i].has_exploded)
+        {
               /* Foreach ring segment, check collision */
               for (j = MAX_NUMBER_OF_RINGS; j >= 0; j--) {
                   if (!game->rings[j].is_alive)
@@ -112,24 +112,24 @@ on_timeout (gpointer data)
                                                  segment);
                   }
               }
-	      if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
-		  on_collision (game->cannon, &(game->missiles[i]));
+          if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
+          on_collision (game->cannon, &(game->missiles[i]));
 
 
-	      if (check_for_collision (&(game->missiles[i].p), &(game->player->p)))
-		  on_collision (game->player, &(game->missiles[i]));
+          if (check_for_collision (&(game->missiles[i].p), &(game->player->p)))
+          on_collision (game->player, &(game->missiles[i]));
 
-	    }
+        }
 
-	  game->missiles[i].energy--;
-	  if (game->missiles[i].energy <= 0)
-	      game->missiles[i].is_alive = FALSE;
-	}
+      game->missiles[i].energy--;
+      if (game->missiles[i].energy <= 0)
+          game->missiles[i].is_alive = FALSE;
+    }
     }
 
   for (i = 0; i < MAX_NUMBER_OF_RINGS; i++)
   {
-      game->rings[i].p.rotation = 
+      game->rings[i].p.rotation =
           (game->rings[i].p.rotation + game->rings[i].rotation_speed)
           % NUMBER_OF_ROTATION_ANGLES;
 
@@ -244,82 +244,82 @@ apply_physics_to_player (GameObject * player)
     {
       // check if player is turning left, ...
       if (player->is_turning_left)
-	{
-	  p->rotation -= player->rotation_speed;
-	  while (p->rotation < 0)
+    {
+      p->rotation -= player->rotation_speed;
+      while (p->rotation < 0)
                 p->rotation += NUMBER_OF_ROTATION_ANGLES;
-	}
+    }
 
       // ... or right.
       if (player->is_turning_right)
-	{
-	  p->rotation += player->rotation_speed;
-	  while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
+    {
+      p->rotation += player->rotation_speed;
+      while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
                 p->rotation -= NUMBER_OF_ROTATION_ANGLES;
-	}
+    }
 
       // check if accelerating
       if (player->is_thrusting)
-	{
-	  p->vx += SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
-	  p->vy += SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
-	}
+    {
+      p->vx += SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
+      p->vy += SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
+    }
 
-	// check if reversing
+    // check if reversing
       if (player->is_reversing)
-	{
-	  p->vx -= SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
-	  p->vy -= SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
-	}
+    {
+      p->vx -= SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
+      p->vy -= SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
+    }
 
       // apply velocity upper bound
       v2 = ((p->vx) * (p->vx)) + ((p->vy) * (p->vy));
       m2 = SHIP_MAX_VELOCITY * SHIP_MAX_VELOCITY;
       if (v2 > m2)
-	{
-	  p->vx = (int) (((double) (p->vx) * m2) / v2);
-	  p->vy = (int) (((double) (p->vy) * m2) / v2);
-	}
+    {
+      p->vx = (int) (((double) (p->vx) * m2) / v2);
+      p->vy = (int) (((double) (p->vy) * m2) / v2);
+    }
 
       // check if player is shooting
       if (player->ticks_until_can_fire == 0)
-	{
-	  if ((player->is_firing) && (player->energy > ENERGY_PER_MISSILE))
-	    {
-	      int xx = cos_table[p->rotation];
-	      int yy = sin_table[p->rotation];
+    {
+      if ((player->is_firing) && (player->energy > ENERGY_PER_MISSILE))
+        {
+          int xx = cos_table[p->rotation];
+          int yy = sin_table[p->rotation];
 
-	      GameObject *m = &(game->missiles[game->next_missile_index++]);
+          GameObject *m = &(game->missiles[game->next_missile_index++]);
 
-	      player->energy -= ENERGY_PER_MISSILE;
+          player->energy -= ENERGY_PER_MISSILE;
 
-	      if (game->next_missile_index == MAX_NUMBER_OF_MISSILES)
-		  game->next_missile_index = 0;
+          if (game->next_missile_index == MAX_NUMBER_OF_MISSILES)
+          game->next_missile_index = 0;
 
-	      m->p.x =
-		p->x +
-		(((SHIP_RADIUS +
-		   MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * xx);
-	      m->p.y =
-		p->y +
-		(((SHIP_RADIUS +
-		   MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * yy);
-	      m->p.vx = p->vx + (MISSILE_SPEED * xx);
-	      m->p.vy = p->vy + (MISSILE_SPEED * yy);
-	      m->p.rotation = p->rotation;
-	      m->energy = MISSILE_TICKS_TO_LIVE;
-	      m->primary_color = player->primary_color;
-	      m->secondary_color = player->secondary_color;
-	      m->is_alive = TRUE;
-	      m->has_exploded = FALSE;
+          m->p.x =
+        p->x +
+        (((SHIP_RADIUS +
+           MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * xx);
+          m->p.y =
+        p->y +
+        (((SHIP_RADIUS +
+           MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * yy);
+          m->p.vx = p->vx + (MISSILE_SPEED * xx);
+          m->p.vy = p->vy + (MISSILE_SPEED * yy);
+          m->p.rotation = p->rotation;
+          m->energy = MISSILE_TICKS_TO_LIVE;
+          m->primary_color = player->primary_color;
+          m->secondary_color = player->secondary_color;
+          m->is_alive = TRUE;
+          m->has_exploded = FALSE;
 
-	      player->ticks_until_can_fire += TICKS_BETWEEN_FIRE;
-	    }
-	}
+          player->ticks_until_can_fire += TICKS_BETWEEN_FIRE;
+        }
+    }
       else
-	{
-	  player->ticks_until_can_fire--;
-	}
+    {
+      player->ticks_until_can_fire--;
+    }
     }
 
   // apply velocity deltas to displacement
@@ -465,3 +465,15 @@ on_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on)
 {
     return game->handle_key_event(widget, event, key_is_on);
 }
+
+/*
+  Local Variables:
+  mode:c++
+  c-file-style:"stroustrup"
+  c-basic-offset:2
+  c-file-offsets:((innamespace . 0)(inline-open . 0)(case-label . +))
+  indent-tabs-mode:nil
+  fill-column:99
+  End:
+*/
+// vim: filetype=cpp:expandtab:shiftwidth=2:tabstop=8:softtabstop=2:fileencoding=utf-8:textwidth=99 :

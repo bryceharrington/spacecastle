@@ -1,28 +1,28 @@
 #define __PATH_PARSER_CPP__
-/* 
+/*
    Parses SVG path element data into a bezier path.
    Derived from svg-path.c from Sodipodi, but is adapted to work with
    Path objects
-   
+
    Copyright (C) 2000 Eazel, Inc.
    Copyright (C) 2000 Lauris Kaplinski
    Copyright (C) 2001 Ximian, Inc.
-  
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public
    License along with this program; if not, write to the
    Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.
-  
+
    Authors:
      Raph Levien <raph@artofcode.com>
      Lauris Kaplinski <lauris@ximian.com>
@@ -37,7 +37,7 @@
 
 #include "path.h"
 
-/* 
+/*
    At present, there is no support for <marker> or any other contextual
    information from the SVG file. The API will need to change rather
    significantly to support these.
@@ -72,7 +72,7 @@ static void rsvg_path_arc_segment(ParsePathContext *ctx,
     double th_half;
 
     sin_th = sin (x_axis_rotation * (M_PI / 180.0));
-    cos_th = cos (x_axis_rotation * (M_PI / 180.0)); 
+    cos_th = cos (x_axis_rotation * (M_PI / 180.0));
     /* inverse transform compared with rsvg_path_arc */
     a00 = cos_th * rx;
     a01 = -sin_th * ry;
@@ -87,7 +87,7 @@ static void rsvg_path_arc_segment(ParsePathContext *ctx,
     y3 = yc + sin (th1);
     x2 = x3 + t * sin (th1);
     y2 = y3 - t * cos (th1);
-    
+
     PathSegment *p = new PathSegment(PATH_CURVETO,
                                      a00 * x1 + a01 * y1, a10 * x1 + a11 * y1,
                                      a00 * x2 + a01 * y2, a10 * x2 + a11 * y2,
@@ -123,29 +123,29 @@ static void rsvg_path_arc (ParsePathContext *ctx,
     sin_th = sin (x_axis_rotation * (M_PI / 180.0));
     cos_th = cos (x_axis_rotation * (M_PI / 180.0));
 
-    /* 
-       Correction of out-of-range radii as described in Appendix F.6.6:           
-       
-       1. Ensure radii are non-zero (Done?).                                      
-       2. Ensure that radii are positive.                                         
-       3. Ensure that radii are large enough.                                     
-    */                                                                            
+    /*
+       Correction of out-of-range radii as described in Appendix F.6.6:
 
-    if(rx < 0.0) rx = -rx;                                                        
-    if(ry < 0.0) ry = -ry;                                                        
+       1. Ensure radii are non-zero (Done?).
+       2. Ensure that radii are positive.
+       3. Ensure that radii are large enough.
+    */
 
-    px = cos_th * (ctx->cpx - x) * 0.5 + sin_th * (ctx->cpy - y) * 0.5;           
-    py = cos_th * (ctx->cpy - y) * 0.5 - sin_th * (ctx->cpx - x) * 0.5;           
-    pl = (px * px) / (rx * rx) + (py * py) / (ry * ry);                           
+    if(rx < 0.0) rx = -rx;
+    if(ry < 0.0) ry = -ry;
 
-    if(pl > 1.0)                                                                  
-    {                                                                             
-        pl  = sqrt(pl);                                                           
-        rx *= pl;                                                                 
-        ry *= pl;                                                                 
-    }                                                                             
+    px = cos_th * (ctx->cpx - x) * 0.5 + sin_th * (ctx->cpy - y) * 0.5;
+    py = cos_th * (ctx->cpy - y) * 0.5 - sin_th * (ctx->cpx - x) * 0.5;
+    pl = (px * px) / (rx * rx) + (py * py) / (ry * ry);
 
-    /* Proceed with computations as described in Appendix F.6.5 */                
+    if(pl > 1.0)
+    {
+        pl  = sqrt(pl);
+        rx *= pl;
+        ry *= pl;
+    }
+
+    /* Proceed with computations as described in Appendix F.6.5 */
 
     a00 = cos_th / rx;
     a01 = sin_th / rx;
@@ -550,7 +550,7 @@ static void rsvg_parse_path_data(ParsePathContext *ctx, const char *data)
                     } else {
                         val += ctx->cpx; /* even param, x */
                     }
-		    break;
+            break;
                 case 'a':
                     /* rule: sixth and seventh are x and y, rest are not
                        relative */

@@ -29,32 +29,32 @@ class Point {
 
  public:
     inline Point()
-        { _pt[0] = _pt[1] = 0; }
+	{ _pt[0] = _pt[1] = 0; }
 
     inline Point(Coord x, Coord y) {
-        _pt[0] = x;
-        _pt[1] = y;
+	_pt[0] = x;
+	_pt[1] = y;
     }
 
     inline Point(Point const &p) {
-        for (unsigned i = 0; i < 2; ++i) {
-            _pt[i] = p._pt[i];
-        }
+	for (unsigned i = 0; i < 2; ++i) {
+	    _pt[i] = p._pt[i];
+	}
     }
 
     inline Point &operator=(Point const &p) {
-        for (unsigned i = 0; i < 2; ++i) {
-            _pt[i] = p._pt[i];
-        }
-        return *this;
+	for (unsigned i = 0; i < 2; ++i) {
+	    _pt[i] = p._pt[i];
+	}
+	return *this;
     }
 
     inline Coord operator[](unsigned i) const {
-        return _pt[i];
+	return _pt[i];
     }
 
     inline Coord &operator[](unsigned i) {
-        return _pt[i];
+	return _pt[i];
     }
 
  private:
@@ -62,3 +62,15 @@ class Point {
 };
 
 #endif
+
+/*
+  Local Variables:
+  mode:c++
+  c-file-style:"stroustrup"
+  c-basic-offset:2
+  c-file-offsets:((innamespace . 0)(inline-open . 0)(case-label . +))
+  indent-tabs-mode:nil
+  fill-column:99
+  End:
+*/
+// vim: filetype=cpp:expandtab:shiftwidth=2:tabstop=8:softtabstop=2:fileencoding=utf-8:textwidth=99 :

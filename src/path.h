@@ -42,15 +42,15 @@ class PathSegment {
     PathSegment() {}
 
     PathSegment(Pathcode c,
-                Coord x1, Coord y1,
-                Coord x2, Coord y2,
-                Coord x3, Coord y3)
-        : c1(x1, y1), c2(x2, y2), pt(x3, y3)
-        {}
+		Coord x1, Coord y1,
+		Coord x2, Coord y2,
+		Coord x3, Coord y3)
+	: c1(x1, y1), c2(x2, y2), pt(x3, y3)
+	{}
 
     PathSegment(Pathcode c, Coord x, Coord y)
-        : c1(0.0, 0.0), c2(0.0, 0.0), pt(x, y)
-        {}
+	: c1(0.0, 0.0), c2(0.0, 0.0), pt(x, y)
+	{}
 
 };
 
@@ -74,5 +74,16 @@ public:
 };
 
 
-#endif 
+#endif
 
+/*
+  Local Variables:
+  mode:c++
+  c-file-style:"stroustrup"
+  c-basic-offset:2
+  c-file-offsets:((innamespace . 0)(inline-open . 0)(case-label . +))
+  indent-tabs-mode:nil
+  fill-column:99
+  End:
+*/
+// vim: filetype=cpp:expandtab:shiftwidth=2:tabstop=8:softtabstop=2:fileencoding=utf-8:textwidth=99 :

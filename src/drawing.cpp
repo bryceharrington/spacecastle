@@ -62,7 +62,7 @@ draw_ship_body (cairo_t * cr, GameObject * p)
   if (p->is_hit)
     {
       cairo_set_source_rgba (cr, p->primary_color.r, p->primary_color.g,
-			     p->primary_color.b, 0.5);
+                 p->primary_color.b, 0.5);
       cairo_arc (cr, 0, 0, SHIP_RADIUS / FIXED_POINT_SCALE_FACTOR, 0, TWO_PI);
       cairo_stroke (cr);
     }
@@ -74,19 +74,19 @@ draw_ship_body (cairo_t * cr, GameObject * p)
     {
 
       if (p->is_thrusting)
-	{
-	  draw_flare (cr, p->primary_color);
-	}
+    {
+      draw_flare (cr, p->primary_color);
+    }
 
       if (p->is_turning_left && !p->is_turning_right)
-	{
-	  draw_turning_flare (cr, p->primary_color, -1);
-	}
+    {
+      draw_turning_flare (cr, p->primary_color, -1);
+    }
 
       if (!p->is_turning_left && p->is_turning_right)
-	{
-	  draw_turning_flare (cr, p->primary_color, 1);
-	}
+    {
+      draw_turning_flare (cr, p->primary_color, 1);
+    }
     }
 
   cairo_move_to (cr, 0, -33);
@@ -125,7 +125,7 @@ draw_cannon (cairo_t * cr, GameObject * p)
   if (p->is_hit)
     {
       cairo_set_source_rgba (cr, p->primary_color.r, p->primary_color.g,
-			     p->primary_color.b, 0.5);
+                 p->primary_color.b, 0.5);
       cairo_arc (cr, 0, 0, SHIP_RADIUS / FIXED_POINT_SCALE_FACTOR, 0, TWO_PI);
       cairo_stroke (cr);
     }
@@ -137,19 +137,19 @@ draw_cannon (cairo_t * cr, GameObject * p)
     {
 
       if (p->is_thrusting)
-	{
-	  draw_flare (cr, p->primary_color);
-	}
+    {
+      draw_flare (cr, p->primary_color);
+    }
 
       if (p->is_turning_left && !p->is_turning_right)
-	{
-	  draw_turning_flare (cr, p->primary_color, -1);
-	}
+    {
+      draw_turning_flare (cr, p->primary_color, -1);
+    }
 
       if (!p->is_turning_left && p->is_turning_right)
-	{
-	  draw_turning_flare (cr, p->primary_color, 1);
-	}
+    {
+      draw_turning_flare (cr, p->primary_color, 1);
+    }
     }
 
   cairo_set_line_width (cr, 2.0);
@@ -344,13 +344,13 @@ draw_star (cairo_t * cr, CanvasItem *)
 
   cairo_save (cr);
   cairo_move_to (cr, r1 * cos_table[0] / FIXED_POINT_SCALE_FACTOR,
-		 r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
+         r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
 
   for (i = 0; i < 5; i++) {
     cairo_line_to (cr, r1 * cos_table[0] / FIXED_POINT_SCALE_FACTOR,
-		   r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
+           r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
     cairo_line_to (cr, r2 * cos_table[a] / FIXED_POINT_SCALE_FACTOR,
-		   r2 * sin_table[a] / FIXED_POINT_SCALE_FACTOR);
+           r2 * sin_table[a] / FIXED_POINT_SCALE_FACTOR);
     cairo_rotate (cr, 4*a*PI/NUMBER_OF_ROTATION_ANGLES);
   }
 
@@ -385,3 +385,15 @@ show_text_message (cairo_t * cr, int font_size, int dy, const char *message)
 }
 
 //------------------------------------------------------------------------------
+
+/*
+  Local Variables:
+  mode:c++
+  c-file-style:"stroustrup"
+  c-basic-offset:2
+  c-file-offsets:((innamespace . 0)(inline-open . 0)(case-label . +))
+  indent-tabs-mode:nil
+  fill-column:99
+  End:
+*/
+// vim: filetype=cpp:expandtab:shiftwidth=2:tabstop=8:softtabstop=2:fileencoding=utf-8:textwidth=99 :

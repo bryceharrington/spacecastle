@@ -39,7 +39,7 @@ Path::draw(cairo_t * cr)
         case PATH_MOVETO_OPEN:
             break;
         case PATH_CURVETO:
-            cairo_curve_to (cr, 
+            cairo_curve_to (cr,
                             segments[i].c1[0], segments[i].c1[1],
                             segments[i].c2[0], segments[i].c2[1],
                             segments[i].pt[0], segments[i].pt[1]);
@@ -69,3 +69,15 @@ Path::end() {
     PathSegment *p = new PathSegment(PATH_END, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     return addSegment(p);
 }
+
+/*
+  Local Variables:
+  mode:c++
+  c-file-style:"stroustrup"
+  c-basic-offset:2
+  c-file-offsets:((innamespace . 0)(inline-open . 0)(case-label . +))
+  indent-tabs-mode:nil
+  fill-column:99
+  End:
+*/
+// vim: filetype=cpp:expandtab:shiftwidth=2:tabstop=8:softtabstop=2:fileencoding=utf-8:textwidth=99 :

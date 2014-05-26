@@ -96,3 +96,15 @@ Canvas::scale_for_aspect_ratio(cairo_t *cr, int window_width, int window_height)
 
     cairo_scale (cr, debug_scale_factor, debug_scale_factor);
 }
+
+/*
+  Local Variables:
+  mode:c++
+  c-file-style:"stroustrup"
+  c-basic-offset:2
+  c-file-offsets:((innamespace . 0)(inline-open . 0)(case-label . +))
+  indent-tabs-mode:nil
+  fill-column:99
+  End:
+*/
+// vim: filetype=cpp:expandtab:shiftwidth=2:tabstop=8:softtabstop=2:fileencoding=utf-8:textwidth=99 :
