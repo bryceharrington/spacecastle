@@ -20,6 +20,7 @@
 #define __CANVAS_H__
 
 #include "forward.h"
+#include "point.h"
 
 typedef void   (* canvas_item_draw) (cairo_t * cr, CanvasItem * item);
 
@@ -39,9 +40,9 @@ class CanvasItem {
  private:
 
  public:
-    double x, y;
-    float  rotation;
-    float  scale;
+    Point pos;
+    float rotation;
+    float scale;
     canvas_item_draw  draw_func;
 
     RGB_t primary_color;

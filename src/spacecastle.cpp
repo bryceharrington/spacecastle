@@ -71,10 +71,10 @@ on_timeout (gpointer data)
 
       enforce_minimum_distance (&(game->rings[0].p), &(game->player->p));
 
-      p1vx = game->rings[0].p.vx;
-      p1vy = game->rings[0].p.vy;
-      p2vx = game->player->p.vx;
-      p2vy = game->player->p.vy;
+      p1vx = game->rings[0].p.vel[0];
+      p1vy = game->rings[0].p.vel[1];
+      p2vx = game->player->p.vel[0];
+      p2vy = game->player->p.vel[1];
 
       dvx = (p1vx - p2vx) / FIXED_POINT_HALF_SCALE_FACTOR;
       dvy = (p1vy - p2vy) / FIXED_POINT_HALF_SCALE_FACTOR;
@@ -84,8 +84,8 @@ on_timeout (gpointer data)
       game->player->energy -= damage;
       game->player_status->energy = game->player->energy;
       game->player->is_hit = TRUE;
-      game->player->p.vx = (p1vx * +5 / 8) + (p2vx * -2 / 8);
-      game->player->p.vy = (p1vy * +5 / 8) + (p2vy * -2 / 8);
+      game->player->p.vel[0] = (p1vx * +5 / 8) + (p2vx * -2 / 8);
+      game->player->p.vel[1] = (p1vy * +5 / 8) + (p2vy * -2 / 8);
     }
 
   for (i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
@@ -181,7 +181,7 @@ operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
         return;
     }
 
-    direction = arctan ( (p->y - c->y), (p->x - c->x) );
+    direction = arctan ( p->pos[1] - c->pos[1], p->pos[0] - c->pos[0] );
 
     if (direction == c->rotation) {
         // What segment would we hit if we fired?
@@ -261,24 +261,24 @@ apply_physics_to_player (GameObject * player)
       // check if accelerating
       if (player->is_thrusting)
     {
-      p->vx += SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
-      p->vy += SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
+      p->vel[0] += SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
+      p->vel[1] += SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
     }
 
     // check if reversing
       if (player->is_reversing)
     {
-      p->vx -= SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
-      p->vy -= SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
+      p->vel[0] -= SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
+      p->vel[1] -= SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
     }
 
       // apply velocity upper bound
-      v2 = ((p->vx) * (p->vx)) + ((p->vy) * (p->vy));
+      v2 = ((p->vel[0]) * (p->vel[0])) + ((p->vel[1]) * (p->vel[1]));
       m2 = SHIP_MAX_VELOCITY * SHIP_MAX_VELOCITY;
       if (v2 > m2)
     {
-      p->vx = (int) (((double) (p->vx) * m2) / v2);
-      p->vy = (int) (((double) (p->vy) * m2) / v2);
+      p->vel[0] = (int) (((double) (p->vel[0]) * m2) / v2);
+      p->vel[1] = (int) (((double) (p->vel[1]) * m2) / v2);
     }
 
       // check if player is shooting
@@ -296,16 +296,16 @@ apply_physics_to_player (GameObject * player)
           if (game->next_missile_index == MAX_NUMBER_OF_MISSILES)
           game->next_missile_index = 0;
 
-          m->p.x =
-        p->x +
+          m->p.pos[0] =
+        p->pos[0] +
         (((SHIP_RADIUS +
            MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * xx);
-          m->p.y =
-        p->y +
+          m->p.pos[1] =
+        p->pos[1] +
         (((SHIP_RADIUS +
            MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * yy);
-          m->p.vx = p->vx + (MISSILE_SPEED * xx);
-          m->p.vy = p->vy + (MISSILE_SPEED * yy);
+          m->p.vel[0] = p->vel[0] + (MISSILE_SPEED * xx);
+          m->p.vel[1] = p->vel[1] + (MISSILE_SPEED * yy);
           m->p.rotation = p->rotation;
           m->energy = MISSILE_TICKS_TO_LIVE;
           m->primary_color = player->primary_color;
@@ -331,18 +331,17 @@ apply_physics_to_player (GameObject * player)
 static void
 apply_physics (physics_t * p)
 {
-  p->x += p->vx;
-  while (p->x > (WIDTH * FIXED_POINT_SCALE_FACTOR))
-      p->x -= (WIDTH * FIXED_POINT_SCALE_FACTOR);
-  while (p->x < 0)
-      p->x += (WIDTH * FIXED_POINT_SCALE_FACTOR);
+  p->pos[0] += p->vel[0];
+  while (p->pos[0] > (WIDTH * FIXED_POINT_SCALE_FACTOR))
+    p->pos[0] -= (WIDTH * FIXED_POINT_SCALE_FACTOR);
+  while (p->pos[0] < 0)
+    p->pos[0] += (WIDTH * FIXED_POINT_SCALE_FACTOR);
 
-  p->y += p->vy;
-  while (p->y > (HEIGHT * FIXED_POINT_SCALE_FACTOR))
-      p->y -= (HEIGHT * FIXED_POINT_SCALE_FACTOR);
-  while (p->y < 0)
-      p->y += (HEIGHT * FIXED_POINT_SCALE_FACTOR);
-
+  p->pos[1] += p->vel[1];
+  while (p->pos[1] > (HEIGHT * FIXED_POINT_SCALE_FACTOR))
+      p->pos[1] -= (HEIGHT * FIXED_POINT_SCALE_FACTOR);
+  while (p->pos[1] < 0)
+      p->pos[1] += (HEIGHT * FIXED_POINT_SCALE_FACTOR);
 }
 
 //------------------------------------------------------------------------------
@@ -350,8 +349,8 @@ apply_physics (physics_t * p)
 static gboolean
 check_for_collision (physics_t * p1, physics_t * p2)
 {
-  int dx = (p1->x - p2->x) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int dy = (p1->y - p2->y) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int dx = (p1->pos[0] - p2->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int dy = (p1->pos[1] - p2->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
   int r = (p1->radius + p2->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
   int d2 = (dx * dx) + (dy * dy);
   return (d2 < (r * r)) ? TRUE : FALSE;
@@ -361,8 +360,8 @@ check_for_collision (physics_t * p1, physics_t * p2)
 static gboolean
 check_for_ring_collision (physics_t * ring, physics_t * p1)
 {
-  int dx = (p1->x - ring->x) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int dy = (p1->y - ring->y) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int dx = (p1->pos[0] - ring->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int dy = (p1->pos[1] - ring->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
   int r  = (ring->radius + p1->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
   int rr = (ring->radius * 0.8) / FIXED_POINT_HALF_SCALE_FACTOR;
   int d2 = (dx * dx) + (dy * dy);
@@ -381,12 +380,14 @@ ring_segment_by_rotation (GameObject *ring, int rot)
     return angle_ring_hit / (NUMBER_OF_ROTATION_ANGLES / SEGMENTS_PER_RING);
 }
 
+
+// TODO: Work on converting Point from here...
 static int
 ring_segment_hit (GameObject *ring, GameObject *m)
 {
     /* Calculate angle of missile compared with ring center */
-    int dx = (m->p.x - ring->p.x);
-    int dy = (m->p.y - ring->p.y);
+    int dx = (m->p.pos[0] - ring->p.pos[0]);
+    int dy = (m->p.pos[1] - ring->p.pos[1]);
     int rot = arctan(dy, dx);
 
     return ring_segment_by_rotation(ring, rot);
@@ -397,8 +398,8 @@ ring_segment_hit (GameObject *ring, GameObject *m)
 static void
 enforce_minimum_distance (physics_t * ring, physics_t * p)
 {
-  int dx = ring->x - p->x;
-  int dy = ring->y - p->y;
+  int dx = ring->pos[0] - p->pos[0];
+  int dy = ring->pos[1] - p->pos[1];
   double d2 = (((double) dx) * dx) + (((double) dy) * dy);
   int d = (int) sqrt (d2);
   int r = ring->radius + p->radius;
@@ -411,8 +412,8 @@ enforce_minimum_distance (physics_t * ring, physics_t * p)
   dx /= d;
   dy /= d;
 
-  p->x -= 2*dx;
-  p->y -= 2*dy;
+  p->pos[0] -= 2*dx;
+  p->pos[1] -= 2*dy;
 }
 
 //------------------------------------------------------------------------------
@@ -424,8 +425,8 @@ on_collision (GameObject * p, GameObject * m)
   p->is_hit = TRUE;
   m->has_exploded = TRUE;
   m->energy = MISSILE_EXPLOSION_TICKS_TO_LIVE;
-  m->p.vx = 0;
-  m->p.vy = 0;
+  m->p.vel[0] = 0;
+  m->p.vel[1] = 0;
 }
 
 static void
@@ -439,8 +440,8 @@ on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
     ring->is_hit = TRUE;
     m->has_exploded = TRUE;
     m->energy = MISSILE_EXPLOSION_TICKS_TO_LIVE;
-    m->p.vx = 0;
-    m->p.vy = 0;
+    m->p.vel[0] = 0;
+    m->p.vel[1] = 0;
 
     if (ring->component_energy[segment] <= 0)
         ring->energy--;

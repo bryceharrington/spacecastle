@@ -365,23 +365,23 @@ draw_star (cairo_t * cr, CanvasItem *)
 void
 show_text_message (cairo_t * cr, int font_size, int dy, const char *message)
 {
-    double x, y;
-    cairo_text_extents_t extents;
+  double x, y;
+  cairo_text_extents_t extents;
 
-    cairo_save (cr);
+  cairo_save (cr);
 
-    cairo_select_font_face (cr, "Serif",
-                            CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face (cr, "Serif",
+			  CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
-    cairo_set_font_size (cr, font_size);
-    cairo_text_extents (cr, message, &extents);
-    x = (WIDTH / 2) - (extents.width / 2 + extents.x_bearing);
-    y = (HEIGHT / 2) - (extents.height / 2 + extents.y_bearing);
+  cairo_set_font_size (cr, font_size);
+  cairo_text_extents (cr, message, &extents);
+  x = (WIDTH / 2) - (extents.width / 2 + extents.x_bearing);
+  y = (HEIGHT / 2) - (extents.height / 2 + extents.y_bearing);
 
-    cairo_set_source_rgba (cr, 1, 1, 1, 1);
-    cairo_move_to (cr, x, y + dy);
-    cairo_show_text (cr, message);
-    cairo_restore (cr);
+  cairo_set_source_rgba (cr, 1, 1, 1, 1);
+  cairo_move_to (cr, x, y + dy);
+  cairo_show_text (cr, message);
+  cairo_restore (cr);
 }
 
 //------------------------------------------------------------------------------

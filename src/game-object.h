@@ -26,8 +26,8 @@
 
 typedef struct
 {
-    int x, y;
-    int vx, vy;
+    Point pos;
+    Point vel;
 
     // 0 is straight up, (NUMBER_OF_ROTATION_ANGLES / 4) is pointing right
     int rotation;
@@ -72,8 +72,8 @@ inline void GameObject::init() {
     is_turning_right = FALSE;
     is_firing = FALSE;
 
-    p.vx = 0;
-    p.vy = 0;
+    p.vel[0] = 0;
+    p.vel[1] = 0;
 
     animation_tick = 0;
 }

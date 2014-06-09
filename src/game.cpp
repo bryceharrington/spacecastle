@@ -139,8 +139,8 @@ void Game::reset() {
     }
 
     cannon->init();
-    cannon->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
-    cannon->p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
+    cannon->p.pos[0] = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
+    cannon->p.pos[1] = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
     cannon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
     cannon->p.radius = CANNON_RADIUS;
     cannon->ticks_until_can_fire = 0;
@@ -151,15 +151,14 @@ void Game::reset() {
     cannon->rotation_speed = 1;
 
     cannon_status->init();
-    cannon_status->x = 30;
-    cannon_status->y = 30;
+    cannon_status->pos = Point(30, 30);
     cannon_status->rotation = 0;
     cannon_status->energy = CANNON_MAX_ENERGY;
     cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
     player->init();
-    player->p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
-    player->p.y = 150 * FIXED_POINT_SCALE_FACTOR;
+    player->p.pos[0] = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
+    player->p.pos[1] = 150 * FIXED_POINT_SCALE_FACTOR;
     player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
     player->p.radius = SHIP_RADIUS;
     player->ticks_until_can_fire = 0;
@@ -170,8 +169,7 @@ void Game::reset() {
     player->rotation_speed = 3;
 
     player_status->init();
-    player_status->x = WIDTH - 30;
-    player_status->y = 30;
+    player_status->pos = Point( WIDTH - 30, 30);
     player_status->rotation = PI;
     player_status->energy = SHIP_MAX_ENERGY;
     player_status->draw_func = (canvas_item_draw) draw_energy_bar;
@@ -236,15 +234,15 @@ void Game::drawUI(cairo_t *cr) {
 
 void Game::drawShip(cairo_t *cr) {
   cairo_save (cr);
-  cairo_translate (cr, cannon->p.x / FIXED_POINT_SCALE_FACTOR,
-           cannon->p.y / FIXED_POINT_SCALE_FACTOR);
+  cairo_translate (cr, cannon->p.pos[0] / FIXED_POINT_SCALE_FACTOR,
+           cannon->p.pos[1] / FIXED_POINT_SCALE_FACTOR);
   cairo_rotate (cr, cannon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
   this->drawCannon (cr, cannon);
   cairo_restore (cr);
 
   cairo_save (cr);
-  cairo_translate (cr, player->p.x / FIXED_POINT_SCALE_FACTOR,
-           player->p.y / FIXED_POINT_SCALE_FACTOR);
+  cairo_translate (cr, player->p.pos[0] / FIXED_POINT_SCALE_FACTOR,
+           player->p.pos[1] / FIXED_POINT_SCALE_FACTOR);
   cairo_rotate (cr, player->p.rotation * RADIANS_PER_ROTATION_ANGLE);
   draw_ship_body (cr, player);
   cairo_restore (cr);
@@ -260,11 +258,11 @@ void Game::drawRings(cairo_t *cr) {
       {
     cairo_save (cr);
     cairo_translate (cr,
-             rings[i].p.x / FIXED_POINT_SCALE_FACTOR,
-             rings[i].p.y / FIXED_POINT_SCALE_FACTOR);
+                     rings[i].p.pos[0] / FIXED_POINT_SCALE_FACTOR,
+                     rings[i].p.pos[1] / FIXED_POINT_SCALE_FACTOR);
     cairo_rotate (cr,
-              -1 * rings[i].p.rotation * RADIANS_PER_ROTATION_ANGLE
-              - PI/2.0);
+                  -1 * rings[i].p.rotation * RADIANS_PER_ROTATION_ANGLE
+                  - PI/2.0);
 
     cairo_set_source_rgba (cr, 2-i, i? 1.0/i : 0, 0, 0.6);
 
@@ -280,10 +278,10 @@ void Game::drawMissiles(cairo_t *cr) {
       if (missiles[i].is_alive)
     {
       cairo_save (cr);
-      cairo_translate (cr, missiles[i].p.x / FIXED_POINT_SCALE_FACTOR,
-               missiles[i].p.y / FIXED_POINT_SCALE_FACTOR);
+      cairo_translate (cr, missiles[i].p.pos[0] / FIXED_POINT_SCALE_FACTOR,
+                       missiles[i].p.pos[1] / FIXED_POINT_SCALE_FACTOR);
       cairo_rotate (cr,
-            missiles[i].p.rotation * RADIANS_PER_ROTATION_ANGLE);
+                    missiles[i].p.rotation * RADIANS_PER_ROTATION_ANGLE);
       draw_missile (cr, &(missiles[i]));
       cairo_restore (cr);
     }
@@ -437,10 +435,10 @@ Game::init_rings_array ()
     int rot = 1;
     for (int i=0; i < MAX_NUMBER_OF_RINGS; i++)
     {
-    rings[i].x = WIDTH / 2;
-    rings[i].y = HEIGHT / 2;
-    rings[i].p.x = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
-    rings[i].p.y = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
+    rings[i].pos[0] = WIDTH / 2;
+    rings[i].pos[1] = HEIGHT / 2;
+    rings[i].p.pos[0] = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
+    rings[i].p.pos[1] = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
     rings[i].is_alive = TRUE;
     rings[i].scale = i;
     rings[i].energy = SEGMENTS_PER_RING;
@@ -469,11 +467,11 @@ Game::init_stars_array ()
 
     for (i = 0; i < NUMBER_OF_STARS; i++)
     {
-    stars[i].x = random () % WIDTH;
-    stars[i].y = random () % HEIGHT;
-    stars[i].rotation = drand48 () * TWO_PI;
-    stars[i].scale = 0.5 + (drand48 ());
-    stars[i].draw_func = draw_star;
+      stars[i].pos[0] = random () % WIDTH;
+      stars[i].pos[1] = random () % HEIGHT;
+      stars[i].rotation = drand48 () * TWO_PI;
+      stars[i].scale = 0.5 + (drand48 ());
+      stars[i].draw_func = draw_star;
     }
 }
 

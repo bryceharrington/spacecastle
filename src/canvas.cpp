@@ -29,7 +29,7 @@ add_color_stop (cairo_pattern_t* pat, double offset, RGB_t color, double alpha)
 
 
 CanvasItem::CanvasItem (canvas_item_draw f)
-    : x(0), y(0), rotation(0.0), scale(1.0), draw_func(f)
+  : pos(0,0), rotation(0.0), scale(1.0), draw_func(f)
 {
 }
 
@@ -40,7 +40,7 @@ CanvasItem::draw (cairo_t * cr)
         return;
 
     cairo_save (cr);
-    cairo_translate (cr, this->x, this->y);
+    cairo_translate (cr, this->pos[0], this->pos[1]);
     cairo_rotate (cr, this->rotation);
     cairo_scale (cr, this->scale, this->scale);
     (*draw_func) (cr, this);
