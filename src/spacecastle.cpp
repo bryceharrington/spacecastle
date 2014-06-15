@@ -130,7 +130,7 @@ on_timeout (gpointer data)
   for (i = 0; i < MAX_NUMBER_OF_RINGS; i++)
   {
       game->rings[i].p.rotation =
-          (game->rings[i].p.rotation + game->rings[i].rotation_speed)
+          (game->rings[i].p.rotation + game->rings[i].p.rotation_speed)
           % NUMBER_OF_ROTATION_ANGLES;
 
       if (game->rings[i].p.rotation < 0)
@@ -166,6 +166,33 @@ on_timeout (gpointer data)
 }
 
 //------------------------------------------------------------------------------
+
+// TODO: These three routines are temporary until I've refactored away all
+//  need for is_turning_*
+static void
+turn_cannon_left (GameObject *cannon)
+{
+  cannon->is_turning_left = TRUE;
+  cannon->is_turning_right = FALSE;
+  cannon->p.rotation_speed = -1;
+}
+
+static void
+turn_cannon_right (GameObject *cannon)
+{
+  cannon->is_turning_left = FALSE;
+  cannon->is_turning_right = TRUE;
+  cannon->p.rotation_speed = 1;
+}
+
+static void
+turn_cannon_stop (GameObject *cannon)
+{
+  cannon->is_turning_left = FALSE;
+  cannon->is_turning_right = FALSE;
+  cannon->p.rotation_speed = 0;
+}
+
 
 static void
 operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
@@ -203,35 +230,35 @@ operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
             // However, if no segments destroyed yet, shoot one if level > 1
             if (ring_is_undamaged) {
                 cannon->is_firing = TRUE;
-                cannon->is_turning_left = FALSE;
-                cannon->is_turning_right = FALSE;
+                turn_cannon_stop (cannon);
             }
 
         } else {
             cannon->is_firing = TRUE;
-            cannon->is_turning_left = FALSE;
-            cannon->is_turning_right = FALSE;
+            turn_cannon_stop (cannon);
         }
     } else if (c->rotation - direction == NUMBER_OF_ROTATION_ANGLES/2) {
         cannon->is_firing = FALSE;
         // Stay going in same direction
     } else if (c->rotation - direction < NUMBER_OF_ROTATION_ANGLES/2
                && c->rotation - direction > 0) {
+        turn_cannon_left (cannon);
         cannon->is_firing = FALSE;
-        cannon->is_turning_right = FALSE;
-        cannon->is_turning_left = TRUE;
 
     } else if (direction - c->rotation > NUMBER_OF_ROTATION_ANGLES/2
                && c->rotation - direction < 0) {
+        turn_cannon_left (cannon);
         cannon->is_firing = FALSE;
-        cannon->is_turning_right = FALSE;
-        cannon->is_turning_left = TRUE;
 
     } else {
         cannon->is_firing = FALSE;
-        cannon->is_turning_right = TRUE;
-        cannon->is_turning_left = FALSE;
+        turn_cannon_right (cannon);
     }
+    if (cannon->is_turning_right)
+      cannon->p.rotation_speed = 1;
+    else if (cannon->is_turning_left)
+      cannon->p.rotation_speed = -1;
+
 }
 
 static void
@@ -245,7 +272,7 @@ apply_physics_to_player (GameObject * player)
       // check if player is turning left, ...
       if (player->is_turning_left)
     {
-      p->rotation -= player->rotation_speed;
+      p->rotation += player->p.rotation_speed;
       while (p->rotation < 0)
                 p->rotation += NUMBER_OF_ROTATION_ANGLES;
     }
@@ -253,7 +280,7 @@ apply_physics_to_player (GameObject * player)
       // ... or right.
       if (player->is_turning_right)
     {
-      p->rotation += player->rotation_speed;
+      p->rotation += player->p.rotation_speed;
       while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
                 p->rotation -= NUMBER_OF_ROTATION_ANGLES;
     }

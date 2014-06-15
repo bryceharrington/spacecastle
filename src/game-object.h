@@ -31,6 +31,7 @@ typedef struct
 
     // 0 is straight up, (NUMBER_OF_ROTATION_ANGLES / 4) is pointing right
     int rotation;
+    int rotation_speed;
 
     // used for collision detection - we presume that an object is equivalent
     // to its bounding circle, rather than trying to do something fancy.
@@ -52,7 +53,7 @@ class GameObject : public CanvasItem {
     int ticks_until_can_fire;  // only for spaceships
     int energy;                // for missiles and spaceships
     int component_energy[MAX_COMPONENTS]; // for rings
-    int rotation_speed;
+    int max_rotation_speed;
     int animation_tick;
 
     gboolean is_hit;           // only for spaceships
@@ -74,6 +75,7 @@ inline void GameObject::init() {
 
     p.vel[0] = 0;
     p.vel[1] = 0;
+    p.rotation_speed = 0;
 
     animation_tick = 0;
 }
