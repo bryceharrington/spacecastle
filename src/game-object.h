@@ -37,10 +37,10 @@ typedef struct
     // to its bounding circle, rather than trying to do something fancy.
     int radius;
 }
-physics_t;
+    physics_t;
 
 class GameObject : public CanvasItem {
- public:
+public:
     physics_t p;
 
     // TODO:  Move all this stuff into game object properties or subclasses or something

@@ -34,11 +34,11 @@ gint on_key_release (GtkWidget *, GdkEventKey *);
 gint on_timeout (gpointer);
 
 class Game {
- private:
+private:
     GameObject* objects[MAX_OBJECTS];
     int         num_objects;
 
- public:
+public:
     GtkWidget   *window;
     const char  *game_over_message;
     double       debug_scale_factor;

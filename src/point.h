@@ -27,37 +27,37 @@ typedef double Coord;
 
 class Point {
 
- public:
+public:
     inline Point()
 	{ _pt[0] = _pt[1] = 0; }
 
     inline Point(Coord x, Coord y) {
-	_pt[0] = x;
-	_pt[1] = y;
+        _pt[0] = x;
+        _pt[1] = y;
     }
 
     inline Point(Point const &p) {
-	for (unsigned i = 0; i < 2; ++i) {
-	    _pt[i] = p._pt[i];
-	}
+        for (unsigned i = 0; i < 2; ++i) {
+            _pt[i] = p._pt[i];
+        }
     }
 
     inline Point &operator=(Point const &p) {
-	for (unsigned i = 0; i < 2; ++i) {
-	    _pt[i] = p._pt[i];
-	}
-	return *this;
+        for (unsigned i = 0; i < 2; ++i) {
+            _pt[i] = p._pt[i];
+        }
+        return *this;
     }
 
     inline Coord operator[](unsigned i) const {
-	return _pt[i];
+        return _pt[i];
     }
 
     inline Coord &operator[](unsigned i) {
-	return _pt[i];
+        return _pt[i];
     }
 
- private:
+private:
     Coord _pt[2];
 };
 

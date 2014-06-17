@@ -60,34 +60,34 @@ draw_ship_body (cairo_t * cr, GameObject * p)
   cairo_pattern_t *pat;
 
   if (p->is_hit)
-    {
-      cairo_set_source_rgba (cr, p->primary_color.r, p->primary_color.g,
-                 p->primary_color.b, 0.5);
-      cairo_arc (cr, 0, 0, SHIP_RADIUS / FIXED_POINT_SCALE_FACTOR, 0, TWO_PI);
-      cairo_stroke (cr);
-    }
+  {
+    cairo_set_source_rgba (cr, p->primary_color.r, p->primary_color.g,
+                           p->primary_color.b, 0.5);
+    cairo_arc (cr, 0, 0, SHIP_RADIUS / FIXED_POINT_SCALE_FACTOR, 0, TWO_PI);
+    cairo_stroke (cr);
+  }
 
   cairo_save (cr);
   cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
   if (p->is_alive)
-    {
+  {
 
-      if (p->is_thrusting)
+    if (p->is_thrusting)
     {
       draw_flare (cr, p->primary_color);
     }
 
-      if (p->is_turning_left && !p->is_turning_right)
+    if (p->is_turning_left && !p->is_turning_right)
     {
       draw_turning_flare (cr, p->primary_color, -1);
     }
 
-      if (!p->is_turning_left && p->is_turning_right)
+    if (!p->is_turning_left && p->is_turning_right)
     {
       draw_turning_flare (cr, p->primary_color, 1);
     }
-    }
+  }
 
   cairo_move_to (cr, 0, -33);
   cairo_curve_to (cr, 2, -33, 3, -34, 4, -35);
@@ -123,34 +123,34 @@ draw_cannon (cairo_t * cr, GameObject * p)
   cairo_pattern_t *pat;
 
   if (p->is_hit)
-    {
-      cairo_set_source_rgba (cr, p->primary_color.r, p->primary_color.g,
-                 p->primary_color.b, 0.5);
-      cairo_arc (cr, 0, 0, SHIP_RADIUS / FIXED_POINT_SCALE_FACTOR, 0, TWO_PI);
-      cairo_stroke (cr);
-    }
+  {
+    cairo_set_source_rgba (cr, p->primary_color.r, p->primary_color.g,
+                           p->primary_color.b, 0.5);
+    cairo_arc (cr, 0, 0, SHIP_RADIUS / FIXED_POINT_SCALE_FACTOR, 0, TWO_PI);
+    cairo_stroke (cr);
+  }
 
   cairo_save (cr);
   cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
   if (p->is_alive)
-    {
+  {
 
-      if (p->is_thrusting)
+    if (p->is_thrusting)
     {
       draw_flare (cr, p->primary_color);
     }
 
-      if (p->is_turning_left && !p->is_turning_right)
+    if (p->is_turning_left && !p->is_turning_right)
     {
       draw_turning_flare (cr, p->primary_color, -1);
     }
 
-      if (!p->is_turning_left && p->is_turning_right)
+    if (!p->is_turning_left && p->is_turning_right)
     {
       draw_turning_flare (cr, p->primary_color, 1);
     }
-    }
+  }
 
   cairo_set_line_width (cr, 2.0);
   cairo_arc (cr, 0, 0, p->p.radius/FIXED_POINT_SCALE_FACTOR, 5.0/180.0, TWO_PI);
@@ -235,17 +235,17 @@ draw_turning_flare (cairo_t * cr, RGB_t color, int right_hand_side)
 void
 draw_ring (cairo_t * cr, GameObject * r) {
   for (int i=0; i<SEGMENTS_PER_RING; i++) {
-      if (r->component_energy[i] <= 0)
-          continue;
+    if (r->component_energy[i] <= 0)
+      continue;
 
-      cairo_save (cr);
-      cairo_set_line_width (cr, r->component_energy[i]);
-      cairo_arc (cr, 0, 0, r->p.radius/FIXED_POINT_SCALE_FACTOR,
-                 i * TWO_PI/SEGMENTS_PER_RING,
-                 (i+1) * TWO_PI/SEGMENTS_PER_RING - TWO_PI/180.0);
-      cairo_stroke (cr);
+    cairo_save (cr);
+    cairo_set_line_width (cr, r->component_energy[i]);
+    cairo_arc (cr, 0, 0, r->p.radius/FIXED_POINT_SCALE_FACTOR,
+               i * TWO_PI/SEGMENTS_PER_RING,
+               (i+1) * TWO_PI/SEGMENTS_PER_RING - TWO_PI/180.0);
+    cairo_stroke (cr);
 
-      cairo_restore (cr);
+    cairo_restore (cr);
   }
 }
 
@@ -258,46 +258,46 @@ draw_missile (cairo_t * cr, GameObject * m)
   cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
   if (m->has_exploded)
-    {
-      draw_exploded_missile (cr, m);
-    }
+  {
+    draw_exploded_missile (cr, m);
+  }
   else
-    {
-      cairo_pattern_t *pat;
+  {
+    cairo_pattern_t *pat;
 
-      double alpha = ((double) m->energy) / MISSILE_TICKS_TO_LIVE;
-      // non-linear scaling so things don't fade out too fast
-      alpha = 1.0 - (1.0 - alpha) * (1.0 - alpha);
+    double alpha = ((double) m->energy) / MISSILE_TICKS_TO_LIVE;
+    // non-linear scaling so things don't fade out too fast
+    alpha = 1.0 - (1.0 - alpha) * (1.0 - alpha);
 
-      cairo_save (cr);
-      cairo_move_to (cr, 0, -4);
-      cairo_curve_to (cr, 3, -4, 4, -2, 4, 0);
-      cairo_curve_to (cr, 4, 4, 2, 10, 0, 18);
-      // half way point
-      cairo_curve_to (cr, -2, 10, -4, 4, -4, 0);
-      cairo_curve_to (cr, -4, -2, -3, -4, 0, -4);
+    cairo_save (cr);
+    cairo_move_to (cr, 0, -4);
+    cairo_curve_to (cr, 3, -4, 4, -2, 4, 0);
+    cairo_curve_to (cr, 4, 4, 2, 10, 0, 18);
+    // half way point
+    cairo_curve_to (cr, -2, 10, -4, 4, -4, 0);
+    cairo_curve_to (cr, -4, -2, -3, -4, 0, -4);
 
-      pat = cairo_pattern_create_linear (0.0, -5.0, 0.0, 5.0);
-      add_color_stop (pat, 0, m->primary_color, alpha);
-      add_color_stop (pat, 1, m->secondary_color, alpha);
+    pat = cairo_pattern_create_linear (0.0, -5.0, 0.0, 5.0);
+    add_color_stop (pat, 0, m->primary_color, alpha);
+    add_color_stop (pat, 1, m->secondary_color, alpha);
 
-      cairo_set_source (cr, pat);
-      cairo_fill (cr);
-      cairo_pattern_destroy (pat);
-      cairo_restore (cr);
+    cairo_set_source (cr, pat);
+    cairo_fill (cr);
+    cairo_pattern_destroy (pat);
+    cairo_restore (cr);
 
-      cairo_save (cr);
-      cairo_arc (cr, 0, 0, 3, 0, TWO_PI);
+    cairo_save (cr);
+    cairo_arc (cr, 0, 0, 3, 0, TWO_PI);
 
-      pat = cairo_pattern_create_linear (0, 3, 0, -3);
-      add_color_stop (pat, 0, m->primary_color, alpha);
-      add_color_stop (pat, 1, m->secondary_color, alpha);
+    pat = cairo_pattern_create_linear (0, 3, 0, -3);
+    add_color_stop (pat, 0, m->primary_color, alpha);
+    add_color_stop (pat, 1, m->secondary_color, alpha);
 
-      cairo_set_source (cr, pat);
-      cairo_fill (cr);
-      cairo_pattern_destroy (pat);
-      cairo_restore (cr);
-    }
+    cairo_set_source (cr, pat);
+    cairo_fill (cr);
+    cairo_pattern_destroy (pat);
+    cairo_restore (cr);
+  }
 
   cairo_restore (cr);
 }
@@ -344,13 +344,13 @@ draw_star (cairo_t * cr, CanvasItem *)
 
   cairo_save (cr);
   cairo_move_to (cr, r1 * cos_table[0] / FIXED_POINT_SCALE_FACTOR,
-         r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
+                 r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
 
   for (i = 0; i < 5; i++) {
     cairo_line_to (cr, r1 * cos_table[0] / FIXED_POINT_SCALE_FACTOR,
-           r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
+                   r1 * sin_table[0] / FIXED_POINT_SCALE_FACTOR);
     cairo_line_to (cr, r2 * cos_table[a] / FIXED_POINT_SCALE_FACTOR,
-           r2 * sin_table[a] / FIXED_POINT_SCALE_FACTOR);
+                   r2 * sin_table[a] / FIXED_POINT_SCALE_FACTOR);
     cairo_rotate (cr, 4*a*PI/NUMBER_OF_ROTATION_ANGLES);
   }
 
@@ -371,7 +371,7 @@ show_text_message (cairo_t * cr, int font_size, int dy, const char *message)
   cairo_save (cr);
 
   cairo_select_font_face (cr, "Serif",
-			  CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+                          CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
   cairo_set_font_size (cr, font_size);
   cairo_text_extents (cr, message, &extents);

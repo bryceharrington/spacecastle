@@ -32,7 +32,7 @@ typedef enum {
 
 /* Analog to NArtBpath */
 class PathSegment {
- public:
+public:
     Pathcode      code;    /// Type of path segment
 
     Point         c1;      /// Control point for curves
@@ -42,14 +42,14 @@ class PathSegment {
     PathSegment() {}
 
     PathSegment(Pathcode c,
-		Coord x1, Coord y1,
-		Coord x2, Coord y2,
-		Coord x3, Coord y3)
-	: c1(x1, y1), c2(x2, y2), pt(x3, y3)
+                Coord x1, Coord y1,
+                Coord x2, Coord y2,
+                Coord x3, Coord y3)
+        : c1(x1, y1), c2(x2, y2), pt(x3, y3)
 	{}
 
     PathSegment(Pathcode c, Coord x, Coord y)
-	: c1(0.0, 0.0), c2(0.0, 0.0), pt(x, y)
+        : c1(0.0, 0.0), c2(0.0, 0.0), pt(x, y)
 	{}
 
 };

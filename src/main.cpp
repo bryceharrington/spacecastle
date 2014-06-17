@@ -23,9 +23,9 @@ Game *game;
 gint
 main (gint argc, gchar ** argv)
 {
-    game = new Game(argc, argv);
-    game->init();
-    return game->run();
+  game = new Game(argc, argv);
+  game->init();
+  return game->run();
 }
 
 /*

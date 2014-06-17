@@ -30,16 +30,16 @@ extern void scale_for_aspect_ratio (cairo_t * cr, int widget_width, int widget_h
 
 struct _RGB
 {
-  double r, g, b;
+    double r, g, b;
 };
 typedef struct _RGB RGB_t;
 
 void add_color_stop (cairo_pattern_t* pat, double offset, RGB_t color, double alpha);
 
 class CanvasItem {
- private:
+private:
 
- public:
+public:
     Point pos;
     float rotation;
     float scale;
@@ -55,11 +55,11 @@ class CanvasItem {
 };
 
 class Canvas {
- private:
+private:
     int      width;
     int      height;
 
- public:
+public:
     double   debug_scale_factor;
 
     Canvas(int w, int h);
