@@ -24,6 +24,17 @@
 # define M_PI 3.14159265358979323846
 #endif
 
+#ifndef M_SQRT2
+#define M_SQRT2 1.41421356237309504880
+#endif
+
+#ifndef M_SQRT1_2
+#define M_SQRT1_2 0.707106781186547524400844362104849039
+#endif
+
+#undef  ARRAY_LENGTH
+#define ARRAY_LENGTH(__array) ((int) (sizeof (__array) / sizeof (__array[0])))
+
 #define TWO_PI (2*M_PI)
 #define PI     (M_PI)
 
@@ -34,6 +45,12 @@
 // discretization of 360 degrees
 #define NUMBER_OF_ROTATION_ANGLES 360
 #define RADIANS_PER_ROTATION_ANGLE (TWO_PI / NUMBER_OF_ROTATION_ANGLES)
+
+#undef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+#undef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 extern int cos_table[];
 extern int sin_table[];
