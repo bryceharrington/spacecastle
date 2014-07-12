@@ -172,24 +172,18 @@ on_timeout (gpointer data)
 static void
 turn_cannon_left (GameObject *cannon)
 {
-  cannon->is_turning_left = TRUE;
-  cannon->is_turning_right = FALSE;
   cannon->p.rotation_speed = -1;
 }
 
 static void
 turn_cannon_right (GameObject *cannon)
 {
-  cannon->is_turning_left = FALSE;
-  cannon->is_turning_right = TRUE;
   cannon->p.rotation_speed = 1;
 }
 
 static void
 turn_cannon_stop (GameObject *cannon)
 {
-  cannon->is_turning_left = FALSE;
-  cannon->is_turning_right = FALSE;
   cannon->p.rotation_speed = 0;
 }
 
@@ -213,7 +207,6 @@ operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
   if (direction == c->rotation) {
     // What segment would we hit if we fired?
     int seg_no = ring_segment_by_rotation(ring, c->rotation);
-    dbg("I would hit segment %d\n", seg_no);
 
     // TODO: If rotation angle is such that our missile
     //   would likely hit a ring segment, don't shoot.
@@ -254,10 +247,6 @@ operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
     cannon->is_firing = FALSE;
     turn_cannon_right (cannon);
   }
-  if (cannon->is_turning_right)
-    cannon->p.rotation_speed = 1;
-  else if (cannon->is_turning_left)
-    cannon->p.rotation_speed = -1;
 
 }
 
@@ -269,21 +258,19 @@ apply_physics_to_player (GameObject * player)
 
   if (player->is_alive)
   {
-    // check if player is turning left, ...
-    if (player->is_turning_left)
-    {
-      p->rotation += player->p.rotation_speed;
-      while (p->rotation < 0)
-        p->rotation += NUMBER_OF_ROTATION_ANGLES;
+    // Apply any accelerational impulses
+    if (p->rotation_accel != 0.0) {
+      p->rotation_speed += p->rotation_accel / 10.0;
+      p->rotation_accel /= 4.0;
     }
 
-    // ... or right.
-    if (player->is_turning_right)
-    {
-      p->rotation += player->p.rotation_speed;
-      while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
-        p->rotation -= NUMBER_OF_ROTATION_ANGLES;
-    }
+    // Apply any rotations
+    p->rotation += player->p.rotation_speed;
+    while (p->rotation < 0)
+      p->rotation += NUMBER_OF_ROTATION_ANGLES;
+
+    while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
+      p->rotation -= NUMBER_OF_ROTATION_ANGLES;
 
     // check if accelerating
     if (player->is_thrusting)

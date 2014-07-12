@@ -72,21 +72,14 @@ draw_ship_body (cairo_t * cr, GameObject * p)
 
   if (p->is_alive)
   {
-
     if (p->is_thrusting)
-    {
       draw_flare (cr, p->primary_color);
-    }
 
-    if (p->is_turning_left && !p->is_turning_right)
-    {
+    if (p->p.rotation_accel < 0)
       draw_turning_flare (cr, p->primary_color, -1);
-    }
 
-    if (!p->is_turning_left && p->is_turning_right)
-    {
+    if (p->p.rotation_accel > 0)
       draw_turning_flare (cr, p->primary_color, 1);
-    }
   }
 
   cairo_move_to (cr, 0, -33);
@@ -137,19 +130,13 @@ draw_cannon (cairo_t * cr, GameObject * p)
   {
 
     if (p->is_thrusting)
-    {
       draw_flare (cr, p->primary_color);
-    }
 
-    if (p->is_turning_left && !p->is_turning_right)
-    {
+    if (p->p.rotation_speed < 0)
       draw_turning_flare (cr, p->primary_color, -1);
-    }
 
-    if (!p->is_turning_left && p->is_turning_right)
-    {
+    if (p->p.rotation_speed > 0)
       draw_turning_flare (cr, p->primary_color, 1);
-    }
   }
 
   cairo_set_line_width (cr, 2.0);

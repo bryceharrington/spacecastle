@@ -143,6 +143,7 @@ void Game::reset() {
   cannon->p.pos[1] = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
   cannon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
   cannon->p.rotation_speed = 0;
+  cannon->p.rotation_accel = 0;
   cannon->p.radius = CANNON_RADIUS;
   cannon->ticks_until_can_fire = 0;
   cannon->energy = SHIP_MAX_ENERGY;
@@ -162,6 +163,7 @@ void Game::reset() {
   player->p.pos[1] = 150 * FIXED_POINT_SCALE_FACTOR;
   player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
   player->p.rotation_speed = 0;
+  player->p.rotation_accel = 0;
   player->p.radius = SHIP_RADIUS;
   player->ticks_until_can_fire = 0;
   player->energy = SHIP_MAX_ENERGY;
@@ -396,27 +398,17 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
 
     case GDK_Left:
     case GDK_KP_Left:
-      player->is_turning_left = key_is_on;
-      if (key_is_on)
-      {
-        player->p.rotation_speed = MAX(
-          player->p.rotation_speed - 1,
-          -1 * player->max_rotation_speed);
-      } else {
-        player->p.rotation_speed = 0;
-      }
+      if (!key_is_on)
+        player->p.rotation_accel = 0;
+      else if (player->p.rotation_accel > -100)
+        player->p.rotation_accel -= 10;
       break;
     case GDK_Right:
     case GDK_KP_Right:
-      player->is_turning_right = key_is_on;
-      if (key_is_on)
-      {
-        player->p.rotation_speed = MIN(
-          player->p.rotation_speed + 1,
-          player->max_rotation_speed);
-      } else {
-        player->p.rotation_speed = 0;
-      }
+      if (!key_is_on)
+        player->p.rotation_accel = 0;
+      else if (player->p.rotation_accel < 100)
+        player->p.rotation_accel += 10;
       break;
     case GDK_Up:
     case GDK_KP_Up:

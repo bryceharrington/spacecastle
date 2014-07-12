@@ -32,12 +32,12 @@ typedef struct
     // 0 is straight up, (NUMBER_OF_ROTATION_ANGLES / 4) is pointing right
     int rotation;
     int rotation_speed;
+    int rotation_accel;
 
     // used for collision detection - we presume that an object is equivalent
     // to its bounding circle, rather than trying to do something fancy.
     int radius;
-}
-    physics_t;
+}   physics_t;
 
 class GameObject : public CanvasItem {
 public:
@@ -45,8 +45,6 @@ public:
 
     // TODO:  Move all this stuff into game object properties or subclasses or something
     gboolean is_thrusting;
-    gboolean is_turning_left;
-    gboolean is_turning_right;
     gboolean is_firing;
     gboolean is_reversing;
 
@@ -69,8 +67,6 @@ public:
 inline void GameObject::init() {
     is_thrusting = FALSE;
     is_reversing = FALSE;
-    is_turning_left = FALSE;
-    is_turning_right = FALSE;
     is_firing = FALSE;
 
     p.vel[0] = 0;
