@@ -31,9 +31,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <cassert>
-#include <glib/gmem.h>
-#include <glib/gmessages.h>
-#include <glib/gstrfuncs.h>
+#include <glib.h>
 
 #include "path.h"
 
