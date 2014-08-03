@@ -20,4 +20,4 @@ $(APP): $(OBJECTS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:
-	$(RM) *.o $(APPS)
+	$(RM) src/*.o $(APP)
