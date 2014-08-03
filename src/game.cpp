@@ -60,6 +60,7 @@ Game::Game(gint argc, gchar ** argv)
 
   player_status = new GameObject;
   player_status->set_theme(color_red, color_darkred);
+  init();
 }
 
 Game::~Game()
@@ -92,6 +93,7 @@ void Game::init() {
                     G_CALLBACK (on_key_release), NULL);
   g_timeout_add (MILLIS_PER_FRAME, (GSourceFunc) on_timeout, window);
 
+  level = 0;
   reset();
 }
 
@@ -148,7 +150,6 @@ void Game::reset() {
   cannon->ticks_until_can_fire = 0;
   cannon->energy = SHIP_MAX_ENERGY;
   cannon->is_hit = FALSE;
-  cannon->is_alive = TRUE;
   cannon->draw_func = NULL;
   cannon->max_rotation_speed = 1;
 
@@ -168,7 +169,6 @@ void Game::reset() {
   player->ticks_until_can_fire = 0;
   player->energy = SHIP_MAX_ENERGY;
   player->is_hit = FALSE;
-  player->is_alive = TRUE;
   player->draw_func = NULL;
   player->max_rotation_speed = 3;
 
@@ -183,6 +183,27 @@ void Game::reset() {
   init_missiles_array ();
 
   game_over_message = NULL;
+
+
+  // TODO:  On advanced levels, take into account the speed the player
+  // is going, and try to lead him a bit.
+
+  // Increase thickness of rings
+
+  // Add another ring
+
+  // Increase rotation speed of rings
+
+  // Give cannon better or additional weaponry
+
+  // Add gravitational attraction
+  // Add forcefield repulsion
+
+  // Make cannon smarter
+  // + Selectively shoot out one inner ring segment
+  // + If only 2 segments left in outer layer, shoot them
+  // + Lead the player's ship when firing
+
 }
 
 int Game::addObject(GameObject* o) {
@@ -211,13 +232,14 @@ void Game::drawUI(cairo_t *cr) {
 
   if (game_over_message == NULL)
   {
-    if (!cannon->is_alive) {
+    if (!cannon->is_alive()) {
       /* Bonus life */
       num_player_lives++;
       game_over_message = "Next Level!";
+      printf("Advancing a level\n");
       advance_level();
     }
-    if (!player->is_alive)
+    if (!player->is_alive())
     {
       num_player_lives--;
       game_over_message = "Try again!!!";
@@ -228,8 +250,10 @@ void Game::drawUI(cairo_t *cr) {
       game_over_message = "Game Over";
     }
   }
+
   if (game_over_message != NULL)
   {
+    printf("Show text message\n");
     show_text_message (cr, 80, -30, game_over_message);
     show_text_message (cr, 30, +40, "Press [ENTER] to restart");
   }
@@ -258,7 +282,7 @@ void Game::drawCannon(cairo_t *cr, GameObject *player) {
 
 void Game::drawRings(cairo_t *cr) {
   for (int i = 0; i <MAX_NUMBER_OF_RINGS; i++) {
-    if (rings[i].is_alive)
+    if (rings[i].is_alive())
     {
       cairo_save (cr);
       cairo_translate (cr,
@@ -279,7 +303,7 @@ void Game::drawRings(cairo_t *cr) {
 void Game::drawMissiles(cairo_t *cr) {
   for (int i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
   {
-    if (missiles[i].is_alive)
+    if (missiles[i].is_alive())
     {
       cairo_save (cr);
       cairo_translate (cr, missiles[i].p.pos[0] / FIXED_POINT_SCALE_FACTOR,
@@ -377,6 +401,7 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
     case GDK_Return:
       if (game_over_message != NULL)
       {
+        level = 0;
         reset();
       }
       break;
@@ -435,7 +460,7 @@ Game::init_missiles_array ()
   for (int i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
   {
     missiles[i].p.radius = MISSILE_RADIUS;
-    missiles[i].is_alive = FALSE;
+    missiles[i].energy = -1;
   }
 }
 
@@ -449,7 +474,6 @@ Game::init_rings_array ()
     rings[i].pos[1] = HEIGHT / 2;
     rings[i].p.pos[0] = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
     rings[i].p.pos[1] = HEIGHT / 2 * FIXED_POINT_SCALE_FACTOR;
-    rings[i].is_alive = TRUE;
     rings[i].scale = i;
     rings[i].energy = SEGMENTS_PER_RING;
     rings[i].max_rotation_speed = rot;
@@ -492,26 +516,7 @@ void
 Game::advance_level()
 {
   level++;
-
-  // TODO:  On advanced levels, take into account the speed the player
-  // is going, and try to lead him a bit.
-
-  // Increase thickness of rings
-
-  // Add another ring
-
-  // Increase rotation speed of rings
-
-  // Give cannon better or additional weaponry
-
-  // Add gravitational attraction
-  // Add forcefield repulsion
-
-  // Make cannon smarter
-  // + Selectively shoot out one inner ring segment
-  // + If only 2 segments left in outer layer, shoot them
-  // + Lead the player's ship when firing
-
+  this->reset();
 }
 
 //------------------------------------------------------------------------------

@@ -55,17 +55,18 @@ public:
   int animation_tick;
 
   gboolean is_hit;           // only for spaceships
-  gboolean is_alive;
   gboolean has_exploded;     // only for missiles
 
   GameObject() {}
   ~GameObject() {}
 
   void init();
+  gboolean is_alive();
 
 };
 
-inline void GameObject::init() {
+inline void
+GameObject::init() {
   is_thrusting = FALSE;
   is_reversing = FALSE;
   is_firing = FALSE;
@@ -75,6 +76,13 @@ inline void GameObject::init() {
   p.rotation_speed = 0;
 
   animation_tick = 0;
+}
+
+inline gboolean
+GameObject::is_alive() {
+  if (energy <= 0)
+    return FALSE;
+  return TRUE;
 }
 
 #endif

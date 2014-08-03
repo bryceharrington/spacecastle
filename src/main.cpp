@@ -24,7 +24,6 @@ gint
 main (gint argc, gchar ** argv)
 {
   game = new Game(argc, argv);
-  game->init();
   return game->run();
 }
 

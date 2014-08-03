@@ -90,7 +90,7 @@ on_timeout (gpointer data)
 
   for (i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
   {
-    if (game->missiles[i].is_alive)
+    if (game->missiles[i].is_alive())
     {
       apply_physics (&(game->missiles[i].p));
 
@@ -98,7 +98,7 @@ on_timeout (gpointer data)
       {
         /* Foreach ring segment, check collision */
         for (j = MAX_NUMBER_OF_RINGS; j >= 0; j--) {
-          if (!game->rings[j].is_alive)
+          if (!game->rings[j].is_alive())
             continue;
 
           if (check_for_ring_collision (&(game->rings[j].p),
@@ -122,8 +122,6 @@ on_timeout (gpointer data)
       }
 
       game->missiles[i].energy--;
-      if (game->missiles[i].energy <= 0)
-        game->missiles[i].is_alive = FALSE;
     }
   }
 
@@ -141,7 +139,6 @@ on_timeout (gpointer data)
   {
     game->cannon->energy = 0;
     game->cannon_status->energy = 0;
-    game->cannon->is_alive = FALSE;
   }
   else
   {
@@ -153,7 +150,6 @@ on_timeout (gpointer data)
   {
     game->player->energy = 0;
     game->player_status->energy = 0;
-    game->player->is_alive = FALSE;
   }
   else
   {
@@ -196,7 +192,7 @@ operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
   physics_t *c = &(cannon->p);
   physics_t *p = &(player->p);
 
-  if (! player->is_alive) {
+  if (! player->is_alive()) {
     /* TODO:  Reset */
     cannon->is_firing = FALSE;
     return;
@@ -256,7 +252,7 @@ apply_physics_to_player (GameObject * player)
   int v2, m2;
   physics_t *p = &(player->p);
 
-  if (player->is_alive)
+  if (player->is_alive())
   {
     // Apply any accelerational impulses
     if (p->rotation_accel != 0.0) {
@@ -324,7 +320,6 @@ apply_physics_to_player (GameObject * player)
         m->energy = MISSILE_TICKS_TO_LIVE;
         m->primary_color = player->primary_color;
         m->secondary_color = player->secondary_color;
-        m->is_alive = TRUE;
         m->has_exploded = FALSE;
 
         player->ticks_until_can_fire += TICKS_BETWEEN_FIRE;
@@ -461,7 +456,6 @@ on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
     ring->energy--;
 
   if (ring->energy <= 0) {
-    ring->is_alive = FALSE;
     // TODO:  If ring dead, create new one and regenerate mines
 
     // Mark rings are in transition
