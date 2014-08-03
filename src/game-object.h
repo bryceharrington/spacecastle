@@ -26,54 +26,55 @@
 
 typedef struct
 {
-    Point pos;
-    Point vel;
+  Point pos;
+  Point vel;
 
-    // 0 is straight up, (NUMBER_OF_ROTATION_ANGLES / 4) is pointing right
-    int rotation;
-    int rotation_speed;
-    int rotation_accel;
+  // 0 is straight up, (NUMBER_OF_ROTATION_ANGLES / 4) is pointing right
+  int rotation;
+  int rotation_speed;
+  int rotation_accel;
 
-    // used for collision detection - we presume that an object is equivalent
-    // to its bounding circle, rather than trying to do something fancy.
-    int radius;
-}   physics_t;
+  // used for collision detection - we presume that an object is equivalent
+  // to its bounding circle, rather than trying to do something fancy.
+  int radius;
+} physics_t;
 
 class GameObject : public CanvasItem {
 public:
-    physics_t p;
+  physics_t p;
 
-    // TODO:  Move all this stuff into game object properties or subclasses or something
-    gboolean is_thrusting;
-    gboolean is_firing;
-    gboolean is_reversing;
+  // TODO:  Move all this stuff into game object properties or subclasses or something
+  gboolean is_thrusting;
+  gboolean is_firing;
+  gboolean is_reversing;
 
-    int ticks_until_can_fire;  // only for spaceships
-    int energy;                // for missiles and spaceships
-    int component_energy[MAX_COMPONENTS]; // for rings
-    int max_rotation_speed;
-    int animation_tick;
+  int ticks_until_can_fire;  // only for spaceships
+  int energy;                // for missiles and spaceships
+  int component_energy[MAX_COMPONENTS]; // for rings
+  int max_rotation_speed;
+  int animation_tick;
 
-    gboolean is_hit;           // only for spaceships
-    gboolean is_alive;
-    gboolean has_exploded;     // only for missiles
+  gboolean is_hit;           // only for spaceships
+  gboolean is_alive;
+  gboolean has_exploded;     // only for missiles
 
-    GameObject() {}
-    ~GameObject() {}
+  GameObject() {}
+  ~GameObject() {}
 
-    void init();
+  void init();
+
 };
 
 inline void GameObject::init() {
-    is_thrusting = FALSE;
-    is_reversing = FALSE;
-    is_firing = FALSE;
+  is_thrusting = FALSE;
+  is_reversing = FALSE;
+  is_firing = FALSE;
 
-    p.vel[0] = 0;
-    p.vel[1] = 0;
-    p.rotation_speed = 0;
+  p.vel[0] = 0;
+  p.vel[1] = 0;
+  p.rotation_speed = 0;
 
-    animation_tick = 0;
+  animation_tick = 0;
 }
 
 #endif
