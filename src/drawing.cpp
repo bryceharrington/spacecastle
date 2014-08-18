@@ -70,7 +70,7 @@ draw_ship_body (cairo_t * cr, GameObject * p)
   cairo_save (cr);
   cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
-  if (p->is_alive)
+  if (p->is_alive())
   {
     if (p->is_thrusting)
       draw_flare (cr, p->primary_color);
@@ -126,7 +126,7 @@ draw_cannon (cairo_t * cr, GameObject * p)
   cairo_save (cr);
   cairo_scale (cr, GLOBAL_SHIP_SCALE_FACTOR, GLOBAL_SHIP_SCALE_FACTOR);
 
-  if (p->is_alive)
+  if (p->is_alive())
   {
 
     if (p->is_thrusting)
@@ -349,11 +349,15 @@ draw_star (cairo_t * cr, CanvasItem *)
   cairo_fill (cr);
 }
 
+#include <stdio.h>
+
 void
 show_text_message (cairo_t * cr, int font_size, int dy, const char *message)
 {
   double x, y;
   cairo_text_extents_t extents;
+
+  printf("message: %s\n", message);
 
   cairo_save (cr);
 
@@ -365,7 +369,9 @@ show_text_message (cairo_t * cr, int font_size, int dy, const char *message)
   x = (WIDTH / 2) - (extents.width / 2 + extents.x_bearing);
   y = (HEIGHT / 2) - (extents.height / 2 + extents.y_bearing);
 
-  cairo_set_source_rgba (cr, 1, 1, 1, 1);
+  printf("message x,y = %f, %f + %d\n", x, y, dy);
+  cairo_set_source_rgba (cr, 1, 1, 0, 1);
+  cairo_move_to (cr, x, y + dy);
   cairo_move_to (cr, x, y + dy);
   cairo_show_text (cr, message);
   cairo_restore (cr);
