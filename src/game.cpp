@@ -445,7 +445,7 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
       break;
     case GDK_Down:
     case GDK_KP_Down:
-      player->is_reversing = key_is_on;
+      //player->is_reversing = key_is_on;
       break;
     case GDK_space:
     case GDK_Control_R:
