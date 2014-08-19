@@ -159,9 +159,13 @@ void Game::reset() {
   cannon_status->energy = CANNON_MAX_ENERGY;
   cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
+  // Player is placed randomly in one of the four corner areas
   player->init();
-  player->p.pos[0] = WIDTH / 2 * FIXED_POINT_SCALE_FACTOR;
-  player->p.pos[1] = 150 * FIXED_POINT_SCALE_FACTOR;
+  int x_quad = int(2 * random()/RAND_MAX);
+  int y_quad = int(2 * random()/RAND_MAX);
+  int margin = (HEIGHT + WIDTH)/40;
+  player->p.pos[0] = (margin + (2*x_quad + random()/RAND_MAX) * (WIDTH-2*margin)/3.0) * FIXED_POINT_SCALE_FACTOR;
+  player->p.pos[1] = (margin + (2*y_quad + random()/RAND_MAX) * (HEIGHT-2*margin)/3.0) * FIXED_POINT_SCALE_FACTOR;
   player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
   player->p.rotation_speed = 0;
   player->p.rotation_accel = 0;
