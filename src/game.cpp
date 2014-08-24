@@ -154,7 +154,7 @@ void Game::reset() {
   cannon->max_rotation_speed = 1;
 
   cannon_status->init();
-  cannon_status->pos = Point(30, 30);
+  cannon_status->pos = Point(0, 0);
   cannon_status->rotation = 0;
   cannon_status->energy = CANNON_MAX_ENERGY;
   cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
@@ -177,7 +177,7 @@ void Game::reset() {
   player->max_rotation_speed = 3;
 
   player_status->init();
-  player_status->pos = Point( WIDTH - 30, 30);
+  player_status->pos = Point( WIDTH - SHIP_MAX_ENERGY/5, 0);
   player_status->rotation = PI;
   player_status->energy = SHIP_MAX_ENERGY;
   player_status->draw_func = (canvas_item_draw) draw_energy_bar;
@@ -186,8 +186,9 @@ void Game::reset() {
   init_stars_array ();
   init_missiles_array ();
 
-  game_over_message = NULL;
-
+  main_message = NULL;
+  second_message = NULL;
+  message_timeout = 0;
 
   // TODO:  On advanced levels, take into account the speed the player
   // is going, and try to lead him a bit.
@@ -231,35 +232,31 @@ void Game::drawWorld(cairo_t *cr) {
 
 void Game::drawUI(cairo_t *cr) {
   // ... the energy bars...
-  cannon_status->draw(cr);
-  player_status->draw(cr);
+  cannon_status->draw_func(cr, cannon_status);
+  player_status->draw_func(cr, player_status);
 
-  if (game_over_message == NULL)
+  if (main_message == NULL)
   {
-    if (!cannon->is_alive()) {
-      /* Bonus life */
-      num_player_lives++;
-      game_over_message = "Next Level!";
-      printf("Advancing a level\n");
+    if (!cannon->is_alive())
       advance_level();
-    }
+
     if (!player->is_alive())
-    {
-      num_player_lives--;
-      game_over_message = "Try again!!!";
-    }
+      try_again();
+
 
     if (num_player_lives <= 0)
-    {
-      game_over_message = "Game Over";
-    }
+      game_over();
+
   }
 
-  if (game_over_message != NULL)
+  if (main_message != NULL && message_timeout != 0)
   {
-    printf("Show text message\n");
-    show_text_message (cr, 80, -30, game_over_message);
-    show_text_message (cr, 30, +40, "Press [ENTER] to restart");
+    show_text_message (cr, 80, -30, main_message,
+                       MIN(1.0, (message_timeout%200) / 100.0) );
+    if (second_message != NULL)
+      show_text_message (cr, 30, +40, second_message, 1.0);
+    if (message_timeout>0)
+      message_timeout--;
   }
 
 }
@@ -403,7 +400,7 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
       break;
 
     case GDK_Return:
-      if (game_over_message != NULL)
+      if (main_message != NULL)
       {
         level = 0;
         reset();
@@ -515,12 +512,33 @@ Game::init_stars_array ()
 }
 
 //------------------------------------------------------------------------------
+// TODO: Move strings into headers as constants
+//       Maybe turn the messages + data into objects
+void
+Game::game_over()
+{
+  main_message = "Game Over";
+  second_message = "Press [ENTER] for new game";
+  message_timeout = -1;
+}
+
+void
+Game::try_again()
+{
+  num_player_lives--;
+  main_message = "Try again!!!";
+  second_message = NULL;
+  message_timeout = 1000;
+}
 
 void
 Game::advance_level()
 {
   level++;
   this->reset();
+  main_message = "Next Level!";
+  second_message = "Press [ENTER] to start";
+  message_timeout = 100;
 }
 
 //------------------------------------------------------------------------------

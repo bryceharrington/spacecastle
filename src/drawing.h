@@ -31,7 +31,7 @@ void draw_ship_body (cairo_t *, GameObject *player);
 void draw_cannon (cairo_t *, GameObject *player);
 void draw_star (cairo_t * cr, CanvasItem * item);
 void draw_turning_flare (cairo_t *, RGB_t, int);
-void show_text_message (cairo_t *, int, int, const char *);
+void show_text_message (cairo_t *, int, int, const char *, double alpha);
 
 #endif
 

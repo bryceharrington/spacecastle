@@ -38,7 +38,8 @@ draw_energy_bar (cairo_t * cr, GameObject * p)
   cairo_pattern_t *pat;
   double alpha = 0.6;
 
-  cairo_rectangle (cr, 0, -5, p->energy / 5, 10);
+  cairo_rectangle (cr, p->pos[0],             p->pos[1] - 5,
+                   p->pos[0] + p->energy / 5, p->pos[1] + 10);
 
   pat = cairo_pattern_create_linear (0, 0, SHIP_MAX_ENERGY / 5, 0);
   add_color_stop (pat, 0, p->secondary_color, alpha);
@@ -352,13 +353,12 @@ draw_star (cairo_t * cr, CanvasItem *)
 #include <stdio.h>
 
 void
-show_text_message (cairo_t * cr, int font_size, int dy, const char *message)
+show_text_message (cairo_t * cr, int font_size, int dy, const char *message, double alpha)
 {
   double x, y;
   cairo_text_extents_t extents;
 
   printf("message: %s\n", message);
-
   cairo_save (cr);
 
   cairo_select_font_face (cr, "Serif",
@@ -370,8 +370,7 @@ show_text_message (cairo_t * cr, int font_size, int dy, const char *message)
   y = (HEIGHT / 2) - (extents.height / 2 + extents.y_bearing);
 
   printf("message x,y = %f, %f + %d\n", x, y, dy);
-  cairo_set_source_rgba (cr, 1, 1, 0, 1);
-  cairo_move_to (cr, x, y + dy);
+  cairo_set_source_rgba (cr, 1, 1, 0, alpha);
   cairo_move_to (cr, x, y + dy);
   cairo_show_text (cr, message);
   cairo_restore (cr);

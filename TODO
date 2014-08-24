@@ -23,5 +23,8 @@ TODO
   - Cannon uses predictive logic when firing
   - Turret regenerates faster
   - Shields regenerate
-  - 
-
+* game objects have both draw and draw_func, but probably should only
+  have one or the other.  draw() just causes stuff to break and should
+  be removed, or made to call draw_func
+* Canvas items have pos/rot/scale, but then game objects have physics
+  p's with their own pos.

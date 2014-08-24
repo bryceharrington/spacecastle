@@ -40,7 +40,9 @@ private:
 
 public:
     GtkWidget   *window;
-    const char  *game_over_message;
+    const char  *main_message;
+    const char  *second_message;
+    int          message_timeout;
     double       debug_scale_factor;
 
     // TODO:  Move these into objects[]
@@ -79,6 +81,8 @@ public:
     void drawMines(cairo_t *cr);
 
     void reset();
+    void game_over();
+    void try_again();
     void advance_level();
     int run();
 
