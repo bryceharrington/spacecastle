@@ -168,13 +168,13 @@ on_timeout (gpointer data)
 static void
 turn_cannon_left (GameObject *cannon)
 {
-  cannon->p.rotation_speed = -1;
+  cannon->p.rotation_speed = -1 * cannon->max_rotation_speed;
 }
 
 static void
 turn_cannon_right (GameObject *cannon)
 {
-  cannon->p.rotation_speed = 1;
+  cannon->p.rotation_speed = 1 * cannon->max_rotation_speed;
 }
 
 static void

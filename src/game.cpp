@@ -94,6 +94,12 @@ void Game::init() {
   g_timeout_add (MILLIS_PER_FRAME, (GSourceFunc) on_timeout, window);
 
   level = 0;
+  player->p.radius = SHIP_RADIUS;
+  player->max_rotation_speed = 3;
+
+  cannon->p.radius = CANNON_RADIUS;
+  cannon->max_rotation_speed = 1;
+
   reset();
 }
 
@@ -146,12 +152,10 @@ void Game::reset() {
   cannon->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
   cannon->p.rotation_speed = 0;
   cannon->p.rotation_accel = 0;
-  cannon->p.radius = CANNON_RADIUS;
   cannon->ticks_until_can_fire = 0;
   cannon->energy = SHIP_MAX_ENERGY;
   cannon->is_hit = FALSE;
   cannon->draw_func = NULL;
-  cannon->max_rotation_speed = 1;
 
   cannon_status->init();
   cannon_status->pos = Point(0, 0);
@@ -169,12 +173,10 @@ void Game::reset() {
   player->p.rotation = random () % NUMBER_OF_ROTATION_ANGLES;
   player->p.rotation_speed = 0;
   player->p.rotation_accel = 0;
-  player->p.radius = SHIP_RADIUS;
   player->ticks_until_can_fire = 0;
   player->energy = SHIP_MAX_ENERGY;
   player->is_hit = FALSE;
   player->draw_func = NULL;
-  player->max_rotation_speed = 3;
 
   player_status->init();
   player_status->pos = Point( WIDTH - SHIP_MAX_ENERGY/5, 0);
@@ -190,8 +192,8 @@ void Game::reset() {
   second_message = NULL;
   message_timeout = 0;
 
-  // TODO:  On advanced levels, take into account the speed the player
-  // is going, and try to lead him a bit.
+  if (level == 0)
+    return;
 
   // Increase thickness of rings
 
@@ -199,15 +201,38 @@ void Game::reset() {
 
   // Increase rotation speed of rings
 
-  // Give cannon better or additional weaponry
+  if (level % 2 == 0) {
+    // Increase rotational speed of cannon
+    cannon->max_rotation_speed++;
+  }
 
-  // Add gravitational attraction
-  // Add forcefield repulsion
+  if (level % 3 == 0) {
+    // Add forcefield repulsion
+  }
 
-  // Make cannon smarter
-  // + Selectively shoot out one inner ring segment
-  // + If only 2 segments left in outer layer, shoot them
-  // + Lead the player's ship when firing
+  if (level % 4 == 0) {
+    // Give cannon additional weaponry
+  }
+
+  if (level % 5 == 0) {
+    // Add gravitational attraction
+  }
+
+  if (level % 6 == 0) {
+    // Give cannon better weapons
+  }
+
+  if (level > 4) {
+    // + Lead the player's ship when firing
+    // TODO:  On advanced levels, take into account the speed the player
+    // is going, and try to lead him a bit.
+  }
+
+  if (level > 8) {
+    // Make cannon smarter
+    // + Selectively shoot out one inner ring segment
+    // + If only 2 segments left in outer layer, shoot them
+  }
 
 }
 
@@ -217,6 +242,21 @@ int Game::addObject(GameObject* o) {
 
   objects[num_objects++] = o;
   return 0;
+}
+
+void
+Game::checkConditions() {
+  if (main_message == NULL)
+  {
+    if (!cannon->is_alive())
+      advance_level();
+
+    if (!player->is_alive())
+      try_again();
+
+    if (num_player_lives <= 0)
+      game_over();
+  }
 }
 
 void Game::drawWorld(cairo_t *cr) {
@@ -234,20 +274,6 @@ void Game::drawUI(cairo_t *cr) {
   // ... the energy bars...
   cannon_status->draw_func(cr, cannon_status);
   player_status->draw_func(cr, player_status);
-
-  if (main_message == NULL)
-  {
-    if (!cannon->is_alive())
-      advance_level();
-
-    if (!player->is_alive())
-      try_again();
-
-
-    if (num_player_lives <= 0)
-      game_over();
-
-  }
 
   if (main_message != NULL && message_timeout != 0)
   {
@@ -346,6 +372,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 
   game->canvas->scale_for_aspect_ratio(cr, width, height);
 
+  game->checkConditions();
   game->drawWorld(cr);
 
   // Draw game elements
@@ -395,8 +422,12 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
 {
   switch (event->keyval)
   {
+    case GDK_Tab:
+      advance_level();
+      break;
+
     case GDK_Escape:
-      gtk_main_quit ();
+      gtk_main_quit();
       break;
 
     case GDK_Return:
