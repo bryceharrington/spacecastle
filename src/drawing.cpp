@@ -227,7 +227,7 @@ draw_ring (cairo_t * cr, GameObject * r) {
       continue;
 
     cairo_save (cr);
-    cairo_set_line_width (cr, r->component_energy[i]);
+    cairo_set_line_width (cr, r->component_energy[i]*4);
     cairo_arc (cr, 0, 0, r->p.radius/FIXED_POINT_SCALE_FACTOR,
                i * TWO_PI/SEGMENTS_PER_RING,
                (i+1) * TWO_PI/SEGMENTS_PER_RING - TWO_PI/180.0);
