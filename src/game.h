@@ -35,61 +35,63 @@ gint on_timeout (gpointer);
 
 class Game {
 private:
-    GameObject* objects[MAX_OBJECTS];
-    int         num_objects;
+  GameObject* objects[MAX_OBJECTS];
+  int         num_objects;
 
 public:
-    GtkWidget   *window;
-    const char  *main_message;
-    const char  *second_message;
-    int          message_timeout;
-    double       debug_scale_factor;
+  GtkWidget   *window;
+  const char  *main_message;
+  const char  *second_message;
+  int          message_timeout;
+  double       debug_scale_factor;
 
-    // TODO:  Move these into objects[]
-    GameObject  *cannon;
-    GameObject  *cannon_status;
-    GameObject  *player;
-    GameObject  *player_status;
-    int          num_player_lives;
-    GameObject   missiles[MAX_NUMBER_OF_MISSILES];
-    int          next_missile_index;
-    GameObject   rings[MAX_NUMBER_OF_RINGS];
-    int          next_ring_index;
-    int          level;
-    gboolean     show_fps;
+  // TODO:  Move these into objects[]
+  GameObject  *cannon;
+  GameObject  *cannon_status;
+  GameObject  *player;
+  GameObject  *player_status;
+  int          num_player_lives;
+  GameObject   missiles[MAX_NUMBER_OF_MISSILES];
+  int          next_missile_index;
+  GameObject   rings[MAX_NUMBER_OF_RINGS];
+  int          next_ring_index;
+  int          level;
+  int          energy_per_segment;
+  int          number_of_rings;
+  gboolean     show_fps;
 
-    // TODO:  Move these into a background object structure
-    Canvas      *canvas;
-    CanvasItem   stars[NUMBER_OF_STARS];
+  // TODO:  Move these into a background object structure
+  Canvas      *canvas;
+  CanvasItem   stars[NUMBER_OF_STARS];
 
-    Game(gint argc, gchar ** argv);
-    ~Game();
+  Game(gint argc, gchar ** argv);
+  ~Game();
 
-    void init();
-    void init_missiles_array ();
-    void init_stars_array ();
-    void init_rings_array ();
+  void init();
+  void init_missiles_array ();
+  void init_stars_array ();
+  void init_rings_array ();
 
-    int addObject();
-    void checkConditions();
-    void drawWorld(cairo_t *cr);
-    void drawUI(cairo_t *cr);
-    void drawTextMessage(cairo_t *cr, int x, int y, const char*msg);
-    void drawShip(cairo_t *cr);
-    void drawCannon(cairo_t *, GameObject *player);
-    void drawMissiles(cairo_t *cr);
-    void drawRings(cairo_t *cr);
-    void drawMines(cairo_t *cr);
+  int addObject();
+  void checkConditions();
+  void drawWorld(cairo_t *cr);
+  void drawUI(cairo_t *cr);
+  void drawTextMessage(cairo_t *cr, int x, int y, const char*msg);
+  void drawShip(cairo_t *cr);
+  void drawCannon(cairo_t *, GameObject *player);
+  void drawMissiles(cairo_t *cr);
+  void drawRings(cairo_t *cr);
+  void drawMines(cairo_t *cr);
 
-    void reset();
-    void game_over();
-    void try_again();
-    void advance_level();
-    int run();
+  void reset();
+  void game_over();
+  void try_again();
+  void advance_level();
+  int run();
 
-    int addObject(GameObject* o);
-    void process_options(int argc, gchar ** argv);
-    gint handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on);
+  int addObject(GameObject* o);
+  void process_options(int argc, gchar ** argv);
+  gint handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on);
 };
 
 extern Game* game;
