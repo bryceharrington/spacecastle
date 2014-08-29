@@ -17,8 +17,9 @@
  * along with Spacecastle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <popt.h>
 #include <err.h>
+#include <popt.h>
+#include <math.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
 
@@ -40,7 +41,8 @@ static RGB_t color_blue     = {0.3, 0.5, 0.9};
 static RGB_t color_darkblue = {0.1, 0.3, 0.3};
 
 Game::Game(gint argc, gchar ** argv)
-  : num_objects(0), num_player_lives(3), next_missile_index(0)
+  : num_objects(0), num_player_lives(3), next_missile_index(0),
+    number_of_rings(3)
 {
   gtk_init (&argc, &argv);
   process_options(argc, argv);
@@ -184,44 +186,49 @@ void Game::reset() {
   player_status->energy = SHIP_MAX_ENERGY;
   player_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
-  init_rings_array ();
-  init_stars_array ();
-  init_missiles_array ();
-
   main_message = NULL;
   second_message = NULL;
   message_timeout = 0;
 
-  if (level == 0)
-    return;
-
   // Increase thickness of rings
+  energy_per_segment = 1 + int(sqrt(level));
 
-  // Add another ring
+  // Add rings at higher levels
+  number_of_rings = MIN(3 + int(level/4), MAX_NUMBER_OF_RINGS);
+  printf("number_of_rings: %d\n", number_of_rings);
 
   // Increase rotation speed of rings
+  ring_speed = 1 + (level % 3);
 
-  if (level % 2 == 0) {
-    // Increase rotational speed of cannon
-    cannon->max_rotation_speed++;
+  number_of_homing_mines = MIN(number_of_homing_mines + level%2, MAX_NUMBER_OF_MINES);
+
+  // Cannon Forcefield
+  if (level % 3 == 1) {
+    cannon_forcefield_strength++;
   }
 
-  if (level % 3 == 0) {
-    // Add forcefield repulsion
+  // Increase rotational speed of cannon
+  cannon->max_rotation_speed = 1 + level % 4;
+
+  // Cannon weaponry
+  cannon_weapon_count = level % 4;
+
+  // Add gravitational attraction
+  switch (level % 5) {
+    case 0:  gravity_x *= -1;                           break;
+    case 1:  gravity_y = gravity_x;                     break;
+    case 2:  gravity_x *= -1;                           break;
+    case 3:  gravity_y = int(level / 5); gravity_x = 0; break;
+    case 4:  gravity_x = gravity_y;      gravity_y = 0; break;
   }
 
-  if (level % 4 == 0) {
-    // Give cannon additional weaponry
+  if (level % 6 == 5) {
+    cannon_weapon_strength++;
   }
 
-  if (level % 5 == 0) {
-    // Add gravitational attraction
+  if (level % 7 == 6) {
+    cannon_forcefield_repulsion++;
   }
-
-  if (level % 6 == 0) {
-    // Give cannon better weapons
-  }
-
   if (level > 4) {
     // + Lead the player's ship when firing
     // TODO:  On advanced levels, take into account the speed the player
@@ -234,6 +241,9 @@ void Game::reset() {
     // + If only 2 segments left in outer layer, shoot them
   }
 
+  init_rings_array ();
+  init_stars_array ();
+  init_missiles_array ();
 }
 
 int Game::addObject(GameObject* o) {
@@ -251,11 +261,11 @@ Game::checkConditions() {
     if (!cannon->is_alive())
       advance_level();
 
-    if (!player->is_alive())
-      try_again();
-
-    if (num_player_lives <= 0)
+    else if (num_player_lives <= 0)
       game_over();
+
+    else if (!player->is_alive())
+      try_again();
   }
 }
 
@@ -308,7 +318,8 @@ void Game::drawCannon(cairo_t *cr, GameObject *player) {
 }
 
 void Game::drawRings(cairo_t *cr) {
-  for (int i = 0; i <MAX_NUMBER_OF_RINGS; i++) {
+  printf("%d rings\n", number_of_rings);
+  for (int i = 0; i < number_of_rings; i++) {
     if (rings[i].is_alive())
     {
       cairo_save (cr);
@@ -323,6 +334,8 @@ void Game::drawRings(cairo_t *cr) {
 
       draw_ring (cr, &(rings[i]));
       cairo_restore (cr);
+    } else {
+      printf("ring %d is dead\n", i);
     }
   }
 }
@@ -500,7 +513,7 @@ void
 Game::init_rings_array ()
 {
   int rot = 1;
-  for (int i=0; i < MAX_NUMBER_OF_RINGS; i++)
+  for (int i=0; i < number_of_rings; i++)
   {
     rings[i].pos[0] = WIDTH / 2;
     rings[i].pos[1] = HEIGHT / 2;
@@ -512,7 +525,7 @@ Game::init_rings_array ()
     rings[i].p.rotation_speed = rot;
     rot *= -1;
     for (int j=0; j<SEGMENTS_PER_RING; j++) {
-      rings[i].component_energy[j] = 1 + level;
+      rings[i].component_energy[j] = energy_per_segment;
     }
 
     rings[i].primary_color.r = 0.3;

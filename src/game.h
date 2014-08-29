@@ -56,8 +56,22 @@ public:
   GameObject   rings[MAX_NUMBER_OF_RINGS];
   int          next_ring_index;
   int          level;
+
+  // TODO: Implement all the following.  Set all to zero in init()
+  int          number_of_homing_mines;
+  int          cannon_forcefield_strength;
+  int          cannon_forcefield_repulsion;
+  int          cannon_weapon_count;
+  int          cannon_weapon_strength;
   int          energy_per_segment;
   int          number_of_rings;
+  int          ring_speed;
+  int          gravity_x;
+  int          gravity_y;
+
+  // These also need incremented by level
+  int          cannon_max_energy;
+
   gboolean     show_fps;
 
   // TODO:  Move these into a background object structure

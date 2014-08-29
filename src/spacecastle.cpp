@@ -59,7 +59,7 @@ on_timeout (gpointer data)
     game->rings[j].is_hit = FALSE;
   }
 
-  operate_cannon (game->cannon, game->player, &(game->rings[MAX_NUMBER_OF_RINGS-1]));
+  operate_cannon (game->cannon, game->player, &(game->rings[game->number_of_rings-1]));
   apply_physics_to_player (game->cannon);
   apply_physics_to_player (game->player);
 
@@ -97,7 +97,7 @@ on_timeout (gpointer data)
       if (!game->missiles[i].has_exploded)
       {
         /* Foreach ring segment, check collision */
-        for (j = MAX_NUMBER_OF_RINGS; j >= 0; j--) {
+        for (j = game->number_of_rings; j >= 0; j--) {
           if (!game->rings[j].is_alive())
             continue;
 
@@ -125,7 +125,7 @@ on_timeout (gpointer data)
     }
   }
 
-  for (i = 0; i < MAX_NUMBER_OF_RINGS; i++)
+  for (i = 0; i < game->number_of_rings; i++)
   {
     game->rings[i].p.rotation =
       (game->rings[i].p.rotation + game->rings[i].p.rotation_speed)
