@@ -197,22 +197,33 @@ void Game::reset() {
   number_of_rings = MIN(3 + int(level/4), MAX_NUMBER_OF_RINGS);
   printf("number_of_rings: %d\n", number_of_rings);
 
+  // TODO: Implement speed of ring rotation and verify it varies by level
   // Increase rotation speed of rings
   ring_speed = 1 + (level % 3);
 
+  // TODO: Implement homing mines
   number_of_homing_mines = MIN(number_of_homing_mines + level%2, MAX_NUMBER_OF_MINES);
 
+  // TODO: Implement a forcefield
   // Cannon Forcefield
-  if (level % 3 == 1) {
+  if (level % 3 == 2) {
     cannon_forcefield_strength++;
   }
 
+  // TODO: Implement stronger weapon power using cannon_weapon_strength
+  if (level % 4 == 3) {
+    cannon_weapon_strength++;
+  }
+
+  // TODO: Verify cannon rotates at different speeds each level
   // Increase rotational speed of cannon
   cannon->max_rotation_speed = 1 + level % 4;
 
+  // TODO: Implement weapon count
   // Cannon weaponry
   cannon_weapon_count = level % 4;
 
+  // TODO: Implement graphic
   // Add gravitational attraction
   switch (level % 5) {
     case 0:  gravity_x *= -1;                           break;
@@ -230,15 +241,14 @@ void Game::reset() {
     cannon_forcefield_repulsion++;
   }
   if (level > 4) {
-    // + Lead the player's ship when firing
     // TODO:  On advanced levels, take into account the speed the player
     // is going, and try to lead him a bit.
   }
 
   if (level > 8) {
     // Make cannon smarter
-    // + Selectively shoot out one inner ring segment
-    // + If only 2 segments left in outer layer, shoot them
+    // TODO:  Selectively shoot out one inner ring segment
+    // TODO:  If only 2 segments left in outer layer, shoot them
   }
 
   init_rings_array ();
@@ -318,7 +328,6 @@ void Game::drawCannon(cairo_t *cr, GameObject *player) {
 }
 
 void Game::drawRings(cairo_t *cr) {
-  printf("%d rings\n", number_of_rings);
   for (int i = 0; i < number_of_rings; i++) {
     if (rings[i].is_alive())
     {
