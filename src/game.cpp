@@ -35,10 +35,12 @@ void draw_star (cairo_t * cr, CanvasItem * item);
 void draw_energy_bar (cairo_t * cr, GameObject * item);
 void init_trigonometric_tables (void);
 
-static RGB_t color_red      = {0.9, 0.2, 0.3};
-static RGB_t color_darkred  = {0.5, 0.2, 0.3};
-static RGB_t color_blue     = {0.3, 0.5, 0.9};
-static RGB_t color_darkblue = {0.1, 0.3, 0.3};
+static RGB_t color_red       = {0.9, 0.1, 0.4};
+static RGB_t color_darkred   = {0.5, 0.1, 0.4};
+static RGB_t color_blue      = {0.3, 0.3, 0.9};
+static RGB_t color_darkblue  = {0.1, 0.1, 0.3};
+//static RGB_t color_green     = {0.3, 0.9, 0.3};
+//static RGB_t color_darkgreen = {0.1, 0.5, 0.3};
 
 Game::Game(gint argc, gchar ** argv)
   : num_objects(0), num_player_lives(3), next_missile_index(0),
@@ -52,16 +54,16 @@ Game::Game(gint argc, gchar ** argv)
   canvas = new Canvas(WIDTH, HEIGHT);
 
   cannon = new GameObject;
-  cannon->set_theme(color_blue, color_darkblue);
+  cannon->set_theme(color_red, color_darkred);
 
   cannon_status = new GameObject;
-  cannon_status->set_theme(color_blue, color_darkblue);
+  cannon_status->set_theme(color_red, color_darkred);
 
   player = new GameObject;
-  player->set_theme(color_red, color_darkred);
+  player->set_theme(color_blue, color_darkblue);
 
   player_status = new GameObject;
-  player_status->set_theme(color_red, color_darkred);
+  player_status->set_theme(color_blue, color_darkblue);
   init();
 }
 
