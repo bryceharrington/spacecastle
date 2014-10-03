@@ -82,7 +82,6 @@ on_timeout (gpointer data)
     damage = ((int)(sqrt (dv2))) / DAMAGE_PER_SHIP_BOUNCE_DIVISOR;
 
     game->player->energy -= damage;
-    game->player_status->energy = game->player->energy;
     game->player->is_hit = TRUE;
     game->player->p.vel[0] = (p1vx * +5 / 8) + (p2vx * -2 / 8);
     game->player->p.vel[1] = (p1vy * +5 / 8) + (p2vy * -2 / 8);
@@ -138,23 +137,19 @@ on_timeout (gpointer data)
   if (game->cannon->energy <= 0)
   {
     game->cannon->energy = 0;
-    game->cannon_status->energy = 0;
   }
   else
   {
     game->cannon->energy = MIN (SHIP_MAX_ENERGY, game->cannon->energy + 3);
-    game->cannon_status->energy = MIN (SHIP_MAX_ENERGY, game->cannon->energy + 3);
   }
 
   if (game->player->energy <= 0)
   {
     game->player->energy = 0;
-    game->player_status->energy = 0;
   }
   else
   {
     game->player->energy = MIN (SHIP_MAX_ENERGY, game->player->energy + 1);
-    game->player_status->energy = MIN (SHIP_MAX_ENERGY, game->player->energy + 1);
   }
 
   gtk_widget_queue_draw ((GtkWidget *) data);
@@ -430,6 +425,7 @@ enforce_minimum_distance (physics_t * ring, physics_t * p)
 static void
 on_collision (GameObject * p, GameObject * m)
 {
+  // TODO: This doesn't update the status object
   p->energy -= DAMAGE_PER_MISSILE;
   p->is_hit = TRUE;
   m->has_exploded = TRUE;

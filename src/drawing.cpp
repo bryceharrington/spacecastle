@@ -33,17 +33,19 @@
 //------------------------------------------------------------------------------
 
 void
-draw_energy_bar (cairo_t * cr, GameObject * p)
+_draw_energy_bar_new (cairo_t * cr, Coord x, Coord y, int energy,
+                      RGB_t primary_color, RGB_t secondary_color)
 {
   cairo_pattern_t *pat;
   double alpha = 0.6;
 
-  cairo_rectangle (cr, p->pos[0],             p->pos[1] - 5,
-                   p->pos[0] + p->energy / 5, p->pos[1] + 10);
+  // TODO: Needs to rotate.  Maybe that could be done before the call?
+  cairo_rectangle (cr, x,          y - 5,
+                   x + energy / 5, y + 10);
 
   pat = cairo_pattern_create_linear (0, 0, SHIP_MAX_ENERGY / 5, 0);
-  add_color_stop (pat, 0, p->secondary_color, alpha);
-  add_color_stop (pat, 1, p->primary_color, alpha);
+  add_color_stop (pat, 0, secondary_color, alpha);
+  add_color_stop (pat, 1, primary_color, alpha);
 
   cairo_set_source (cr, pat);
   cairo_fill_preserve (cr);
@@ -51,6 +53,13 @@ draw_energy_bar (cairo_t * cr, GameObject * p)
 
   cairo_set_source_rgb (cr, 0, 0, 0);
   cairo_stroke (cr);
+}
+
+void
+draw_energy_bar (cairo_t * cr, GameObject * p)
+{
+  _draw_energy_bar_new (cr, p->pos[0], p->pos[1], p->energy,
+                        p->primary_color, p->secondary_color);
 }
 
 //------------------------------------------------------------------------------
