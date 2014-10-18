@@ -24,26 +24,30 @@
 // 2005-03-31: Version 0.1.
 
 #include <cairo.h>
+#include <stdio.h>
 
 #include "game-config.h"
 #include "game-math.h"
 #include "game-object.h"
 #include "drawing.h"
 
+#define ENERGY_BAR_LENGTH (200)
+
 //------------------------------------------------------------------------------
 
 void
-_draw_energy_bar_new (cairo_t * cr, Coord x, Coord y, int energy,
-                      RGB_t primary_color, RGB_t secondary_color)
+draw_energy_bar (cairo_t * cr, int x, int y, int energy_percent,
+                 RGB_t primary_color, RGB_t secondary_color)
 {
   cairo_pattern_t *pat;
   double alpha = 0.6;
+  int width = int( ENERGY_BAR_LENGTH * (energy_percent / 100.0) );
 
-  // TODO: Needs to rotate.  Maybe that could be done before the call?
-  cairo_rectangle (cr, x,          y - 5,
-                   x + energy / 5, y + 10);
+  printf("bar length: %d @ %d\n", width, x);
 
-  pat = cairo_pattern_create_linear (0, 0, SHIP_MAX_ENERGY / 5, 0);
+  cairo_rectangle (cr, x, y, width, 15);
+
+  pat = cairo_pattern_create_linear (0, 0, ENERGY_BAR_LENGTH, 0);
   add_color_stop (pat, 0, secondary_color, alpha);
   add_color_stop (pat, 1, primary_color, alpha);
 
@@ -53,13 +57,6 @@ _draw_energy_bar_new (cairo_t * cr, Coord x, Coord y, int energy,
 
   cairo_set_source_rgb (cr, 0, 0, 0);
   cairo_stroke (cr);
-}
-
-void
-draw_energy_bar (cairo_t * cr, GameObject * p)
-{
-  _draw_energy_bar_new (cr, p->pos[0], p->pos[1], p->energy,
-                        p->primary_color, p->secondary_color);
 }
 
 //------------------------------------------------------------------------------

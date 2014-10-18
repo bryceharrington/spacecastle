@@ -32,7 +32,6 @@
 
 // TODO:  Need to find best place for these...
 void draw_star (cairo_t * cr, CanvasItem * item);
-void draw_energy_bar (cairo_t * cr, GameObject * item);
 void init_trigonometric_tables (void);
 
 static RGB_t color_red       = {0.9, 0.1, 0.4};
@@ -56,14 +55,9 @@ Game::Game(gint argc, gchar ** argv)
   cannon = new GameObject;
   cannon->set_theme(color_red, color_darkred);
 
-  cannon_status = new GameObject;
-  cannon_status->set_theme(color_red, color_darkred);
-
   player = new GameObject;
   player->set_theme(color_blue, color_darkblue);
 
-  player_status = new GameObject;
-  player_status->set_theme(color_blue, color_darkblue);
   init();
 }
 
@@ -73,9 +67,7 @@ Game::~Game()
   for (; (o = objects[--num_objects]); )
     delete o;
   delete cannon;
-  delete cannon_status;
   delete player;
-  delete player_status;
 
   delete canvas;
 }
@@ -161,12 +153,6 @@ void Game::reset() {
   cannon->is_hit = FALSE;
   cannon->draw_func = NULL;
 
-  cannon_status->init();
-  cannon_status->pos = Point(0, 0);
-  cannon_status->rotation = 0;
-  cannon_status->energy = CANNON_MAX_ENERGY;
-  cannon_status->draw_func = (canvas_item_draw) draw_energy_bar;
-
   // Player is placed randomly in one of the four corner areas
   player->init();
   int x_quad = int(2 * random()/RAND_MAX);
@@ -181,12 +167,6 @@ void Game::reset() {
   player->energy = SHIP_MAX_ENERGY;
   player->is_hit = FALSE;
   player->draw_func = NULL;
-
-  player_status->init();
-  player_status->pos = Point( WIDTH - SHIP_MAX_ENERGY/5, 0);
-  player_status->rotation = PI;
-  player_status->energy = SHIP_MAX_ENERGY;
-  player_status->draw_func = (canvas_item_draw) draw_energy_bar;
 
   main_message = NULL;
   second_message = NULL;
@@ -294,8 +274,14 @@ void Game::drawWorld(cairo_t *cr) {
 
 void Game::drawUI(cairo_t *cr) {
   // ... the energy bars...
-  cannon_status->draw_func(cr, cannon_status);
-  player_status->draw_func(cr, player_status);
+  printf("energy: player=%d, cannon=%d, width=%d\n", player->energy, cannon->energy, WIDTH);
+  // TODO: Use cannon->max_energy instead of SHIP_MAX_ENERGY
+  draw_energy_bar (cr, 10, 10,
+                   (100 * cannon->energy) / SHIP_MAX_ENERGY,
+                   color_red, color_darkred);
+  draw_energy_bar (cr, WIDTH - 210, 10,   // TODO: Use const instead of 200
+                   (100 * player->energy) / SHIP_MAX_ENERGY,
+                   color_blue, color_darkblue);
 
   if (main_message != NULL && message_timeout != 0)
   {

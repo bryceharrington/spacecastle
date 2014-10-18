@@ -47,9 +47,7 @@ public:
 
   // TODO:  Move these into objects[]
   GameObject  *cannon;
-  GameObject  *cannon_status;
   GameObject  *player;
-  GameObject  *player_status;
   int          num_player_lives;
   GameObject   missiles[MAX_NUMBER_OF_MISSILES];
   int          next_missile_index;
