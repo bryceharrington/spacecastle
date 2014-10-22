@@ -558,7 +558,7 @@ Game::init_stars_array ()
 void
 Game::game_over()
 {
-  main_message = "Game Over";
+  main_message = "Space Castle Defense Successful";
   second_message = "Press [ENTER] for new game";
   message_timeout = -1;
 }
@@ -567,8 +567,8 @@ void
 Game::try_again()
 {
   num_player_lives--;
-  main_message = "Try again!!!";
-  second_message = NULL;
+  main_message = "Next Drone Ready";
+  second_message = "Press [ENTER] to re-engage";
   message_timeout = 1000;
 }
 
@@ -577,8 +577,8 @@ Game::advance_level()
 {
   level++;
   this->reset();
-  main_message = "Next Level!";
-  second_message = "Press [ENTER] to start";
+  main_message = "Approaching Next Space Castle";
+  second_message = "Press [ENTER] to engage";
   message_timeout = 100;
 }
 
