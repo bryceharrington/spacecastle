@@ -385,7 +385,6 @@ ring_segment_by_rotation (GameObject *ring, int rot)
 }
 
 
-// TODO: Work on converting Point from here...
 static int
 ring_segment_hit (GameObject *ring, GameObject *m)
 {
@@ -425,7 +424,6 @@ enforce_minimum_distance (physics_t * ring, physics_t * p)
 static void
 on_collision (GameObject * p, GameObject * m)
 {
-  // TODO: This doesn't update the status object
   p->energy -= DAMAGE_PER_MISSILE;
   p->is_hit = TRUE;
   m->has_exploded = TRUE;
