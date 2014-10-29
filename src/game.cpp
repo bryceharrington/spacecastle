@@ -27,7 +27,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "game.h"
-#include "game-config.h"
+#include "config.h"
 #include "drawing.h"
 
 // TODO:  Need to find best place for these...

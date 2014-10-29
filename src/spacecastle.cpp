@@ -26,7 +26,7 @@
 #include <math.h>  // For sqrt()
 #include <gtk/gtk.h>
 
-#include "game-config.h"
+#include "config.h"
 #include "game-object.h"
 #include "game.h"
 

@@ -22,8 +22,8 @@
 #include <glib.h>
 
 #include "forward.h"
-#include "game-debug.h"
-#include "game-config.h"
+#include "debug.h"
+#include "config.h"
 #include "game-object.h"
 
 // Forward definitions of handler functions
