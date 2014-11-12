@@ -35,13 +35,27 @@ gint on_timeout (gpointer);
 
 class Game {
 private:
-  GameObject* objects[MAX_OBJECTS];
+  GtkWidget   *window;
+
+  GameObject*  objects[MAX_OBJECTS];
   int          num_objects;
   char         main_message[64];
   char         second_message[64];
   int          message_timeout;
 
-  GtkWidget   *window;
+  // TODO: Implement all the following.  Set all to zero in init()
+  int          level;
+  int          number_of_homing_mines;
+  int          cannon_forcefield_strength;
+  int          cannon_forcefield_repulsion;
+  int          cannon_weapon_count;
+  int          cannon_weapon_strength;
+  int          energy_per_segment;
+  int          ring_speed;
+  int          gravity_x;
+  int          gravity_y;
+  // These also need incremented by level
+  int          cannon_max_energy;
 
 public:
   double       debug_scale_factor;
@@ -50,27 +64,12 @@ public:
   // TODO:  Move these into objects[]
   GameObject  *cannon;
   GameObject  *player;
+  int          number_of_rings;
   int          num_player_lives;
   GameObject   missiles[MAX_NUMBER_OF_MISSILES];
   int          next_missile_index;
   GameObject   rings[MAX_NUMBER_OF_RINGS];
   int          next_ring_index;
-  int          level;
-
-  // TODO: Implement all the following.  Set all to zero in init()
-  int          number_of_homing_mines;
-  int          cannon_forcefield_strength;
-  int          cannon_forcefield_repulsion;
-  int          cannon_weapon_count;
-  int          cannon_weapon_strength;
-  int          energy_per_segment;
-  int          number_of_rings;
-  int          ring_speed;
-  int          gravity_x;
-  int          gravity_y;
-
-  // These also need incremented by level
-  int          cannon_max_energy;
 
   // TODO:  Move these into a background object structure
   Canvas      *canvas;

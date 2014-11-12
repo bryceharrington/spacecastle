@@ -43,12 +43,12 @@ static RGB_t color_darkblue  = {0.1, 0.1, 0.3};
 //static RGB_t color_darkgreen = {0.1, 0.5, 0.3};
 
 Game::Game(gint argc, gchar ** argv)
-  : num_objects(0), num_player_lives(3), next_missile_index(0),
-    number_of_rings(3)
+  : num_objects(0),
+    number_of_rings(3),
+    next_missile_index(0)
 {
   gtk_init (&argc, &argv);
   process_options(argc, argv);
-
   init_trigonometric_tables ();
 
   canvas = new Canvas(WIDTH, HEIGHT);
@@ -58,6 +58,7 @@ Game::Game(gint argc, gchar ** argv)
 
   player = new GameObject;
   player->set_theme(color_blue, color_darkblue);
+  num_player_lives = 3;
 
   init();
 }
