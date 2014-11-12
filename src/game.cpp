@@ -21,6 +21,7 @@
 #include <popt.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/timeb.h>
 
 #include <gtk/gtk.h>
@@ -168,9 +169,9 @@ void Game::reset() {
   player->is_hit = FALSE;
   player->draw_func = NULL;
 
-  main_message = NULL;
-  second_message = NULL;
   message_timeout = 0;
+  strncpy(main_message, "", 1);
+  strncpy(second_message, "", 1);
 
   // Increase thickness of rings
   energy_per_segment = 1 + int(sqrt(level));
@@ -248,7 +249,7 @@ int Game::addObject(GameObject* o) {
 
 void
 Game::checkConditions() {
-  if (main_message == NULL)
+  if (strlen(main_message) < 1)
   {
     if (!cannon->is_alive())
       advance_level();
@@ -283,11 +284,11 @@ void Game::drawUI(cairo_t *cr) {
                    (100 * player->energy) / SHIP_MAX_ENERGY,
                    color_blue, color_darkblue);
 
-  if (main_message != NULL && message_timeout != 0)
+  if (strlen(main_message)>0 && message_timeout != 0)
   {
     show_text_message (cr, 80, -30, main_message,
                        MIN(1.0, (message_timeout%200) / 100.0) );
-    if (second_message != NULL)
+    if (strlen(second_message)>0)
       show_text_message (cr, 30, +40, second_message, 1.0);
     if (message_timeout>0)
       message_timeout--;
@@ -433,7 +434,8 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
   switch (event->keyval)
   {
     case GDK_Tab:
-      advance_level();
+      if (!key_is_on)
+        advance_level();
       break;
 
     case GDK_Escape:
@@ -441,7 +443,7 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
       break;
 
     case GDK_Return:
-      if (main_message != NULL)
+      if (strlen(main_message)>0)
       {
         level = 0;
         reset();
@@ -558,8 +560,8 @@ Game::init_stars_array ()
 void
 Game::game_over()
 {
-  main_message = "Space Castle Defense Successful";
-  second_message = "Press [ENTER] for new game";
+  snprintf(main_message, sizeof(main_message), "Game Over");
+  snprintf(second_message, sizeof(main_message), "Press [ENTER] for new game");
   message_timeout = -1;
 }
 
@@ -567,8 +569,8 @@ void
 Game::try_again()
 {
   num_player_lives--;
-  main_message = "Next Drone Ready";
-  second_message = "Press [ENTER] to re-engage";
+  snprintf(main_message, sizeof(main_message), "%d lives remainig", level);
+  snprintf(second_message, sizeof(main_message), "Press [ENTER] to engage");
   message_timeout = 1000;
 }
 
@@ -576,9 +578,9 @@ void
 Game::advance_level()
 {
   level++;
-  this->reset();
-  main_message = "Approaching Next Space Castle";
-  second_message = "Press [ENTER] to engage";
+  reset();
+  snprintf(main_message, sizeof(main_message), "Level %d", level);
+  snprintf(second_message, sizeof(main_message), "Press [ENTER] to engage");
   message_timeout = 100;
 }
 

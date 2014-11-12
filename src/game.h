@@ -36,14 +36,16 @@ gint on_timeout (gpointer);
 class Game {
 private:
   GameObject* objects[MAX_OBJECTS];
-  int         num_objects;
+  int          num_objects;
+  char         main_message[64];
+  char         second_message[64];
+  int          message_timeout;
+
+  GtkWidget   *window;
 
 public:
-  GtkWidget   *window;
-  const char  *main_message;
-  const char  *second_message;
-  int          message_timeout;
   double       debug_scale_factor;
+  gboolean     show_fps;
 
   // TODO:  Move these into objects[]
   GameObject  *cannon;
@@ -69,8 +71,6 @@ public:
 
   // These also need incremented by level
   int          cannon_max_energy;
-
-  gboolean     show_fps;
 
   // TODO:  Move these into a background object structure
   Canvas      *canvas;
