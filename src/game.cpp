@@ -787,7 +787,6 @@ static int ring_segment_by_rotation (GameObject *ring, int rot);
 static void on_collision (GameObject *player, GameObject *missile);
 static int ring_segment_hit (GameObject *ring, GameObject *missile);
 static void on_ring_segment_collision (GameObject * ring, GameObject * m, int segment);
-gint on_key_event (GtkWidget *, GdkEventKey *, gboolean);
 gint on_timeout (gpointer);
 
 //------------------------------------------------------------------------------
@@ -851,13 +850,13 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
 gint
 on_key_press (GtkWidget * widget, GdkEventKey * event)
 {
-  return on_key_event (widget, event, TRUE);
+  return game->handle_key_event(widget, event, TRUE);
 }
 
 gint
 on_key_release (GtkWidget * widget, GdkEventKey * event)
 {
-  return on_key_event (widget, event, FALSE);
+  return game->handle_key_event(widget, event, FALSE);
 }
 
 gint
@@ -1005,16 +1004,6 @@ on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
     // until it equals the next higher level
     // Then move ring[N] to ring[N-1]
   }
-}
-
-
-
-//------------------------------------------------------------------------------
-
-gint
-on_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on)
-{
-  return game->handle_key_event(widget, event, key_is_on);
 }
 
 /*
