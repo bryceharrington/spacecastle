@@ -362,76 +362,6 @@ void Game::drawMines(cairo_t *cr) {
   // TODO
 }
 
-//------------------------------------------------------------------------------
-static int number_of_frames = 0;
-static long millis_taken_for_frames = 0;
-
-static long
-get_time_millis (void)
-{
-  struct timeb tp;
-  ftime (&tp);
-  return (long) ((tp.time * 1000) + tp.millitm);
-}
-
-gint
-on_expose_event (GtkWidget * widget, GdkEventExpose * event)
-{
-  cairo_t *cr = gdk_cairo_create (widget->window);
-  int width = widget->allocation.width;
-  int height = widget->allocation.height;
-  long start_time = 0;
-
-  if (game->show_fps)
-    start_time = get_time_millis ();
-
-  game->canvas->scale_for_aspect_ratio(cr, width, height);
-
-  game->checkConditions();
-  game->drawWorld(cr);
-
-  // Draw game elements
-  game->drawShip(cr);
-  game->drawMissiles(cr);
-  game->drawRings(cr);
-  game->drawMines(cr);
-  game->drawUI(cr);
-
-  cairo_restore (cr);
-
-  if (game->show_fps)
-  {
-    number_of_frames++;
-    millis_taken_for_frames += get_time_millis () - start_time;
-    if (number_of_frames >= 100)
-    {
-      double fps =
-        1000.0 * ((double) number_of_frames) /
-        ((double) millis_taken_for_frames);
-      dbg ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
-           millis_taken_for_frames, fps);
-      number_of_frames = 0;
-      millis_taken_for_frames = 0L;
-    }
-  }
-
-  cairo_destroy (cr);
-
-  return TRUE;
-}
-
-gint
-on_key_press (GtkWidget * widget, GdkEventKey * event)
-{
-  return on_key_event (widget, event, TRUE);
-}
-
-gint
-on_key_release (GtkWidget * widget, GdkEventKey * event)
-{
-  return on_key_event (widget, event, FALSE);
-}
-
 gint
 Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on)
 {
@@ -590,15 +520,270 @@ Game::advance_level()
 
 
 //------------------------------------------------------------------------------
+
+// TODO: These three routines are temporary until I've refactored away all
+//  need for is_turning_*
+static void
+turn_cannon_left (GameObject *cannon)
+{
+  cannon->p.rotation_speed = -1 * cannon->max_rotation_speed;
+}
+
+static void
+turn_cannon_right (GameObject *cannon)
+{
+  cannon->p.rotation_speed = 1 * cannon->max_rotation_speed;
+}
+
+static void
+turn_cannon_stop (GameObject *cannon)
+{
+  cannon->p.rotation_speed = 0;
+}
+
+static int
+ring_segment_by_rotation (GameObject *ring, int rot)
+{
+  /* Account for the current rotation of the ring */
+  int angle_ring_hit = (rot + ring->p.rotation)
+    % NUMBER_OF_ROTATION_ANGLES;
+
+  /* Divide angle by arc length of a segment */
+  return angle_ring_hit / (NUMBER_OF_ROTATION_ANGLES / SEGMENTS_PER_RING);
+}
+
+void
+Game::operateCannon ()
+{
+  int direction;
+
+  GameObject *ring = &(rings[number_of_rings-1]);
+  physics_t *c = &(cannon->p);
+  physics_t *p = &(player->p);
+
+  if (! player->is_alive()) {
+    /* TODO:  Reset */
+    cannon->is_firing = FALSE;
+    return;
+  }
+
+  direction = arctan ( p->pos[1] - c->pos[1], p->pos[0] - c->pos[0] );
+
+  if (direction == c->rotation) {
+    // What segment would we hit if we fired?
+    int seg_no = ring_segment_by_rotation(ring, c->rotation);
+
+    // TODO: If rotation angle is such that our missile
+    //   would likely hit a ring segment, don't shoot.
+
+    // Don't shoot if it'd just hurt our ring shield
+    if (ring->component_energy[seg_no] > 0) {
+      gboolean ring_is_undamaged = true;
+      for (int seg=0; seg<SEGMENTS_PER_RING; seg++) {
+        if (ring->component_energy[seg] <= 0) {
+          ring_is_undamaged = false;
+        }
+      }
+
+      // However, if no segments destroyed yet, shoot one if level > 1
+      if (ring_is_undamaged) {
+        cannon->is_firing = TRUE;
+        turn_cannon_stop (cannon);
+      }
+
+    } else {
+      cannon->is_firing = TRUE;
+      turn_cannon_stop (cannon);
+    }
+  } else if (c->rotation - direction == NUMBER_OF_ROTATION_ANGLES/2) {
+    cannon->is_firing = FALSE;
+    // Stay going in same direction
+  } else if (c->rotation - direction < NUMBER_OF_ROTATION_ANGLES/2
+             && c->rotation - direction > 0) {
+    turn_cannon_left (cannon);
+    cannon->is_firing = FALSE;
+
+  } else if (direction - c->rotation > NUMBER_OF_ROTATION_ANGLES/2
+             && c->rotation - direction < 0) {
+    turn_cannon_left (cannon);
+    cannon->is_firing = FALSE;
+
+  } else {
+    cannon->is_firing = FALSE;
+    turn_cannon_right (cannon);
+  }
+
+}
+
+
+static void
+apply_physics (physics_t * p)
+{
+  p->pos[0] += p->vel[0];
+  while (p->pos[0] > (WIDTH * FIXED_POINT_SCALE_FACTOR))
+    p->pos[0] -= (WIDTH * FIXED_POINT_SCALE_FACTOR);
+  while (p->pos[0] < 0)
+    p->pos[0] += (WIDTH * FIXED_POINT_SCALE_FACTOR);
+
+  p->pos[1] += p->vel[1];
+  while (p->pos[1] > (HEIGHT * FIXED_POINT_SCALE_FACTOR))
+    p->pos[1] -= (HEIGHT * FIXED_POINT_SCALE_FACTOR);
+  while (p->pos[1] < 0)
+    p->pos[1] += (HEIGHT * FIXED_POINT_SCALE_FACTOR);
+}
+
+static void
+apply_physics_to_player (GameObject * player)
+{
+  int v2, m2;
+  physics_t *p = &(player->p);
+
+  if (player->is_alive())
+  {
+    // Apply any accelerational impulses
+    if (p->rotation_accel != 0.0) {
+      p->rotation_speed += p->rotation_accel / 10.0;
+      p->rotation_accel /= 4.0;
+    }
+
+    // Apply any rotations
+    p->rotation += player->p.rotation_speed;
+    while (p->rotation < 0)
+      p->rotation += NUMBER_OF_ROTATION_ANGLES;
+
+    while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
+      p->rotation -= NUMBER_OF_ROTATION_ANGLES;
+
+    // check if accelerating
+    if (player->is_thrusting)
+    {
+      p->vel[0] += SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
+      p->vel[1] += SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
+    }
+
+    // check if reversing
+    if (player->is_reversing)
+    {
+      p->vel[0] -= SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
+      p->vel[1] -= SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
+    }
+
+    // apply velocity upper bound
+    v2 = ((p->vel[0]) * (p->vel[0])) + ((p->vel[1]) * (p->vel[1]));
+    m2 = SHIP_MAX_VELOCITY * SHIP_MAX_VELOCITY;
+    if (v2 > m2)
+    {
+      p->vel[0] = (int) (((double) (p->vel[0]) * m2) / v2);
+      p->vel[1] = (int) (((double) (p->vel[1]) * m2) / v2);
+    }
+
+    // check if player is shooting
+    if (player->ticks_until_can_fire == 0)
+    {
+      if ((player->is_firing) && (player->energy > ENERGY_PER_MISSILE))
+      {
+        int xx = cos_table[p->rotation];
+        int yy = sin_table[p->rotation];
+
+        GameObject *m = &(game->missiles[game->next_missile_index++]);
+
+        player->energy -= ENERGY_PER_MISSILE;
+
+        if (game->next_missile_index == MAX_NUMBER_OF_MISSILES)
+          game->next_missile_index = 0;
+
+        m->p.pos[0] =
+          p->pos[0] +
+          (((SHIP_RADIUS +
+             MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * xx);
+        m->p.pos[1] =
+          p->pos[1] +
+          (((SHIP_RADIUS +
+             MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * yy);
+        m->p.vel[0] = p->vel[0] + (MISSILE_SPEED * xx);
+        m->p.vel[1] = p->vel[1] + (MISSILE_SPEED * yy);
+        m->p.rotation = p->rotation;
+        m->energy = MISSILE_TICKS_TO_LIVE;
+        m->primary_color = player->primary_color;
+        m->secondary_color = player->secondary_color;
+        m->has_exploded = FALSE;
+
+        player->ticks_until_can_fire += TICKS_BETWEEN_FIRE;
+      }
+    }
+    else
+    {
+      player->ticks_until_can_fire--;
+    }
+  }
+
+  // apply velocity deltas to displacement
+  apply_physics (p);
+}
+
+static gboolean
+check_for_collision (physics_t * p1, physics_t * p2)
+{
+  int dx = (p1->pos[0] - p2->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int dy = (p1->pos[1] - p2->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int r = (p1->radius + p2->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int d2 = (dx * dx) + (dy * dy);
+  return (d2 < (r * r)) ? TRUE : FALSE;
+}
+
+
+static gboolean
+check_for_ring_collision (physics_t * ring, physics_t * p1)
+{
+  int dx = (p1->pos[0] - ring->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int dy = (p1->pos[1] - ring->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int r  = (ring->radius + p1->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int rr = (ring->radius * 0.8) / FIXED_POINT_HALF_SCALE_FACTOR;
+  int d2 = (dx * dx) + (dy * dy);
+
+  return (d2 < (r * r) && (d2 > (rr * rr)))? TRUE : FALSE;
+}
+
+static int
+ring_segment_hit (GameObject *ring, GameObject *m)
+{
+  /* Calculate angle of missile compared with ring center */
+  int dx = (m->p.pos[0] - ring->p.pos[0]);
+  int dy = (m->p.pos[1] - ring->p.pos[1]);
+  int rot = arctan(dy, dx);
+
+  return ring_segment_by_rotation(ring, rot);
+}
+
+//------------------------------------------------------------------------------
+
+static void
+enforce_minimum_distance (physics_t * ring, physics_t * p)
+{
+  int dx = ring->pos[0] - p->pos[0];
+  int dy = ring->pos[1] - p->pos[1];
+  double d2 = (((double) dx) * dx) + (((double) dy) * dy);
+  int d = (int) sqrt (d2);
+  int r = ring->radius + p->radius;
+
+  // normalize dx and dy to length = ((r - d) / 2) + fudge_factor
+  int desired_vector_length = ((r - d) * 5) / 8.0;
+
+  dx *= desired_vector_length;
+  dy *= desired_vector_length;
+  dx /= d;
+  dy /= d;
+
+  p->pos[0] -= 2*dx;
+  p->pos[1] -= 2*dy;
+}
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 // Forward definitions of functions
 
-static void operate_cannon (GameObject *cannon, GameObject *player, GameObject *ring);
-static void apply_physics (physics_t *);
-static void apply_physics_to_player (GameObject *player);
-static gboolean check_for_collision (physics_t *, physics_t *);
-static gboolean check_for_ring_collision (physics_t *, physics_t *);
 static int ring_segment_by_rotation (GameObject *ring, int rot);
-static void enforce_minimum_distance (physics_t *, physics_t *);
 static void on_collision (GameObject *player, GameObject *missile);
 static int ring_segment_hit (GameObject *ring, GameObject *missile);
 static void on_ring_segment_collision (GameObject * ring, GameObject * m, int segment);
@@ -606,6 +791,74 @@ gint on_key_event (GtkWidget *, GdkEventKey *, gboolean);
 gint on_timeout (gpointer);
 
 //------------------------------------------------------------------------------
+static int number_of_frames = 0;
+static long millis_taken_for_frames = 0;
+
+static long
+get_time_millis (void)
+{
+  struct timeb tp;
+  ftime (&tp);
+  return (long) ((tp.time * 1000) + tp.millitm);
+}
+
+gint
+on_expose_event (GtkWidget * widget, GdkEventExpose * event)
+{
+  cairo_t *cr = gdk_cairo_create (widget->window);
+  int width = widget->allocation.width;
+  int height = widget->allocation.height;
+  long start_time = 0;
+
+  if (game->show_fps)
+    start_time = get_time_millis ();
+
+  game->canvas->scale_for_aspect_ratio(cr, width, height);
+
+  game->checkConditions();
+  game->drawWorld(cr);
+
+  // Draw game elements
+  game->drawShip(cr);
+  game->drawMissiles(cr);
+  game->drawRings(cr);
+  game->drawMines(cr);
+  game->drawUI(cr);
+
+  cairo_restore (cr);
+
+  if (game->show_fps)
+  {
+    number_of_frames++;
+    millis_taken_for_frames += get_time_millis () - start_time;
+    if (number_of_frames >= 100)
+    {
+      double fps =
+        1000.0 * ((double) number_of_frames) /
+        ((double) millis_taken_for_frames);
+      dbg ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
+           millis_taken_for_frames, fps);
+      number_of_frames = 0;
+      millis_taken_for_frames = 0L;
+    }
+  }
+
+  cairo_destroy (cr);
+
+  return TRUE;
+}
+
+gint
+on_key_press (GtkWidget * widget, GdkEventKey * event)
+{
+  return on_key_event (widget, event, TRUE);
+}
+
+gint
+on_key_release (GtkWidget * widget, GdkEventKey * event)
+{
+  return on_key_event (widget, event, FALSE);
+}
 
 gint
 on_timeout (gpointer data)
@@ -618,7 +871,7 @@ on_timeout (gpointer data)
     game->rings[j].is_hit = FALSE;
   }
 
-  operate_cannon (game->cannon, game->player, &(game->rings[game->number_of_rings-1]));
+  game->operateCannon();
   apply_physics_to_player (game->cannon);
   apply_physics_to_player (game->player);
 
@@ -715,270 +968,6 @@ on_timeout (gpointer data)
   return TRUE;
 }
 
-//------------------------------------------------------------------------------
-
-// TODO: These three routines are temporary until I've refactored away all
-//  need for is_turning_*
-static void
-turn_cannon_left (GameObject *cannon)
-{
-  cannon->p.rotation_speed = -1 * cannon->max_rotation_speed;
-}
-
-static void
-turn_cannon_right (GameObject *cannon)
-{
-  cannon->p.rotation_speed = 1 * cannon->max_rotation_speed;
-}
-
-static void
-turn_cannon_stop (GameObject *cannon)
-{
-  cannon->p.rotation_speed = 0;
-}
-
-
-static void
-operate_cannon (GameObject * cannon, GameObject * player, GameObject *ring)
-{
-  int direction;
-
-  physics_t *c = &(cannon->p);
-  physics_t *p = &(player->p);
-
-  if (! player->is_alive()) {
-    /* TODO:  Reset */
-    cannon->is_firing = FALSE;
-    return;
-  }
-
-  direction = arctan ( p->pos[1] - c->pos[1], p->pos[0] - c->pos[0] );
-
-  if (direction == c->rotation) {
-    // What segment would we hit if we fired?
-    int seg_no = ring_segment_by_rotation(ring, c->rotation);
-
-    // TODO: If rotation angle is such that our missile
-    //   would likely hit a ring segment, don't shoot.
-
-    // Don't shoot if it'd just hurt our ring shield
-    if (ring->component_energy[seg_no] > 0) {
-      gboolean ring_is_undamaged = true;
-      for (int seg=0; seg<SEGMENTS_PER_RING; seg++) {
-        if (ring->component_energy[seg] <= 0) {
-          ring_is_undamaged = false;
-        }
-      }
-
-      // However, if no segments destroyed yet, shoot one if level > 1
-      if (ring_is_undamaged) {
-        cannon->is_firing = TRUE;
-        turn_cannon_stop (cannon);
-      }
-
-    } else {
-      cannon->is_firing = TRUE;
-      turn_cannon_stop (cannon);
-    }
-  } else if (c->rotation - direction == NUMBER_OF_ROTATION_ANGLES/2) {
-    cannon->is_firing = FALSE;
-    // Stay going in same direction
-  } else if (c->rotation - direction < NUMBER_OF_ROTATION_ANGLES/2
-             && c->rotation - direction > 0) {
-    turn_cannon_left (cannon);
-    cannon->is_firing = FALSE;
-
-  } else if (direction - c->rotation > NUMBER_OF_ROTATION_ANGLES/2
-             && c->rotation - direction < 0) {
-    turn_cannon_left (cannon);
-    cannon->is_firing = FALSE;
-
-  } else {
-    cannon->is_firing = FALSE;
-    turn_cannon_right (cannon);
-  }
-
-}
-
-static void
-apply_physics_to_player (GameObject * player)
-{
-  int v2, m2;
-  physics_t *p = &(player->p);
-
-  if (player->is_alive())
-  {
-    // Apply any accelerational impulses
-    if (p->rotation_accel != 0.0) {
-      p->rotation_speed += p->rotation_accel / 10.0;
-      p->rotation_accel /= 4.0;
-    }
-
-    // Apply any rotations
-    p->rotation += player->p.rotation_speed;
-    while (p->rotation < 0)
-      p->rotation += NUMBER_OF_ROTATION_ANGLES;
-
-    while (p->rotation >= NUMBER_OF_ROTATION_ANGLES)
-      p->rotation -= NUMBER_OF_ROTATION_ANGLES;
-
-    // check if accelerating
-    if (player->is_thrusting)
-    {
-      p->vel[0] += SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
-      p->vel[1] += SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
-    }
-
-    // check if reversing
-    if (player->is_reversing)
-    {
-      p->vel[0] -= SHIP_ACCELERATION_FACTOR * cos_table[p->rotation];
-      p->vel[1] -= SHIP_ACCELERATION_FACTOR * sin_table[p->rotation];
-    }
-
-    // apply velocity upper bound
-    v2 = ((p->vel[0]) * (p->vel[0])) + ((p->vel[1]) * (p->vel[1]));
-    m2 = SHIP_MAX_VELOCITY * SHIP_MAX_VELOCITY;
-    if (v2 > m2)
-    {
-      p->vel[0] = (int) (((double) (p->vel[0]) * m2) / v2);
-      p->vel[1] = (int) (((double) (p->vel[1]) * m2) / v2);
-    }
-
-    // check if player is shooting
-    if (player->ticks_until_can_fire == 0)
-    {
-      if ((player->is_firing) && (player->energy > ENERGY_PER_MISSILE))
-      {
-        int xx = cos_table[p->rotation];
-        int yy = sin_table[p->rotation];
-
-        GameObject *m = &(game->missiles[game->next_missile_index++]);
-
-        player->energy -= ENERGY_PER_MISSILE;
-
-        if (game->next_missile_index == MAX_NUMBER_OF_MISSILES)
-          game->next_missile_index = 0;
-
-        m->p.pos[0] =
-          p->pos[0] +
-          (((SHIP_RADIUS +
-             MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * xx);
-        m->p.pos[1] =
-          p->pos[1] +
-          (((SHIP_RADIUS +
-             MISSILE_RADIUS) / FIXED_POINT_SCALE_FACTOR) * yy);
-        m->p.vel[0] = p->vel[0] + (MISSILE_SPEED * xx);
-        m->p.vel[1] = p->vel[1] + (MISSILE_SPEED * yy);
-        m->p.rotation = p->rotation;
-        m->energy = MISSILE_TICKS_TO_LIVE;
-        m->primary_color = player->primary_color;
-        m->secondary_color = player->secondary_color;
-        m->has_exploded = FALSE;
-
-        player->ticks_until_can_fire += TICKS_BETWEEN_FIRE;
-      }
-    }
-    else
-    {
-      player->ticks_until_can_fire--;
-    }
-  }
-
-  // apply velocity deltas to displacement
-  apply_physics (p);
-}
-
-//------------------------------------------------------------------------------
-
-static void
-apply_physics (physics_t * p)
-{
-  p->pos[0] += p->vel[0];
-  while (p->pos[0] > (WIDTH * FIXED_POINT_SCALE_FACTOR))
-    p->pos[0] -= (WIDTH * FIXED_POINT_SCALE_FACTOR);
-  while (p->pos[0] < 0)
-    p->pos[0] += (WIDTH * FIXED_POINT_SCALE_FACTOR);
-
-  p->pos[1] += p->vel[1];
-  while (p->pos[1] > (HEIGHT * FIXED_POINT_SCALE_FACTOR))
-    p->pos[1] -= (HEIGHT * FIXED_POINT_SCALE_FACTOR);
-  while (p->pos[1] < 0)
-    p->pos[1] += (HEIGHT * FIXED_POINT_SCALE_FACTOR);
-}
-
-//------------------------------------------------------------------------------
-
-static gboolean
-check_for_collision (physics_t * p1, physics_t * p2)
-{
-  int dx = (p1->pos[0] - p2->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int dy = (p1->pos[1] - p2->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int r = (p1->radius + p2->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int d2 = (dx * dx) + (dy * dy);
-  return (d2 < (r * r)) ? TRUE : FALSE;
-}
-
-
-static gboolean
-check_for_ring_collision (physics_t * ring, physics_t * p1)
-{
-  int dx = (p1->pos[0] - ring->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int dy = (p1->pos[1] - ring->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int r  = (ring->radius + p1->radius) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int rr = (ring->radius * 0.8) / FIXED_POINT_HALF_SCALE_FACTOR;
-  int d2 = (dx * dx) + (dy * dy);
-
-  return (d2 < (r * r) && (d2 > (rr * rr)))? TRUE : FALSE;
-}
-
-static int
-ring_segment_by_rotation (GameObject *ring, int rot)
-{
-  /* Account for the current rotation of the ring */
-  int angle_ring_hit = (rot + ring->p.rotation)
-    % NUMBER_OF_ROTATION_ANGLES;
-
-  /* Divide angle by arc length of a segment */
-  return angle_ring_hit / (NUMBER_OF_ROTATION_ANGLES / SEGMENTS_PER_RING);
-}
-
-
-static int
-ring_segment_hit (GameObject *ring, GameObject *m)
-{
-  /* Calculate angle of missile compared with ring center */
-  int dx = (m->p.pos[0] - ring->p.pos[0]);
-  int dy = (m->p.pos[1] - ring->p.pos[1]);
-  int rot = arctan(dy, dx);
-
-  return ring_segment_by_rotation(ring, rot);
-}
-
-//------------------------------------------------------------------------------
-
-static void
-enforce_minimum_distance (physics_t * ring, physics_t * p)
-{
-  int dx = ring->pos[0] - p->pos[0];
-  int dy = ring->pos[1] - p->pos[1];
-  double d2 = (((double) dx) * dx) + (((double) dy) * dy);
-  int d = (int) sqrt (d2);
-  int r = ring->radius + p->radius;
-
-  // normalize dx and dy to length = ((r - d) / 2) + fudge_factor
-  int desired_vector_length = ((r - d) * 5) / 8.0;
-
-  dx *= desired_vector_length;
-  dy *= desired_vector_length;
-  dx /= d;
-  dy /= d;
-
-  p->pos[0] -= 2*dx;
-  p->pos[1] -= 2*dy;
-}
-
-//------------------------------------------------------------------------------
 
 static void
 on_collision (GameObject * p, GameObject * m)
