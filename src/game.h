@@ -104,7 +104,14 @@ public:
 
   int addObject(GameObject* o);
   void process_options(int argc, gchar ** argv);
-  gint handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is_on);
+  void handle_collision (GameObject * p, GameObject * m);
+  gint handle_key_event(GtkWidget * widget, GdkEventKey * event, gboolean key_is_on);
+  void handle_ring_segment_collision(GameObject * ring, GameObject * m, int segment);
+  int ring_segment_hit(GameObject *ring, GameObject *m);
+
+  // TODO: Perhaps these should move to the physics module?
+  gboolean check_for_collision(physics_t *p1, physics_t *p2);
+  gboolean check_for_ring_collision(physics_t * ring, physics_t * p1);
 };
 
 extern Game* game;

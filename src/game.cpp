@@ -721,8 +721,8 @@ apply_physics_to_player (GameObject * player)
   apply_physics (p);
 }
 
-static gboolean
-check_for_collision (physics_t * p1, physics_t * p2)
+gboolean
+Game::check_for_collision (physics_t * p1, physics_t * p2)
 {
   int dx = (p1->pos[0] - p2->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
   int dy = (p1->pos[1] - p2->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
@@ -732,8 +732,8 @@ check_for_collision (physics_t * p1, physics_t * p2)
 }
 
 
-static gboolean
-check_for_ring_collision (physics_t * ring, physics_t * p1)
+gboolean
+Game::check_for_ring_collision (physics_t * ring, physics_t * p1)
 {
   int dx = (p1->pos[0] - ring->pos[0]) / FIXED_POINT_HALF_SCALE_FACTOR;
   int dy = (p1->pos[1] - ring->pos[1]) / FIXED_POINT_HALF_SCALE_FACTOR;
@@ -744,8 +744,8 @@ check_for_ring_collision (physics_t * ring, physics_t * p1)
   return (d2 < (r * r) && (d2 > (rr * rr)))? TRUE : FALSE;
 }
 
-static int
-ring_segment_hit (GameObject *ring, GameObject *m)
+int
+Game::ring_segment_hit (GameObject *ring, GameObject *m)
 {
   /* Calculate angle of missile compared with ring center */
   int dx = (m->p.pos[0] - ring->p.pos[0]);
@@ -784,9 +784,6 @@ enforce_minimum_distance (physics_t * ring, physics_t * p)
 // Forward definitions of functions
 
 static int ring_segment_by_rotation (GameObject *ring, int rot);
-static void on_collision (GameObject *player, GameObject *missile);
-static int ring_segment_hit (GameObject *ring, GameObject *missile);
-static void on_ring_segment_collision (GameObject * ring, GameObject * m, int segment);
 gint on_timeout (gpointer);
 
 //------------------------------------------------------------------------------
@@ -874,7 +871,7 @@ on_timeout (gpointer data)
   apply_physics_to_player (game->cannon);
   apply_physics_to_player (game->player);
 
-  if (check_for_collision (&(game->rings[0].p), &(game->player->p)))
+  if (game->check_for_collision (&(game->rings[0].p), &(game->player->p)))
   {
     int p1vx, p1vy, p2vx, p2vy;
     int dvx, dvy, dv2;
@@ -911,24 +908,22 @@ on_timeout (gpointer data)
           if (!game->rings[j].is_alive())
             continue;
 
-          if (check_for_ring_collision (&(game->rings[j].p),
-                                        &(game->missiles[i].p)))
+          if (game->check_for_ring_collision (&(game->rings[j].p),
+                                              &(game->missiles[i].p)))
           {
-            int segment = ring_segment_hit(&(game->rings[j]),
-                                           &(game->missiles[i]));
+            int segment = game->ring_segment_hit(&(game->rings[j]),
+                                                 &(game->missiles[i]));
 
-            on_ring_segment_collision (&(game->rings[j]),
-                                       &(game->missiles[i]),
-                                       segment);
+            game->handle_ring_segment_collision (&(game->rings[j]),
+                                                 &(game->missiles[i]),
+                                                 segment);
           }
         }
-        if (check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
-          on_collision (game->cannon, &(game->missiles[i]));
+        if (game->check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
+          game->handle_collision (game->cannon, &(game->missiles[i]));
 
-
-        if (check_for_collision (&(game->missiles[i].p), &(game->player->p)))
-          on_collision (game->player, &(game->missiles[i]));
-
+        if (game->check_for_collision (&(game->missiles[i].p), &(game->player->p)))
+          game->handle_collision (game->player, &(game->missiles[i]));
       }
 
       game->missiles[i].energy--;
@@ -968,8 +963,8 @@ on_timeout (gpointer data)
 }
 
 
-static void
-on_collision (GameObject * p, GameObject * m)
+void
+Game::handle_collision (GameObject * p, GameObject * m)
 {
   p->energy -= DAMAGE_PER_MISSILE;
   p->is_hit = TRUE;
@@ -979,8 +974,8 @@ on_collision (GameObject * p, GameObject * m)
   m->p.vel[1] = 0;
 }
 
-static void
-on_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
+void
+Game::handle_ring_segment_collision (GameObject * ring, GameObject * m, int segment)
 {
   if (ring->component_energy[segment] <= 0)
     return;
