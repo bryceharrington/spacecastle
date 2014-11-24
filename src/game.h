@@ -96,6 +96,7 @@ public:
   void drawRings(cairo_t *cr);
   void drawMines(cairo_t *cr);
 
+  void tick();
   void reset();
   void game_over();
   void try_again();
@@ -110,8 +111,11 @@ public:
   int ring_segment_hit(GameObject *ring, GameObject *m);
 
   // TODO: Perhaps these should move to the physics module?
+  void apply_physics_to_player(GameObject *player);
+  void apply_physics(physics_t *p);
   gboolean check_for_collision(physics_t *p1, physics_t *p2);
   gboolean check_for_ring_collision(physics_t * ring, physics_t * p1);
+  void enforce_minimum_distance(physics_t *ring, physics_t *p);
 };
 
 extern Game* game;

@@ -142,6 +142,107 @@ void Game::process_options(int argc, gchar ** argv) {
   //const char **remainder = poptGetArgs(pc);
 }
 
+void Game::tick() {
+  int i, j;
+
+  game->cannon->is_hit = FALSE;
+  game->player->is_hit = FALSE;
+  for (j=0; j< MAX_NUMBER_OF_RINGS; j++) {
+    game->rings[j].is_hit = FALSE;
+  }
+
+  game->operateCannon();
+  apply_physics_to_player (game->cannon);
+  apply_physics_to_player (game->player);
+
+  if (game->check_for_collision (&(game->rings[0].p), &(game->player->p)))
+  {
+    int p1vx, p1vy, p2vx, p2vy;
+    int dvx, dvy, dv2;
+    int damage;
+
+    enforce_minimum_distance (&(game->rings[0].p), &(game->player->p));
+
+    p1vx = game->rings[0].p.vel[0];
+    p1vy = game->rings[0].p.vel[1];
+    p2vx = game->player->p.vel[0];
+    p2vy = game->player->p.vel[1];
+
+    dvx = (p1vx - p2vx) / FIXED_POINT_HALF_SCALE_FACTOR;
+    dvy = (p1vy - p2vy) / FIXED_POINT_HALF_SCALE_FACTOR;
+    dv2 = (dvx * dvx) + (dvy * dvy);
+    damage = ((int)(sqrt (dv2))) / DAMAGE_PER_SHIP_BOUNCE_DIVISOR;
+
+    game->player->energy -= damage;
+    game->player->is_hit = TRUE;
+    game->player->p.vel[0] = (p1vx * +5 / 8) + (p2vx * -2 / 8);
+    game->player->p.vel[1] = (p1vy * +5 / 8) + (p2vy * -2 / 8);
+  }
+
+  for (i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
+  {
+    if (game->missiles[i].is_alive())
+    {
+      apply_physics (&(game->missiles[i].p));
+
+      if (!game->missiles[i].has_exploded)
+      {
+        /* Foreach ring segment, check collision */
+        for (j = game->number_of_rings; j >= 0; j--) {
+          if (!game->rings[j].is_alive())
+            continue;
+
+          if (game->check_for_ring_collision (&(game->rings[j].p),
+                                              &(game->missiles[i].p)))
+          {
+            int segment = game->ring_segment_hit(&(game->rings[j]),
+                                                 &(game->missiles[i]));
+
+            game->handle_ring_segment_collision (&(game->rings[j]),
+                                                 &(game->missiles[i]),
+                                                 segment);
+          }
+        }
+        if (game->check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
+          game->handle_collision (game->cannon, &(game->missiles[i]));
+
+        if (game->check_for_collision (&(game->missiles[i].p), &(game->player->p)))
+          game->handle_collision (game->player, &(game->missiles[i]));
+      }
+
+      game->missiles[i].energy--;
+    }
+  }
+
+  for (i = 0; i < game->number_of_rings; i++)
+  {
+    game->rings[i].p.rotation =
+      (game->rings[i].p.rotation + game->rings[i].p.rotation_speed)
+      % NUMBER_OF_ROTATION_ANGLES;
+
+    if (game->rings[i].p.rotation < 0)
+      game->rings[i].p.rotation += NUMBER_OF_ROTATION_ANGLES;
+  }
+
+  if (game->cannon->energy <= 0)
+  {
+    game->cannon->energy = 0;
+  }
+  else
+  {
+    game->cannon->energy = MIN (SHIP_MAX_ENERGY, game->cannon->energy + 3);
+  }
+
+  if (game->player->energy <= 0)
+  {
+    game->player->energy = 0;
+  }
+  else
+  {
+    game->player->energy = MIN (SHIP_MAX_ENERGY, game->player->energy + 1);
+  }
+}
+
 void Game::reset() {
   for (int i=0; i<num_objects; i++) {
     objects[i]->init();
@@ -521,26 +622,6 @@ Game::advance_level()
 
 //------------------------------------------------------------------------------
 
-// TODO: These three routines are temporary until I've refactored away all
-//  need for is_turning_*
-static void
-turn_cannon_left (GameObject *cannon)
-{
-  cannon->p.rotation_speed = -1 * cannon->max_rotation_speed;
-}
-
-static void
-turn_cannon_right (GameObject *cannon)
-{
-  cannon->p.rotation_speed = 1 * cannon->max_rotation_speed;
-}
-
-static void
-turn_cannon_stop (GameObject *cannon)
-{
-  cannon->p.rotation_speed = 0;
-}
-
 static int
 ring_segment_by_rotation (GameObject *ring, int rot)
 {
@@ -588,36 +669,35 @@ Game::operateCannon ()
       // However, if no segments destroyed yet, shoot one if level > 1
       if (ring_is_undamaged) {
         cannon->is_firing = TRUE;
-        turn_cannon_stop (cannon);
+        cannon->p.rotation_speed = 0;
       }
 
     } else {
       cannon->is_firing = TRUE;
-      turn_cannon_stop (cannon);
+      cannon->p.rotation_speed = 0;
     }
   } else if (c->rotation - direction == NUMBER_OF_ROTATION_ANGLES/2) {
     cannon->is_firing = FALSE;
     // Stay going in same direction
   } else if (c->rotation - direction < NUMBER_OF_ROTATION_ANGLES/2
              && c->rotation - direction > 0) {
-    turn_cannon_left (cannon);
+    cannon->p.rotation_speed = -1 * cannon->max_rotation_speed;
     cannon->is_firing = FALSE;
 
   } else if (direction - c->rotation > NUMBER_OF_ROTATION_ANGLES/2
              && c->rotation - direction < 0) {
-    turn_cannon_left (cannon);
+    cannon->p.rotation_speed = -1 * cannon->max_rotation_speed;
     cannon->is_firing = FALSE;
 
   } else {
     cannon->is_firing = FALSE;
-    turn_cannon_right (cannon);
+    cannon->p.rotation_speed = 1 * cannon->max_rotation_speed;
   }
 
 }
 
-
-static void
-apply_physics (physics_t * p)
+void
+Game::apply_physics (physics_t * p)
 {
   p->pos[0] += p->vel[0];
   while (p->pos[0] > (WIDTH * FIXED_POINT_SCALE_FACTOR))
@@ -632,8 +712,8 @@ apply_physics (physics_t * p)
     p->pos[1] += (HEIGHT * FIXED_POINT_SCALE_FACTOR);
 }
 
-static void
-apply_physics_to_player (GameObject * player)
+void
+Game::apply_physics_to_player (GameObject * player)
 {
   int v2, m2;
   physics_t *p = &(player->p);
@@ -721,6 +801,7 @@ apply_physics_to_player (GameObject * player)
   apply_physics (p);
 }
 
+
 gboolean
 Game::check_for_collision (physics_t * p1, physics_t * p2)
 {
@@ -755,10 +836,8 @@ Game::ring_segment_hit (GameObject *ring, GameObject *m)
   return ring_segment_by_rotation(ring, rot);
 }
 
-//------------------------------------------------------------------------------
-
-static void
-enforce_minimum_distance (physics_t * ring, physics_t * p)
+void
+Game::enforce_minimum_distance (physics_t * ring, physics_t * p)
 {
   int dx = ring->pos[0] - p->pos[0];
   int dy = ring->pos[1] - p->pos[1];
@@ -859,105 +938,7 @@ on_key_release (GtkWidget * widget, GdkEventKey * event)
 gint
 on_timeout (gpointer data)
 {
-  int i, j;
-
-  game->cannon->is_hit = FALSE;
-  game->player->is_hit = FALSE;
-  for (j=0; j< MAX_NUMBER_OF_RINGS; j++) {
-    game->rings[j].is_hit = FALSE;
-  }
-
-  game->operateCannon();
-  apply_physics_to_player (game->cannon);
-  apply_physics_to_player (game->player);
-
-  if (game->check_for_collision (&(game->rings[0].p), &(game->player->p)))
-  {
-    int p1vx, p1vy, p2vx, p2vy;
-    int dvx, dvy, dv2;
-    int damage;
-
-    enforce_minimum_distance (&(game->rings[0].p), &(game->player->p));
-
-    p1vx = game->rings[0].p.vel[0];
-    p1vy = game->rings[0].p.vel[1];
-    p2vx = game->player->p.vel[0];
-    p2vy = game->player->p.vel[1];
-
-    dvx = (p1vx - p2vx) / FIXED_POINT_HALF_SCALE_FACTOR;
-    dvy = (p1vy - p2vy) / FIXED_POINT_HALF_SCALE_FACTOR;
-    dv2 = (dvx * dvx) + (dvy * dvy);
-    damage = ((int)(sqrt (dv2))) / DAMAGE_PER_SHIP_BOUNCE_DIVISOR;
-
-    game->player->energy -= damage;
-    game->player->is_hit = TRUE;
-    game->player->p.vel[0] = (p1vx * +5 / 8) + (p2vx * -2 / 8);
-    game->player->p.vel[1] = (p1vy * +5 / 8) + (p2vy * -2 / 8);
-  }
-
-  for (i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
-  {
-    if (game->missiles[i].is_alive())
-    {
-      apply_physics (&(game->missiles[i].p));
-
-      if (!game->missiles[i].has_exploded)
-      {
-        /* Foreach ring segment, check collision */
-        for (j = game->number_of_rings; j >= 0; j--) {
-          if (!game->rings[j].is_alive())
-            continue;
-
-          if (game->check_for_ring_collision (&(game->rings[j].p),
-                                              &(game->missiles[i].p)))
-          {
-            int segment = game->ring_segment_hit(&(game->rings[j]),
-                                                 &(game->missiles[i]));
-
-            game->handle_ring_segment_collision (&(game->rings[j]),
-                                                 &(game->missiles[i]),
-                                                 segment);
-          }
-        }
-        if (game->check_for_collision (&(game->missiles[i].p), &(game->cannon->p)))
-          game->handle_collision (game->cannon, &(game->missiles[i]));
-
-        if (game->check_for_collision (&(game->missiles[i].p), &(game->player->p)))
-          game->handle_collision (game->player, &(game->missiles[i]));
-      }
-
-      game->missiles[i].energy--;
-    }
-  }
-
-  for (i = 0; i < game->number_of_rings; i++)
-  {
-    game->rings[i].p.rotation =
-      (game->rings[i].p.rotation + game->rings[i].p.rotation_speed)
-      % NUMBER_OF_ROTATION_ANGLES;
-
-    if (game->rings[i].p.rotation < 0)
-      game->rings[i].p.rotation += NUMBER_OF_ROTATION_ANGLES;
-  }
-
-  if (game->cannon->energy <= 0)
-  {
-    game->cannon->energy = 0;
-  }
-  else
-  {
-    game->cannon->energy = MIN (SHIP_MAX_ENERGY, game->cannon->energy + 3);
-  }
-
-  if (game->player->energy <= 0)
-  {
-    game->player->energy = 0;
-  }
-  else
-  {
-    game->player->energy = MIN (SHIP_MAX_ENERGY, game->player->energy + 1);
-  }
-
+  game->tick();
   gtk_widget_queue_draw ((GtkWidget *) data);
   return TRUE;
 }
