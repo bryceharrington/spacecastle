@@ -87,6 +87,7 @@ public:
   void checkConditions();
   void operateCannon();
 
+  void redraw(cairo_t *cr);
   void drawWorld(cairo_t *cr);
   void drawUI(cairo_t *cr);
   void drawTextMessage(cairo_t *cr, int x, int y, const char*msg);

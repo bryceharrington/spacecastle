@@ -45,6 +45,9 @@ static RGB_t color_darkblue  = {0.1, 0.1, 0.3};
 //static RGB_t color_green     = {0.3, 0.9, 0.3};
 //static RGB_t color_darkgreen = {0.1, 0.5, 0.3};
 
+// Forward declarations
+gint on_timeout (gpointer);
+
 Game::Game(gint argc, gchar ** argv)
   : num_objects(0),
     number_of_rings(3),
@@ -365,6 +368,18 @@ Game::checkConditions() {
     else if (!player->is_alive())
       try_again();
   }
+}
+
+void
+Game::redraw(cairo_t *cr) {
+  drawWorld(cr);
+
+  // Draw game elements
+  drawShip(cr);
+  drawMissiles(cr);
+  drawRings(cr);
+  drawMines(cr);
+  drawUI(cr);
 }
 
 void Game::drawWorld(cairo_t *cr) {
@@ -857,92 +872,6 @@ Game::enforce_minimum_distance (physics_t * ring, physics_t * p)
   p->pos[1] -= 2*dy;
 }
 
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Forward definitions of functions
-
-static int ring_segment_by_rotation (GameObject *ring, int rot);
-gint on_timeout (gpointer);
-
-//------------------------------------------------------------------------------
-static int number_of_frames = 0;
-static long millis_taken_for_frames = 0;
-
-static long
-get_time_millis (void)
-{
-  struct timeb tp;
-  ftime (&tp);
-  return (long) ((tp.time * 1000) + tp.millitm);
-}
-
-gint
-on_expose_event (GtkWidget * widget, GdkEventExpose * event)
-{
-  cairo_t *cr = gdk_cairo_create (widget->window);
-  int width = widget->allocation.width;
-  int height = widget->allocation.height;
-  long start_time = 0;
-
-  if (game->show_fps)
-    start_time = get_time_millis ();
-
-  game->canvas->scale_for_aspect_ratio(cr, width, height);
-
-  game->checkConditions();
-  game->drawWorld(cr);
-
-  // Draw game elements
-  game->drawShip(cr);
-  game->drawMissiles(cr);
-  game->drawRings(cr);
-  game->drawMines(cr);
-  game->drawUI(cr);
-
-  cairo_restore (cr);
-
-  if (game->show_fps)
-  {
-    number_of_frames++;
-    millis_taken_for_frames += get_time_millis () - start_time;
-    if (number_of_frames >= 100)
-    {
-      double fps =
-        1000.0 * ((double) number_of_frames) /
-        ((double) millis_taken_for_frames);
-      dbg ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
-           millis_taken_for_frames, fps);
-      number_of_frames = 0;
-      millis_taken_for_frames = 0L;
-    }
-  }
-
-  cairo_destroy (cr);
-
-  return TRUE;
-}
-
-gint
-on_key_press (GtkWidget * widget, GdkEventKey * event)
-{
-  return game->handle_key_event(widget, event, TRUE);
-}
-
-gint
-on_key_release (GtkWidget * widget, GdkEventKey * event)
-{
-  return game->handle_key_event(widget, event, FALSE);
-}
-
-gint
-on_timeout (gpointer data)
-{
-  game->tick();
-  gtk_widget_queue_draw ((GtkWidget *) data);
-  return TRUE;
-}
-
 
 void
 Game::handle_collision (GameObject * p, GameObject * m)
@@ -980,6 +909,79 @@ Game::handle_ring_segment_collision (GameObject * ring, GameObject * m, int segm
     // until it equals the next higher level
     // Then move ring[N] to ring[N-1]
   }
+}
+
+//------------------------------------------------------------------------------
+static int number_of_frames = 0;
+static long millis_taken_for_frames = 0;
+
+static long
+get_time_millis (void)
+{
+  struct timeb tp;
+  ftime (&tp);
+  return (long) ((tp.time * 1000) + tp.millitm);
+}
+
+static void
+print_frame_stats (long start_time)
+{
+  number_of_frames++;
+  millis_taken_for_frames += get_time_millis () - start_time;
+  if (number_of_frames >= 100)
+  {
+    double fps =
+      1000.0 * ((double) number_of_frames) /
+      ((double) millis_taken_for_frames);
+    dbg ("%d frames in %ldms (%.3ffps)\n", number_of_frames,
+         millis_taken_for_frames, fps);
+    number_of_frames = 0;
+    millis_taken_for_frames = 0L;
+  }
+}
+
+gint
+on_expose_event (GtkWidget * widget, GdkEventExpose * event)
+{
+  cairo_t *cr = gdk_cairo_create (widget->window);
+  int width = widget->allocation.width;
+  int height = widget->allocation.height;
+  long start_time = 0;
+
+  if (game->show_fps)
+    start_time = get_time_millis ();
+
+  game->canvas->scale_for_aspect_ratio(cr, width, height);
+  game->checkConditions();
+  game->redraw(cr);
+  cairo_restore (cr);
+
+  if (game->show_fps)
+    print_frame_stats(start_time);
+
+  cairo_destroy (cr);
+
+  return TRUE;
+}
+
+gint
+on_key_press (GtkWidget * widget, GdkEventKey * event)
+{
+  return game->handle_key_event(widget, event, TRUE);
+}
+
+gint
+on_key_release (GtkWidget * widget, GdkEventKey * event)
+{
+  return game->handle_key_event(widget, event, FALSE);
+}
+
+gint
+on_timeout (gpointer data)
+{
+  game->tick();
+  gtk_widget_queue_draw ((GtkWidget *) data);
+  return TRUE;
 }
 
 /*
