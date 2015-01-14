@@ -82,34 +82,32 @@ public:
   void init_missiles_array ();
   void init_stars_array ();
   void init_rings_array ();
+  void process_options(int argc, gchar **argv);
 
-  int addObject();
-  void checkConditions();
-  void operateCannon();
+  int  add_object(GameObject *o);
+  void check_conditions();
+  void operate_cannon();
+  void handle_collision (GameObject *p, GameObject *m);
+  gint handle_key_event(GtkWidget *widget, GdkEventKey *event, gboolean key_is_on);
+  void handle_ring_segment_collision(GameObject * ring, GameObject *m, int segment);
+  int  ring_segment_hit(GameObject *ring, GameObject *m);
 
   void redraw(cairo_t *cr);
-  void drawWorld(cairo_t *cr);
-  void drawUI(cairo_t *cr);
-  void drawTextMessage(cairo_t *cr, int x, int y, const char*msg);
-  void drawShip(cairo_t *cr);
-  void drawCannon(cairo_t *, GameObject *player);
-  void drawMissiles(cairo_t *cr);
-  void drawRings(cairo_t *cr);
-  void drawMines(cairo_t *cr);
+  void draw_world(cairo_t *cr);
+  void draw_ui(cairo_t *cr);
+  void draw_text_message(cairo_t *cr, int x, int y, const char*msg);
+  void draw_ship(cairo_t *cr);
+  void draw_cannon(cairo_t *, GameObject *player);
+  void draw_missiles(cairo_t *cr);
+  void draw_rings(cairo_t *cr);
+  void draw_mines(cairo_t *cr);
 
   void tick();
   void reset();
   void game_over();
   void try_again();
   void advance_level();
-  int run();
-
-  int addObject(GameObject* o);
-  void process_options(int argc, gchar ** argv);
-  void handle_collision (GameObject * p, GameObject * m);
-  gint handle_key_event(GtkWidget * widget, GdkEventKey * event, gboolean key_is_on);
-  void handle_ring_segment_collision(GameObject * ring, GameObject * m, int segment);
-  int ring_segment_hit(GameObject *ring, GameObject *m);
+  int  run();
 
   // TODO: Perhaps these should move to the physics module?
   void apply_physics_to_player(GameObject *player);

@@ -154,7 +154,7 @@ void Game::tick() {
     rings[j].is_hit = FALSE;
   }
 
-  operateCannon();
+  operate_cannon();
   apply_physics_to_player (cannon);
   apply_physics_to_player (player);
 
@@ -347,7 +347,7 @@ void Game::reset() {
   init_missiles_array ();
 }
 
-int Game::addObject(GameObject* o) {
+int Game::add_object(GameObject* o) {
   if (num_objects >= MAX_OBJECTS)
     return 1;
 
@@ -356,7 +356,7 @@ int Game::addObject(GameObject* o) {
 }
 
 void
-Game::checkConditions() {
+Game::check_conditions() {
   if (strlen(main_message) < 1)
   {
     if (!cannon->is_alive())
@@ -372,17 +372,17 @@ Game::checkConditions() {
 
 void
 Game::redraw(cairo_t *cr) {
-  drawWorld(cr);
+  draw_world(cr);
 
   // Draw game elements
-  drawShip(cr);
-  drawMissiles(cr);
-  drawRings(cr);
-  drawMines(cr);
-  drawUI(cr);
+  draw_ship(cr);
+  draw_missiles(cr);
+  draw_rings(cr);
+  draw_mines(cr);
+  draw_ui(cr);
 }
 
-void Game::drawWorld(cairo_t *cr) {
+void Game::draw_world(cairo_t *cr) {
   /* draw background space color */
   cairo_set_source_rgb (cr, 0.1, 0.0, 0.1);
   cairo_paint (cr);
@@ -393,7 +393,7 @@ void Game::drawWorld(cairo_t *cr) {
   }
 }
 
-void Game::drawUI(cairo_t *cr) {
+void Game::draw_ui(cairo_t *cr) {
   // ... the energy bars...
   printf("energy: player=%d, cannon=%d, width=%d\n", player->energy, cannon->energy, WIDTH);
   // TODO: Use cannon->max_energy instead of SHIP_MAX_ENERGY
@@ -416,12 +416,12 @@ void Game::drawUI(cairo_t *cr) {
 
 }
 
-void Game::drawShip(cairo_t *cr) {
+void Game::draw_ship(cairo_t *cr) {
   cairo_save (cr);
   cairo_translate (cr, cannon->p.pos[0] / FIXED_POINT_SCALE_FACTOR,
                    cannon->p.pos[1] / FIXED_POINT_SCALE_FACTOR);
   cairo_rotate (cr, cannon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
-  this->drawCannon (cr, cannon);
+  this->draw_cannon (cr, cannon);
   cairo_restore (cr);
 
   cairo_save (cr);
@@ -432,11 +432,11 @@ void Game::drawShip(cairo_t *cr) {
   cairo_restore (cr);
 }
 
-void Game::drawCannon(cairo_t *cr, GameObject *player) {
+void Game::draw_cannon(cairo_t *cr, GameObject *player) {
   draw_cannon (cr, player);
 }
 
-void Game::drawRings(cairo_t *cr) {
+void Game::draw_rings(cairo_t *cr) {
   for (int i = 0; i < number_of_rings; i++) {
     if (rings[i].is_alive())
     {
@@ -458,7 +458,7 @@ void Game::drawRings(cairo_t *cr) {
   }
 }
 
-void Game::drawMissiles(cairo_t *cr) {
+void Game::draw_missiles(cairo_t *cr) {
   for (int i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
   {
     if (missiles[i].is_alive())
@@ -474,7 +474,7 @@ void Game::drawMissiles(cairo_t *cr) {
   }
 }
 
-void Game::drawMines(cairo_t *cr) {
+void Game::draw_mines(cairo_t *cr) {
   // TODO
 }
 
@@ -649,7 +649,7 @@ ring_segment_by_rotation (GameObject *ring, int rot)
 }
 
 void
-Game::operateCannon ()
+Game::operate_cannon ()
 {
   int direction;
 
@@ -952,7 +952,7 @@ on_expose_event (GtkWidget * widget, GdkEventExpose * event)
     start_time = get_time_millis ();
 
   game->canvas->scale_for_aspect_ratio(cr, width, height);
-  game->checkConditions();
+  game->check_conditions();
   game->redraw(cr);
   cairo_restore (cr);
 
