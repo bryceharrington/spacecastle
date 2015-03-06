@@ -1,8 +1,17 @@
+DEPS
 MANIFEST
 *.o
 *.pyc
 build
 dist
+CMakeFiles
+CMakeLists.txt
+CMakeCache.txt
+CTestTestfile.cmake
+Makefile
+cmake_install.cmake
+Testing/
 
 spacecastle
+test/test_*
 
