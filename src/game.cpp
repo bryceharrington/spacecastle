@@ -19,6 +19,13 @@
 
 #include "config.h"
 
+#include "game.h"
+#include "game-object.h"
+#include "drawing.h"
+
+#include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+
 #include <err.h>
 #include <popt.h>
 #include <math.h>
@@ -26,13 +33,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/timeb.h>
-
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
-#include "game.h"
-#include "game-object.h"
-#include "drawing.h"
 
 // TODO:  Need to find best place for these...
 void draw_star (cairo_t * cr, CanvasItem * item);

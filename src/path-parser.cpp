@@ -28,12 +28,14 @@
   Lauris Kaplinski <lauris@ximian.com>
 */
 
+#include "path.h"
+
+#include <glib.h>
+
 #include <stdlib.h>
 #include <math.h>
 #include <cassert>
-#include <glib.h>
 
-#include "path.h"
 
 /*
   At present, there is no support for <marker> or any other contextual

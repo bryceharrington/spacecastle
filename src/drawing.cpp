@@ -23,13 +23,16 @@
 //
 // 2005-03-31: Version 0.1.
 
+#include "config.h"
+
+#include "drawing.h"
+
+#include "game-math.h"
+#include "game-object.h"
+
 #include <cairo.h>
 #include <stdio.h>
 
-#include "config.h"
-#include "game-math.h"
-#include "game-object.h"
-#include "drawing.h"
 
 #define ENERGY_BAR_LENGTH (200)
 

@@ -16,10 +16,10 @@
  * along with Spacecastle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cairo.h>
-#include <glib.h>
-
 #include "canvas.h"
+
+#include <glib.h>
+#include <cairo.h>
 
 void
 add_color_stop (cairo_pattern_t* pat, double offset, RGB_t color, double alpha)

@@ -16,9 +16,11 @@
  * along with Spacecastle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cairo.h>
+#include "config.h"
 
 #include "path.h"
+
+#include <cairo.h>
 
 Path::~Path()
 {
