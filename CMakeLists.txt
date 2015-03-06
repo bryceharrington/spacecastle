@@ -60,3 +60,18 @@ add_custom_target(dist
   COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
       | bzip2 > ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# ----------------------------------------------------------------------
+# Testing
+# ----------------------------------------------------------------------
+
+#add_boost_test
+#@add_executable()
+#target_link_libraries()
+
+enable_testing()
+add_subdirectory(test)
+add_test(
+  NAME score
+  COMMAND test_score
+)
