@@ -24,18 +24,21 @@
 class Score {
  public:
   Score();
-  ~Score() {}
+  ~Score();
 
   bool record(int amt, int level, const char *who);
   bool write(FILE *fp);
   bool read(FILE *fp);
   int  amount() const { return _amount; }
+  const char *to_string();
+  bool from_string(const char *str);
 
  private:
   int         _amount;
   int         level;
   struct tm  *time;
   char        initials[4];
+  char       *_str_rep;
 };
 
 class HighScores {

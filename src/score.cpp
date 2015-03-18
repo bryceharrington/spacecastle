@@ -14,6 +14,13 @@ Score::Score(void)
     level = 0;
     initials[0] = '\0';
     time = NULL;
+    _str_rep = NULL;
+}
+
+Score::~Score(void)
+{
+    if (_str_rep)
+        delete _str_rep;
 }
 
 bool
@@ -25,35 +32,30 @@ Score::record(int amt, int lvl, const char *who) {
     return true;
 }
 
-bool
-Score::write(FILE *fp) {
+const char*
+Score::to_string(void) {
+    // TODO: Better name?
     char date_str[80];
-    time_t t;
-    struct tm *tmp;
 
-    t = mktime(NULL);
-    tmp = localtime(&t);
-    if (tmp == NULL) {
-        perror("localtime");
-        return false;
+    if (_str_rep == NULL) {
+        _str_rep = (char *)malloc(256);
+        if (strftime(date_str, sizeof(date_str), "%F.%T", time) == 0) {
+            fprintf(stderr, "strftime could not format time\n");
+            return NULL;
+        }
+        snprintf(_str_rep, 256, "%s %s %d %d\n", date_str, initials, level, _amount);
     }
-    if (strftime(date_str, sizeof(date_str), "", tmp) == 0) {
-        fprintf(stderr, "strftime could not format time\n");
-        return false;
-    }
-    fprintf(fp, "%s %s %d %d\n", date_str, initials, level, _amount);
-    return true;
+    return _str_rep;
 }
 
 bool
-Score::read(FILE *fp) {
+Score::from_string(const char *str) {
     int n;
     char *date_str;
     char *initials_str;
     char *amount_str;
 
-    n = fscanf(fp, "%ms %4ms %d %d\n", &date_str, &initials_str, &level, &_amount);
-    // TODO: handle initials_str
+    n = sscanf(str, "%ms %4ms %d %d\n", &date_str, &initials_str, &level, &_amount);
     if (n == 4) {
         // TODO: Process date_str
         free(date_str);
@@ -64,6 +66,30 @@ Score::read(FILE *fp) {
         fprintf(stderr, "Scores file could not be parsed\n");
         return false;
     }
+    return true;
+}
+
+// TODO: Do I even need this?
+bool
+Score::write(FILE *fp) {
+    const char *s = to_string();
+    if (!s)
+        return false;
+    fprintf(fp, "%s", to_string());
+    return true;
+}
+
+bool
+Score::read(FILE *fp) {
+    int n;
+    char *line = NULL;
+    size_t len = 0;
+
+    n = getline(&line, &len, fp);
+    if (n > 0)
+        from_string(line);
+    free(line);
+
     return true;
 }
 
