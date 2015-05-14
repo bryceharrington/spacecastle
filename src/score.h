@@ -20,6 +20,9 @@
 #define __SCORE_H__
 
 #include <stdio.h>
+#include <time.h>
+
+#define MAX_INITIALS_STR 4
 
 class Score {
  public:
@@ -35,9 +38,9 @@ class Score {
 
  private:
   int         _amount;
-  int         level;
-  struct tm  *time;
-  char        initials[4];
+  int         _level;
+  struct tm   _timestamp;
+  char        _initials[MAX_INITIALS_STR];
   char       *_str_rep;
 };
 

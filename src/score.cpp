@@ -11,9 +11,8 @@
 Score::Score(void)
 {
     _amount = 0;
-    level = 0;
-    initials[0] = '\0';
-    time = NULL;
+    _level = 0;
+    _initials[0] = '\0';
     _str_rep = NULL;
 }
 
@@ -25,10 +24,29 @@ Score::~Score(void)
 
 bool
 Score::record(int amt, int lvl, const char *who) {
+    if (amt < 0 || lvl < 0)
+        return false;
+    int j = 0;
+    for (int i=0; i < strlen(who); i++) {
+        char c = who[i];
+        /* Ignore non-printable characters */
+        if (c == ' ')
+            c = '_';
+        else if (c < 33 || c > 126)
+            continue;
+        _initials[j++] = c;
+        if (j+1 >= MAX_INITIALS_STR)
+            break;
+    }
+    _initials[j] = '\0';
+    time_t now = time(NULL);
+    if (!localtime_r(&now, &_timestamp)) {
+        perror("localtime_r");
+        return false;
+    }
     _amount = amt;
-    level = lvl;
-    strncpy(initials, who, 4);
-    time = localtime(NULL);
+    _level = lvl;
+
     return true;
 }
 
@@ -37,33 +55,46 @@ Score::to_string(void) {
     // TODO: Better name?
     char date_str[80];
 
-    if (_str_rep == NULL) {
+    if (_amount == 0) {
+        return NULL;
+    } else if (_str_rep == NULL) {
         _str_rep = (char *)malloc(256);
-        if (strftime(date_str, sizeof(date_str), "%F.%T", time) == 0) {
+        if (strftime(date_str, sizeof(date_str), "%F.%T", &_timestamp) == 0) {
             fprintf(stderr, "strftime could not format time\n");
             return NULL;
         }
-        snprintf(_str_rep, 256, "%s %s %d %d\n", date_str, initials, level, _amount);
+        snprintf(_str_rep, 256, "%s %s %d %d\n", date_str, _initials, _level, _amount);
     }
     return _str_rep;
 }
 
 bool
 Score::from_string(const char *str) {
-    int n;
+    int n, i, j;
     char *date_str;
     char *initials_str;
     char *amount_str;
 
-    n = sscanf(str, "%ms %4ms %d %d\n", &date_str, &initials_str, &level, &_amount);
+    printf("%s\n", str);
+    n = sscanf(str, "%ms %ms %d %d", &date_str, &initials_str, &_level, &_amount);
     if (n == 4) {
-        // TODO: Process date_str
+        if ( strptime(date_str, "%F.%T", &_timestamp) == NULL) {
+	    free(date_str);
+	    return false;
+	}
         free(date_str);
+
+	j = 0;
+        for (i=0; i<strlen(initials_str); i++) {
+	    _initials[j++] = initials_str[i];
+	    if (j+1 >= MAX_INITIALS_STR)
+		break;
+	}
     } else if (errno != 0) {
         perror("scanf");
         return false;
     } else {
-        fprintf(stderr, "Scores file could not be parsed\n");
+        fprintf(stderr, "Score could not be parsed: %s\n", str);
         return false;
     }
     return true;
