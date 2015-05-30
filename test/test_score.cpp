@@ -94,7 +94,7 @@ test_parse_valid_strings()
 
     assert( score.from_string(s) );
     assert( score.to_string() != NULL );
-    printf( "-> %s\n", score.to_string() );
+    // printf( "-> %s\n", score.to_string() );
 }
 
 void

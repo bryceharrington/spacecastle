@@ -18,6 +18,7 @@ Score::Score(void)
 
 Score::~Score(void)
 {
+    printf("~Score()\n");
     if (_str_rep)
         delete _str_rep;
 }
@@ -75,7 +76,7 @@ Score::from_string(const char *str) {
     char *initials_str;
     char *amount_str;
 
-    printf("%s\n", str);
+    // printf("%s\n", str);
     n = sscanf(str, "%ms %ms %d %d", &date_str, &initials_str, &_level, &_amount);
     if (n == 4) {
         if ( strptime(date_str, "%F.%T", &_timestamp) == NULL) {
@@ -94,7 +95,7 @@ Score::from_string(const char *str) {
         perror("scanf");
         return false;
     } else {
-        fprintf(stderr, "Score could not be parsed: %s\n", str);
+        // fprintf(stderr, "Score could not be parsed: %s\n", str);
         return false;
     }
     return true;

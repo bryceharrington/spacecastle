@@ -25,6 +25,7 @@
 #include "debug.h"
 #include "config.h"
 #include "game-object.h"
+#include "score.h"
 
 // Forward definitions of handler functions
 gint on_expose_event (GtkWidget *, GdkEventExpose *);
@@ -56,6 +57,8 @@ private:
   int          gravity_y;
   // These also need incremented by level
   int          cannon_max_energy;
+
+  Score        score;
 
 public:
   double       debug_scale_factor;

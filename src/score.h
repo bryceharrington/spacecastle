@@ -33,6 +33,7 @@ class Score {
   bool write(FILE *fp);
   bool read(FILE *fp);
   int  amount() const { return _amount; }
+  int operator += (int amount) { return _amount += amount; }
   const char *to_string();
   bool from_string(const char *str);
 

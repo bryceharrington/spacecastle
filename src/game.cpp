@@ -206,8 +206,11 @@ void Game::tick() {
                                            segment);
           }
         }
-        if (check_for_collision (&(missiles[i].p), &(cannon->p)))
+        if (check_for_collision (&(missiles[i].p), &(cannon->p))) {
+          score += 10;
+          printf("score: %d\n", score);
           handle_collision (cannon, &(missiles[i]));
+        }
 
         if (check_for_collision (&(missiles[i].p), &(player->p)))
           handle_collision (player, &(missiles[i]));
@@ -452,9 +455,8 @@ void Game::draw_rings(cairo_t *cr) {
 
       draw_ring (cr, &(rings[i]));
       cairo_restore (cr);
-    } else {
-      printf("ring %d is dead\n", i);
     }
+    // else ring is dead; skip it
   }
 }
 
@@ -496,6 +498,7 @@ Game::handle_key_event (GtkWidget * widget, GdkEventKey * event, gboolean key_is
       if (strlen(main_message)>0)
       {
         level = 0;
+        score = Score();
         reset();
       }
       break;
@@ -610,6 +613,7 @@ Game::init_stars_array ()
 void
 Game::game_over()
 {
+  // TODO: Write score
   snprintf(main_message, sizeof(main_message), "Game Over");
   snprintf(second_message, sizeof(main_message), "Press [ENTER] for new game");
   message_timeout = -1;
@@ -902,6 +906,9 @@ Game::handle_ring_segment_collision (GameObject * ring, GameObject * m, int segm
     ring->energy--;
 
   if (ring->energy <= 0) {
+    // TODO: Display a fading out '+100'
+    score += 100;
+    printf("score:  %d\n", score);
     // TODO:  If ring dead, create new one and regenerate mines
 
     // Mark rings are in transition
