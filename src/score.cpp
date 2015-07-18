@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "score.h"
 
 #include <stdlib.h>
