@@ -99,11 +99,6 @@ public:
   void draw_world(cairo_t *cr);
   void draw_ui(cairo_t *cr);
   void draw_text_message(cairo_t *cr, int x, int y, const char*msg);
-  void draw_ship(cairo_t *cr);
-  void draw_cannon(cairo_t *, GameObject *player);
-  void draw_missiles(cairo_t *cr);
-  void draw_rings(cairo_t *cr);
-  void draw_mines(cairo_t *cr);
 
   void tick();
   void reset();
@@ -118,6 +113,13 @@ public:
   gboolean check_for_collision(physics_t *p1, physics_t *p2);
   gboolean check_for_ring_collision(physics_t * ring, physics_t * p1);
   void enforce_minimum_distance(physics_t *ring, physics_t *p);
+
+protected:
+  void _draw_ship(cairo_t *cr);
+  void _draw_cannon(cairo_t *, GameObject *player);
+  void _draw_missiles(cairo_t *cr);
+  void _draw_rings(cairo_t *cr);
+  void _draw_mines(cairo_t *cr);
 };
 
 extern Game* game;

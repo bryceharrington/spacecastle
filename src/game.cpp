@@ -208,7 +208,7 @@ void Game::tick() {
         }
         if (check_for_collision (&(missiles[i].p), &(cannon->p))) {
           score += 10;
-          printf("score: %d\n", score);
+          printf("score: %d\n", score.amount());
           handle_collision (cannon, &(missiles[i]));
         }
 
@@ -378,10 +378,10 @@ Game::redraw(cairo_t *cr) {
   draw_world(cr);
 
   // Draw game elements
-  draw_ship(cr);
-  draw_missiles(cr);
-  draw_rings(cr);
-  draw_mines(cr);
+  _draw_ship(cr);
+  _draw_missiles(cr);
+  _draw_rings(cr);
+  _draw_mines(cr);
   draw_ui(cr);
 }
 
@@ -398,7 +398,6 @@ void Game::draw_world(cairo_t *cr) {
 
 void Game::draw_ui(cairo_t *cr) {
   // ... the energy bars...
-  printf("energy: player=%d, cannon=%d, width=%d\n", player->energy, cannon->energy, WIDTH);
   // TODO: Use cannon->max_energy instead of SHIP_MAX_ENERGY
   draw_energy_bar (cr, 10, 10,
                    (100 * cannon->energy) / SHIP_MAX_ENERGY,
@@ -419,12 +418,12 @@ void Game::draw_ui(cairo_t *cr) {
 
 }
 
-void Game::draw_ship(cairo_t *cr) {
+void Game::_draw_ship(cairo_t *cr) {
   cairo_save (cr);
   cairo_translate (cr, cannon->p.pos[0] / FIXED_POINT_SCALE_FACTOR,
                    cannon->p.pos[1] / FIXED_POINT_SCALE_FACTOR);
   cairo_rotate (cr, cannon->p.rotation * RADIANS_PER_ROTATION_ANGLE);
-  this->draw_cannon (cr, cannon);
+  this->_draw_cannon (cr, cannon);
   cairo_restore (cr);
 
   cairo_save (cr);
@@ -435,11 +434,11 @@ void Game::draw_ship(cairo_t *cr) {
   cairo_restore (cr);
 }
 
-void Game::draw_cannon(cairo_t *cr, GameObject *player) {
+void Game::_draw_cannon(cairo_t *cr, GameObject *player) {
   draw_cannon (cr, player);
 }
 
-void Game::draw_rings(cairo_t *cr) {
+void Game::_draw_rings(cairo_t *cr) {
   for (int i = 0; i < number_of_rings; i++) {
     if (rings[i].is_alive())
     {
@@ -460,7 +459,7 @@ void Game::draw_rings(cairo_t *cr) {
   }
 }
 
-void Game::draw_missiles(cairo_t *cr) {
+void Game::_draw_missiles(cairo_t *cr) {
   for (int i = 0; i < MAX_NUMBER_OF_MISSILES; i++)
   {
     if (missiles[i].is_alive())
@@ -476,7 +475,7 @@ void Game::draw_missiles(cairo_t *cr) {
   }
 }
 
-void Game::draw_mines(cairo_t *cr) {
+void Game::_draw_mines(cairo_t *cr) {
   // TODO
 }
 
@@ -614,6 +613,7 @@ void
 Game::game_over()
 {
   // TODO: Write score
+  printf("Game Over.  Score was %d.\n", score.amount());
   snprintf(main_message, sizeof(main_message), "Game Over");
   snprintf(second_message, sizeof(main_message), "Press [ENTER] for new game");
   message_timeout = -1;
@@ -908,7 +908,7 @@ Game::handle_ring_segment_collision (GameObject * ring, GameObject * m, int segm
   if (ring->energy <= 0) {
     // TODO: Display a fading out '+100'
     score += 100;
-    printf("score:  %d\n", score);
+    printf("score:  %d\n", score.amount());
     // TODO:  If ring dead, create new one and regenerate mines
 
     // Mark rings are in transition
