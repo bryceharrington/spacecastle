@@ -46,8 +46,6 @@ draw_energy_bar (cairo_t * cr, int x, int y, int energy_percent,
   double alpha = 0.6;
   int width = int( ENERGY_BAR_LENGTH * (energy_percent / 100.0) );
 
-  printf("bar length: %d @ %d\n", width, x);
-
   cairo_rectangle (cr, x, y, width, 15);
 
   pat = cairo_pattern_create_linear (0, 0, ENERGY_BAR_LENGTH, 0);
@@ -367,7 +365,6 @@ show_text_message (cairo_t * cr, int font_size, int dy, const char *message, dou
   double x, y;
   cairo_text_extents_t extents;
 
-  printf("message: %s\n", message);
   cairo_save (cr);
 
   cairo_select_font_face (cr, "Serif",
@@ -378,7 +375,6 @@ show_text_message (cairo_t * cr, int font_size, int dy, const char *message, dou
   x = (WIDTH / 2) - (extents.width / 2 + extents.x_bearing);
   y = (HEIGHT / 2) - (extents.height / 2 + extents.y_bearing);
 
-  printf("message x,y = %f, %f + %d\n", x, y, dy);
   cairo_set_source_rgba (cr, 1, 1, 0, alpha);
   cairo_move_to (cr, x, y + dy);
   cairo_show_text (cr, message);
