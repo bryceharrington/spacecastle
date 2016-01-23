@@ -402,6 +402,7 @@ void Game::draw_ui(cairo_t *cr) {
   draw_energy_bar (cr, 10, 10,
                    (100 * cannon->energy) / SHIP_MAX_ENERGY,
                    color_red, color_darkred);
+  draw_score_centered (cr, WIDTH / 2.0, 25, "score here");
   draw_energy_bar (cr, WIDTH - 210, 10,   // TODO: Use const instead of 200
                    (100 * player->energy) / SHIP_MAX_ENERGY,
                    color_blue, color_darkblue);
