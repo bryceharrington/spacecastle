@@ -33,8 +33,29 @@
 #include <cairo.h>
 #include <stdio.h>
 
-
 #define ENERGY_BAR_LENGTH (200)
+
+void
+draw_text_centered (cairo_t * cr, int font_size, int cx, int cy, int dy, const char *message, double alpha)
+{
+  double x, y;
+  cairo_text_extents_t extents;
+
+  cairo_save (cr);
+
+  cairo_select_font_face (cr, "Serif",
+                          CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+
+  cairo_set_font_size (cr, font_size);
+  cairo_text_extents (cr, message, &extents);
+  x = cx - (extents.width / 2 + extents.x_bearing);
+  y = cy - (extents.height / 2 + extents.y_bearing);
+
+  cairo_set_source_rgba (cr, 1, 1, 0, alpha);
+  cairo_move_to (cr, x, y + dy);
+  cairo_show_text (cr, message);
+  cairo_restore (cr);
+}
 
 //------------------------------------------------------------------------------
 
@@ -85,6 +106,8 @@ draw_score_centered (cairo_t * cr, double cx, double cy, const char *str)
     cairo_move_to (cr, x, y);
     cairo_show_text (cr, str);
     cairo_restore (cr);
+
+    // TODO: draw_text_centered(cr, cx, cy, str);
 }
 
 //------------------------------------------------------------------------------
@@ -382,30 +405,6 @@ draw_star (cairo_t * cr, CanvasItem *)
   c = 0.5;
   cairo_set_source_rgb (cr, c, c, c);
   cairo_fill (cr);
-}
-
-#include <stdio.h>
-
-void
-show_text_message (cairo_t * cr, int font_size, int dy, const char *message, double alpha)
-{
-  double x, y;
-  cairo_text_extents_t extents;
-
-  cairo_save (cr);
-
-  cairo_select_font_face (cr, "Serif",
-                          CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-
-  cairo_set_font_size (cr, font_size);
-  cairo_text_extents (cr, message, &extents);
-  x = (WIDTH / 2) - (extents.width / 2 + extents.x_bearing);
-  y = (HEIGHT / 2) - (extents.height / 2 + extents.y_bearing);
-
-  cairo_set_source_rgba (cr, 1, 1, 0, alpha);
-  cairo_move_to (cr, x, y + dy);
-  cairo_show_text (cr, message);
-  cairo_restore (cr);
 }
 
 //------------------------------------------------------------------------------

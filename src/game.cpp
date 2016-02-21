@@ -411,10 +411,13 @@ void Game::draw_ui(cairo_t *cr) {
 
   if (strlen(main_message)>0 && message_timeout != 0)
   {
-    show_text_message (cr, 80, -30, main_message,
+    /* TODO: Doublecheck the values I'm passing */
+    draw_text_centered (cr, 12, 80, -30, 0, main_message,
                        MIN(1.0, (message_timeout%200) / 100.0) );
     if (strlen(second_message)>0)
-      show_text_message (cr, 30, +40, second_message, 1.0);
+      draw_text_centered (cr, 12, 30, +40, 0, second_message, 1.0);
+    /* TODO: Review the above settings */
+
     if (message_timeout>0)
       message_timeout--;
   }

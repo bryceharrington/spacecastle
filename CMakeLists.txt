@@ -65,6 +65,9 @@ add_custom_target(dist
 # Testing
 # ----------------------------------------------------------------------
 
+# TODO: Move this config stuff into test/subdir
+# TODO: Alias 'check' and 'test'
+
 #add_boost_test
 #@add_executable()
 #target_link_libraries()
@@ -74,4 +77,4 @@ add_subdirectory(test)
 add_test(
   NAME score
   COMMAND test_score
-)
+  )
