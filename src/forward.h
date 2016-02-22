@@ -3,6 +3,7 @@
 
 class CanvasItem;
 class GameObject;
+class Score;
 
 struct _RGB;
 struct _cairo;

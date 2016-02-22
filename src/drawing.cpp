@@ -29,6 +29,7 @@
 
 #include "game-math.h"
 #include "game-object.h"
+#include "score.h"
 
 #include <cairo.h>
 #include <stdio.h>
@@ -83,31 +84,13 @@ draw_energy_bar (cairo_t * cr, int x, int y, int energy_percent,
 
 // TODO: Replace str with a Score object
 void
-draw_score_centered (cairo_t * cr, double cx, double cy, const char *str)
+draw_score_centered (cairo_t * cr, double cx, double cy, const Score *score)
 {
-    double x, y;
-    cairo_text_extents_t extents;
+  // TODO: Set text color
+  char str[20];
+  snprintf(str, 20, "%d", score->amount());
 
-    // TODO: Repurpose show_text_message().  Need to make it accept a
-    // cx, cy which in the normal case is WIDTH/2 and HEIGHT/2
-    
-    cairo_save (cr);
-    cairo_select_font_face (cr, "Serif",
-			    CAIRO_FONT_SLANT_NORMAL,
-			    CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size (cr, 24);
-
-    cairo_text_extents (cr, str, &extents);
-    x = cx - (extents.width / 2 + extents.x_bearing);
-    y = cy - (extents.height / 2 + extents.y_bearing);
-
-    cairo_set_source_rgba (cr, 1, 1, 0, 0.75);
-
-    cairo_move_to (cr, x, y);
-    cairo_show_text (cr, str);
-    cairo_restore (cr);
-
-    // TODO: draw_text_centered(cr, cx, cy, str);
+  draw_text_centered(cr, 24, cx, cy, 0, str, 0.75);
 }
 
 //------------------------------------------------------------------------------

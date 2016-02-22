@@ -362,14 +362,14 @@ void
 Game::check_conditions() {
   if (strlen(main_message) < 1)
   {
-    if (!cannon->is_alive())
+    if (!cannon->is_alive()) {
+      score += 1000;
       advance_level();
-
-    else if (num_player_lives <= 0)
+    } else if (num_player_lives <= 0) {
       game_over();
-
-    else if (!player->is_alive())
+    } else if (!player->is_alive()) {
       try_again();
+    }
   }
 }
 
@@ -402,7 +402,8 @@ void Game::draw_ui(cairo_t *cr) {
   draw_energy_bar (cr, 10, 10,
                    (100 * cannon->energy) / SHIP_MAX_ENERGY,
                    color_red, color_darkred);
-  draw_score_centered (cr, WIDTH / 2.0, 25, "score here");
+
+  draw_score_centered (cr, WIDTH / 2.0, 25, &score);
   draw_energy_bar (cr, WIDTH - 210, 10,   // TODO: Use const instead of 200
                    (100 * player->energy) / SHIP_MAX_ENERGY,
                    color_blue, color_darkblue);
@@ -411,12 +412,13 @@ void Game::draw_ui(cairo_t *cr) {
 
   if (strlen(main_message)>0 && message_timeout != 0)
   {
-    /* TODO: Doublecheck the values I'm passing */
-    draw_text_centered (cr, 12, 80, -30, 0, main_message,
+    int cx = WIDTH / 2;
+    int cy = HEIGHT / 2;
+
+    draw_text_centered (cr, 18, cx, cy, -20, main_message,
                        MIN(1.0, (message_timeout%200) / 100.0) );
     if (strlen(second_message)>0)
-      draw_text_centered (cr, 12, 30, +40, 0, second_message, 1.0);
-    /* TODO: Review the above settings */
+      draw_text_centered (cr, 24, cx, cy, +40, second_message, 1.0);
 
     if (message_timeout>0)
       message_timeout--;
@@ -630,7 +632,7 @@ Game::try_again()
 {
   num_player_lives--;
   snprintf(main_message, sizeof(main_message), "%d lives remainig", level);
-  snprintf(second_message, sizeof(main_message), "Press [ENTER] to engage");
+  snprintf(second_message, sizeof(main_message), "Press [ENTER] to reengage");
   message_timeout = 1000;
 }
 

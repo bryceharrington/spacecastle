@@ -24,7 +24,7 @@
 
 void draw_energy_bar (cairo_t *, int x, int y, int energy_percent,
                       RGB_t primary_color, RGB_t secondary_color);
-void draw_score_centered (cairo_t * cr, double x, double y, const char *str);
+void draw_score_centered (cairo_t * cr, double x, double y, const Score *score);
 void draw_flare (cairo_t *, RGB_t);
 void draw_ring (cairo_t *, GameObject *ring);
 void draw_missile (cairo_t *, GameObject *missile);
