@@ -614,17 +614,51 @@ Game::init_stars_array ()
   }
 }
 
+static const char*
+suffix(int d) {
+  // TODO: Return st, nd, rd, or th
+  if (d % 10 == 1)
+    return "st";
+  else if (d % 10 == 2)
+    return "nd";
+  else if (d % 10 == 3)
+    return "rd";
+  else
+    return "th";
+}
+
 //------------------------------------------------------------------------------
 // TODO: Move strings into headers as constants
 //       Maybe turn the messages + data into objects
 void
 Game::game_over()
 {
-  // TODO: Write score
   printf("Game Over.  Score was %d.\n", score.amount());
-  snprintf(main_message, sizeof(main_message), "Game Over");
-  snprintf(second_message, sizeof(main_message), "Press [ENTER] for new game");
-  message_timeout = -1;
+
+  // TODO: Look up / make configurable
+  // TODO: Use XDG directories
+  const char high_score_filename[] = "/home/bryce/.config/games/spacecastle/scores.txt";
+
+  // Load high scores if present
+  HighScores high_scores;
+  high_scores.load(high_score_filename);
+  Score min_score = high_scores.get(HighScores::MAX_SCORES);
+
+  // Check for new high score
+  if (score.amount() > min_score.amount()) {
+    int dist = high_scores.insert(score);
+    high_scores.save(high_score_filename);
+    snprintf(main_message, sizeof(main_message), "New High Score!  %d%s Place!",
+      dist, suffix(dist));
+    // TODO: Offer to display list of high scores
+    snprintf(second_message, sizeof(main_message), "Press [ENTER] for new game");
+    // TODO: What does the message timeout imply?
+    message_timeout = -1;
+  } else {
+    snprintf(main_message, sizeof(main_message), "Game Over");
+    snprintf(second_message, sizeof(main_message), "Press [ENTER] for new game");
+    message_timeout = -1;
+  }
 }
 
 void
