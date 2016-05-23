@@ -1,4 +1,6 @@
 #include "config.h"
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "score.h"
 
@@ -190,6 +192,8 @@ HighScores::load(const char *scores_path)
 bool
 HighScores::save(const char *scores_path)
 {
+    /* TODO: Create path if necessary */
+
     FILE *fp = fopen(scores_path, "w");
     for (int i=0; i<num_scores; i++) {
         scores[i].write(fp);

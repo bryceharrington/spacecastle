@@ -34,8 +34,7 @@
 #include <string.h>
 #include <sys/timeb.h>
 
-// TODO:  Need to find best place for these...
-void draw_star (cairo_t * cr, CanvasItem * item);
+// TODO:  Need to find best place for this...
 void init_trigonometric_tables (void);
 
 static RGB_t color_red       = {0.9, 0.1, 0.4};
@@ -375,7 +374,7 @@ Game::check_conditions() {
 
 void
 Game::redraw(cairo_t *cr) {
-  draw_world(cr);
+  world.draw(cr);
 
   // Draw game elements
   _draw_ship(cr);
@@ -383,17 +382,6 @@ Game::redraw(cairo_t *cr) {
   _draw_rings(cr);
   _draw_mines(cr);
   draw_ui(cr);
-}
-
-void Game::draw_world(cairo_t *cr) {
-  /* draw background space color */
-  cairo_set_source_rgb (cr, 0.1, 0.0, 0.1);
-  cairo_paint (cr);
-
-  // draw any stars...
-  for (int i = 0; i < NUMBER_OF_STARS; i++) {
-    stars[i].draw(cr);
-  }
 }
 
 void Game::draw_ui(cairo_t *cr) {
@@ -643,6 +631,8 @@ Game::game_over()
   HighScores high_scores;
   high_scores.load(high_score_filename);
   Score min_score = high_scores.get(HighScores::MAX_SCORES);
+
+  printf("Need score of %d to make high score list\n", min_score.amount());
 
   // Check for new high score
   if (score.amount() > min_score.amount()) {

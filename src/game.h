@@ -26,6 +26,7 @@
 #include "config.h"
 #include "game-object.h"
 #include "score.h"
+#include "world.h"
 
 // Forward definitions of handler functions
 gint on_expose_event (GtkWidget *, GdkEventExpose *);
@@ -59,6 +60,7 @@ private:
   int          cannon_max_energy;
 
   Score        score;
+  World        world;
 
 public:
   double       debug_scale_factor;
