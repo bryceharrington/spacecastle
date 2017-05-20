@@ -7,11 +7,17 @@ Development principles:
 
 TODO
 ====
-* Unit tests for the generic core objects
-* Scale the board down by 2
+* task management: Consider having queue for quick and easy tasks
+  vs. larger projects.  Urgent vs. Important?
+
+* Syntax highlighting
+
 * Scoring system
 * Score board
 * High score tracking
+
+* Unit tests for the generic core objects
+* Scale the board down by 2
 * Performance testing output
 * Basic wall/sphere collision logic
 * Add space mines
