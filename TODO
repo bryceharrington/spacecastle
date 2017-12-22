@@ -5,8 +5,111 @@ Development principles:
    * Prefer existing libs over homegrown stuff
 
 
-TODO
-====
+== New ==
+* Rename to todo_spacecastle.txt
+* spacecastle: Productize for sale
+  + Should I include in   GameColony?
+  + Make a list of development tasks needed before 1.0.0
+    - Implement a high score list (mostly done)
+    - Convert build system to cmake (wip)
+    - Enable level advancement
+    - Redesign the ship graphic
+  + Make a list of productization tasks
+    - Set up git repository for this
+    - Do a 0.8.0 alpha release immediately
+    - Package game for Ubuntu
+    - Research how to submit game for sale on Ubuntu app store
+    - Research how to submit game for sale on Steam Linux
+    - Research other easy sales options for Linux/C++ games
+    - Identify tasks needed to port this to Windows
+    - Identify tasks needed to port this to OSX
+    - Identify tasks needed to port this to Tizen
+    - Research if C++ games can be easily ported to and sold on Android
+    - Research if C++ games can be easily ported to and sold on
+      iPhone/iPad
+    - Research if C++ games can be easily ported to and sold on Kindle
+    - Set up bank account for receiving monies
+    - Coordinate a 0.9.0 beta release (for sale at a discount price)
+    - Coordinate a 1.0.0 official release (for regular price)
+    - Plan tasks for subsequent releases
+* Set up this task list per standard todo management design
+* Spacecastle: Misc. bugs
+  + When dying on level 2, doesn't display the try again message
+  + When 3rd life lost, prompts gto restart the game but enter doesn't
+    actually restart it.;
+  resurrect either of these, or just move on?
+* spacecastle: Create routine draw_path()
+  % Takes a data structure
+  % Makes multiple cairo_move_to(), cairo_curve_to(), cairo_line_to()
+  % Review Inkscape codebase
+  - Review libgames-support/games-preimage.c, gnotravex/gnotravex.c,
+    gnometris/renderer.cpp, gnometris/field.cpp, gnometris/preview.cpp
+  - Write test cases
+  - Integrate into draw_star, draw_ship_body, draw_missile
+  - Derive from rsvg_cairo_render_path()
+  - Decide how to handle color stops and fills
+    + Review how Inkscape handles color
+  - (DONE) Add path-parser.cpp, etc. to makefile and get it all to
+    compile
+  - Refactor spacecastle.cpp drawing code to use SVG path strings
+    instead of direct cairo calls
+  - Add Path objects into game object classes
+  - Figure out how to handle patterns
+  - Generalize the cairo text screen writing a bit more
+* spacecastle: Plan implementation work for all TODOs in Game::reset()
+* spacecastle: CanvasItem refactoring
+  - (DONE) Make energy bars be drawn via CanvasItem::draw()
+  - Make ship be drawn via CanvasItem::draw()
+  - Make cannon be drawn via CanvasItem::draw()
+  - Make missiles be drawn via CanvasItem::draw()
+  - Make rings be drawn via CanvasItem::draw()
+* spacecastle: Widgets
+  - Heath bars
+  - Input boxes
+  - Scrollbars
+  - Checkboxes
+  - Buttons
+* spacecastle: Improve gameplay
+  - Make cannon not fire if it'd hit the shield
+  - Make heavier use of component_energy
+  - Animated state transformation
+* spacecastle: Sprite animation effects
+   + Color/transparency variation
+   + Spinning/rotating
+   + Scaling
+   + Node translation
+   + Node control changing
+   + Path-based movement relative to sprite center
+   + Grouping multiple sub-parts into a single entity
+   + Use graphical "effect" markers to design the above effects
+* spacecastle: Add high score system
+  % Adapt from gnome-games ?  See gnometris/scoreframe.*
+  % Add Score to Game
+  % Increment score +10 for each successful hit on cannon
+  % Increment score +100 when clearing out a ring
+  % Increment score +1000 for destroying cannon
+  ^ Pull in the strtol functions I've done for weston
+  + Save to ~/.config/games/$game/scores.txt
+  + Use XDG directory
+* spacecastle: Drawing code for game elements
+  - Stars
+  - Flares
+  - Clouds
+* spacecastle: Use _ prefix for member variables
+* spacecastle: Configuration
+  - Move static globals into game.cpp & declare in game.h
+  - Create some simple code to load config variables into an STL map
+    + Google for configuration file loading code
+    + Look in worldforge code
+    + Look if I did this in any other of my game code already
+    + Use plain KEY = VALUE maps for now
+  - Examine gnome-games games-conf.*/games-controls.* stuff
+  - Investigate solutions for iparams/dparams
+    + Review WorldForge code (didn't I solve this once before?)
+    + Look through FreeCiv, LGeneral, pioneers, stratagus for similar
+  - Implement dparam() and iparam() lookups
+  - Implement define()
+
 * task management: Consider having queue for quick and easy tasks
   vs. larger projects.  Urgent vs. Important?
 
@@ -34,3 +137,48 @@ TODO
   be removed, or made to call draw_func
 * Canvas items have pos/rot/scale, but then game objects have physics
   p's with their own pos.
+
+ =o= Spacecastle: Make it playable
+     * spacecastle: Shields
+       - (DONE) Revert shields from gradients to wedges
+       - (DONE) Each wedge requires 2 hits to be destroyed
+       - If the outer ring is destroyed, the next one will expand out to
+         take the place of the outer one
+         + Need an animation sequence for this
+         + Remove assumptions about where ring 0,1,2 are located
+       - Once the shield segments are breached, the cannon can fire
+         through
+     √ spacecastle: Create a background object structure
+     * spacecastle: Plan further work
+       - Generalize game tick management
+       - Generalize level management
+       - Generalize keyboard management
+       - Generalize SVG loading routine
+     * spacecastle: Levels
+       - Study gnometris field.*
+       - Adapt game parameters to vary by level
+         + Shield rotational speed
+         + Cannon rotation speed
+         + Firing speed of cannon
+         + Missile speed
+         + Homing mines speed
+         + Number of homing mines
+     * spacecastle: AI for cannon
+       - (DONE) Slowly track the player's ship at all times
+       - Don't shoot if any of the three shields have full segments
+       - In a given ring, calculate the segment # in front of the
+         cannon's rotation
+       - Don't shoot unless all the segments in front of cannon are
+         missing
+     * spacecastle: Add preliminary debian packaging
+     * spacecastle: Homing mines
+       - There are 3 of them
+       - Ship is damaged by contact with a mine
+       - The mines can be shot and destroyed, but this is hard
+       - Mines will continue circulating until destroyed
+       - When a ring is regenerated, the mines are revived
+       - AI for homing mines
+         + Look for player and apply small vector to adjust towards
+           current location
+     * spacecastle: Create an objects[] list with all the game objects
+     * spacecastle: Consider adding a color palette library
