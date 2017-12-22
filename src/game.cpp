@@ -406,6 +406,8 @@ void Game::draw_ui(cairo_t *cr) {
                    (100 * player->energy) / SHIP_MAX_ENERGY,
                    color_blue, color_darkblue);
 
+  draw_score (cr, 10, 50, "score here");
+
   if (strlen(main_message)>0 && message_timeout != 0)
   {
     show_text_message (cr, 80, -30, main_message,

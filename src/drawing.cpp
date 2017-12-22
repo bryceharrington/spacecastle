@@ -60,6 +60,24 @@ draw_energy_bar (cairo_t * cr, int x, int y, int energy_percent,
   cairo_stroke (cr);
 }
 
+// TODO: Replace str with a Score object
+void
+draw_score (cairo_t * cr, double x, double y, const char *str)
+{
+//    cairo_text_extents extents;
+
+    cairo_save (cr);
+    cairo_select_font_face (cr, "Serif",
+			    CAIRO_FONT_SLANT_NORMAL,
+			    CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size (cr, 12); // FIXME
+
+    cairo_set_source_rgba (cr, 1, 1, 0, 1);
+    cairo_move_to (cr, x, y);
+    cairo_show_text (cr, str);
+    cairo_restore (cr);
+}
+
 //------------------------------------------------------------------------------
 
 void
