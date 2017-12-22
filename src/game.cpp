@@ -63,7 +63,6 @@ Game::Game(gint argc, gchar ** argv)
 
   player = new GameObject;
   player->set_theme(color_blue, color_darkblue);
-  num_player_lives = 3;
 
   init();
 }
@@ -97,6 +96,7 @@ void Game::init() {
   g_timeout_add (MILLIS_PER_FRAME, (GSourceFunc) on_timeout, window);
 
   level = 0;
+  num_player_lives = 3;
   player->p.radius = SHIP_RADIUS;
   player->max_rotation_speed = 3;
 
@@ -655,7 +655,7 @@ void
 Game::try_again()
 {
   num_player_lives--;
-  snprintf(main_message, sizeof(main_message), "%d lives remainig", level);
+  snprintf(main_message, sizeof(main_message), "%d lives remainig", num_player_lives);
   snprintf(second_message, sizeof(main_message), "Press [ENTER] to reengage");
   message_timeout = 1000;
 }
